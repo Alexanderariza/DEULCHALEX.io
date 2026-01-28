@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeutschLektor - Historias Gramaticales</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --dativ-color: #3498db;
+            --akkusativ-color: #e74c3c;
+            --modal-color: #9b59b6;
+            --konjunktiv-color: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, #1a2530 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent), var(--secondary), var(--success));
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(-5px);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #fff, #e3f2fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .subtitle {
+            color: #bbdefb;
+            font-size: 1.1rem;
+            max-width: 800px;
+        }
+        
+        .stories-container {
+            display: grid;
+            gap: 35px;
+            margin-bottom: 50px;
+        }
+        
+        .story-card {
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: transform 0.4s, box-shadow 0.4s;
+            border-left: 6px solid;
+        }
+        
+        .story-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        }
+        
+        .story-header {
+            padding: 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .story-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .grammar-tag {
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            color: white;
+        }
+        
+        .tag-dativ { background: linear-gradient(135deg, var(--dativ-color), #2980b9); }
+        .tag-modal { background: linear-gradient(135deg, var(--modal-color), #8e44ad); }
+        .tag-konjunktiv { background: linear-gradient(135deg, var(--konjunktiv-color), #e67e22); }
+        
+        .story-body {
+            padding: 30px;
+        }
+        
+        .story-text {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #dee2e6;
+        }
+        
+        .highlight {
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            position: relative;
+        }
+        
+        .highlight-dativ {
+            background-color: rgba(52, 152, 219, 0.15);
+            color: #2c3e50;
+            border-bottom: 2px dashed var(--dativ-color);
+        }
+        
+        .highlight-akkusativ {
+            background-color: rgba(231, 76, 60, 0.15);
+            color: #2c3e50;
+            border-bottom: 2px dashed var(--akkusativ-color);
+        }
+        
+        .highlight-modal {
+            background-color: rgba(155, 89, 182, 0.15);
+            color: #2c3e50;
+            border-bottom: 2px dashed var(--modal-color);
+        }
+        
+        .highlight-konjunktiv {
+            background-color: rgba(243, 156, 18, 0.15);
+            color: #2c3e50;
+            border-bottom: 2px dashed var(--konjunktiv-color);
+        }
+        
+        .grammar-focus {
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-left: 5px solid var(--secondary);
+        }
+        
+        .grammar-focus h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .audio-section {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 2px solid #dee2e6;
+        }
+        
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .audio-btn {
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .audio-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        .audio-btn.stop {
+            background: linear-gradient(135deg, var(--accent), #c0392b);
+        }
+        
+        .voice-selector {
+            flex-grow: 1;
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            font-size: 1rem;
+            background: white;
+            min-width: 250px;
+        }
+        
+        .exercise-container {
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 2px solid #eee;
+        }
+        
+        .exercise-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .drag-drop-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .drag-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .drag-item {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+            cursor: move;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            user-select: none;
+        }
+        
+        .drag-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+            background: #e3f2fd;
+        }
+        
+        .drop-zone {
+            min-height: 100px;
+            background: white;
+            border: 3px dashed #adb5bd;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            transition: all 0.3s;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .drop-zone.active {
+            border-color: var(--success);
+            background-color: rgba(39, 174, 96, 0.05);
+        }
+        
+        .drop-zone.hover {
+            border-color: var(--secondary);
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        
+        .quiz-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            margin-top: 20px;
+        }
+        
+        .quiz-option {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 18px 25px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.05rem;
+        }
+        
+        .quiz-option:hover {
+            border-color: var(--secondary);
+            background: #e3f2fd;
+            transform: translateX(10px);
+        }
+        
+        .quiz-option.selected {
+            border-color: var(--success);
+            background: rgba(39, 174, 96, 0.1);
+        }
+        
+        .quiz-option.wrong {
+            border-color: var(--accent);
+            background: rgba(231, 76, 60, 0.1);
+        }
+        
+        .feedback-message {
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+            font-weight: 600;
+            display: none;
+        }
+        
+        .feedback-correct {
+            background: rgba(39, 174, 96, 0.1);
+            border: 2px solid var(--success);
+            color: #155724;
+        }
+        
+        .feedback-incorrect {
+            background: rgba(231, 76, 60, 0.1);
+            border: 2px solid var(--accent);
+            color: #721c24;
+        }
+        
+        .action-btn {
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.05rem;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        .action-btn.check {
+            background: linear-gradient(135deg, var(--success), #219653);
+        }
+        
+        .action-btn.reset {
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid #dee2e6;
+        }
+        
+        .nav-btn {
+            padding: 15px 30px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn.prev {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .nav-btn.next {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            background: var(--primary);
+            color: white;
+            border-radius: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .story-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .audio-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .voice-selector {
+                min-width: auto;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* Animaciones */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div>
+                    <a href="index.html" class="back-btn">
+                        <i class="fas fa-arrow-left"></i> Volver a DEULCHALEX
+                    </a>
+                </div>
+                <div style="flex-grow: 1; text-align: center;">
+                    <h1><i class="fas fa-book-open"></i> DeutschLektor</h1>
+                    <p class="subtitle">Historias gramaticales interactivas para hispanohablantes - Nivel A2-B1</p>
+                </div>
+            </div>
+        </header>
+        
+        <div class="stories-container">
+            <!-- Historia 1: Dativ & Akkusativ -->
+            <div class="story-card" id="story1">
+                <div class="story-header">
+                    <h2 class="story-title">
+                        <i class="fas fa-map-marker-alt" style="color: var(--dativ-color);"></i>
+                        Eine Verabredung in Berlin
+                    </h2>
+                    <span class="grammar-tag tag-dativ">Dativ & Akkusativ</span>
+                </div>
+                
+                <div class="story-body">
+                    <div class="story-text">
+                        <p>Anna ruft <span class="highlight highlight-dativ">ihrem Freund</span> (Dativ) an. Sie fragt: "Kannst du <span class="highlight highlight-dativ">mir</span> (Dativ) heute helfen? Ich gebe <span class="highlight highlight-dativ">dir</span> (Dativ) das Buch zurück."</p>
+                        <p>Markus antwortet: "Natürlich helfe ich <span class="highlight highlight-dativ">dir</span> (Dativ). Ich sehe <span class="highlight highlight-akkusativ">dich</span> (Akkusativ) um 15 Uhr am Alexanderplatz. Wir trinken <span class="highlight highlight-akkusativ">einen Kaffee</span> (Akkusativ) zusammen."</p>
+                        <p>Anna freut sich. Sie dankt <span class="highlight highlight-dativ">ihrem Freund</span> (Dativ) und sagt: "Ich bringe <span class="highlight highlight-akkusativ">das Buch</span> (Akkusativ) mit. Ohne <span class="highlight highlight-akkusativ">dich</span> (Akkusativ) wäre ich verloren!"</p>
+                    </div>
+                    
+                    <div class="grammar-focus">
+                        <h4><i class="fas fa-lightbulb"></i> Grammatik-Fokus</h4>
+                        <p><strong>Dativ vs. Akkusativ:</strong> Verbos que piden Dativ (<em>helfen, danken, geben</em>) vs. verbos que piden Akkusativ (<em>sehen, trinken, bringen</em>).</p>
+                        <p><strong>Regla mnemotécnica:</strong> Si en español dices "le" (a él/ella) → Dativ. Si dices "lo/la" → Akkusativ.</p>
+                    </div>
+                    
+                    <div class="audio-section">
+                        <h4><i class="fas fa-volume-up"></i> Audio de la historia</h4>
+                        <p>Escucha la pronunciación correcta. Puedes elegir diferentes voces:</p>
+                        
+                        <div class="audio-controls">
+                            <button class="audio-btn" id="playBtn1" onclick="playStory(1)">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="audio-btn stop" id="stopBtn1" onclick="stopSpeech()" style="display: none;">
+                                <i class="fas fa-stop"></i>
+                            </button>
+                            
+                            <select class="voice-selector" id="voiceSelector1" onchange="updateVoice(1)">
+                                <option value="">Seleccionar voz (navegador)</option>
+                            </select>
+                            
+                            <div style="flex-grow: 1; text-align: right;">
+                                <p id="audioStatus1" style="color: #666; font-size: 0.9rem;">Listo para reproducir</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="exercise-container">
+                        <h3 class="exercise-title"><i class="fas fa-puzzle-piece"></i> Ejercicio: Arrastra y suelta</h3>
+                        <p>Completa la frase arrastrando la forma correcta al recuadro:</p>
+                        
+                        <div class="drag-drop-container">
+                            <p style="font-size: 1.2rem; margin-bottom: 20px;"><strong>Anna hilft __________ (ihr Freund).</strong></p>
+                            
+                            <div class="drag-items">
+                                <div class="drag-item" draggable="true" data-correct="true" data-answer="ihrem Freund">ihrem Freund</div>
+                                <div class="drag-item" draggable="true" data-correct="false" data-answer="ihren Freund">ihren Freund</div>
+                                <div class="drag-item" draggable="true" data-correct="false" data-answer="ihre Freund">ihre Freund</div>
+                                <div class="drag-item" draggable="true" data-correct="false" data-answer="ihrer Freund">ihrer Freund</div>
+                            </div>
+                            
+                            <div class="drop-zone" id="dropZone1" ondrop="drop(event, 1)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)">
+                                <p style="color: #6c757d; margin: 0;">Arrastra aquí la respuesta correcta</p>
+                            </div>
+                            
+                            <button class="action-btn check" onclick="checkAnswer(1)">
+                                <i class="fas fa-check"></i> Comprobar respuesta
+                            </button>
+                            <button class="action-btn reset" onclick="resetExercise(1)" style="margin-left: 15px;">
+                                <i class="fas fa-redo"></i> Reiniciar
+                            </button>
+                            
+                            <div class="feedback-message" id="feedback1"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Historia 2: Verbos Modales en Pasado -->
+            <div class="story-card" id="story2">
+                <div class="story-header">
+                    <h2 class="story-title">
+                        <i class="fas fa-briefcase" style="color: var(--modal-color);"></i>
+                        Mein erster Job
+                    </h2>
+                    <span class="grammar-tag tag-modal">Verbos Modales (Präteritum)</span>
+                </div>
+                
+                <div class="story-body">
+                    <div class="story-text">
+                        <p>Als ich jung war, <span class="highlight highlight-modal">musste</span> ich früh aufstehen. Ich <span class="highlight highlight-modal">wollte</span> eigentlich länger schlafen, aber ich <span class="highlight highlight-modal">konnte</span> nicht. Mein Vater sagte: "Du <span class="highlight highlight-modal">solltest</span> pünktlich sein."</p>
+                        <p>Im Büro <span class="highlight highlight-modal">musste</span> ich viel lernen. Ich <span class="highlight highlight-modal">wollte</span> alles perfekt machen. Manchmal <span class="highlight highlight-modal">konnte</span> ich nicht alles verstehen, aber ich <span class="highlight highlight-modal">durfte</span> meinen Chef fragen.</p>
+                        <p>Heute denke ich: Damals <span class="highlight highlight-modal">musste</span> ich hart arbeiten, aber ich <span class="highlight highlight-modal">konnte</span> viel Erfahrung sammeln. Ich <span class="highlight highlight-modal">wollte</span> erfolgreich sein - und das bin ich jetzt!</p>
+                    </div>
+                    
+                    <div class="grammar-focus">
+                        <h4><i class="fas fa-lightbulb"></i> Grammatik-Fokus</h4>
+                        <p><strong>Verbos modales en pasado (Präteritum):</strong> <em>musste, wollte, konnte, sollte, durfte</em>.</p>
+                        <p><strong>Regla mnemotécnica:</strong> Todos terminan en <strong>-te</strong> en Präteritum. Se usan para narrar historias y experiencias pasadas.</p>
+                    </div>
+                    
+                    <div class="audio-section">
+                        <h4><i class="fas fa-volume-up"></i> Audio de la historia</h4>
+                        <p>Escucha la pronunciación de los verbos modales en pasado:</p>
+                        
+                        <div class="audio-controls">
+                            <button class="audio-btn" id="playBtn2" onclick="playStory(2)">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="audio-btn stop" id="stopBtn2" onclick="stopSpeech()" style="display: none;">
+                                <i class="fas fa-stop"></i>
+                            </button>
+                            
+                            <select class="voice-selector" id="voiceSelector2" onchange="updateVoice(2)">
+                                <option value="">Seleccionar voz (navegador)</option>
+                            </select>
+                            
+                            <div style="flex-grow: 1; text-align: right;">
+                                <p id="audioStatus2" style="color: #666; font-size: 0.9rem;">Listo para reproducir</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="exercise-container">
+                        <h3 class="exercise-title"><i class="fas fa-question-circle"></i> Ejercicio: Quiz</h3>
+                        <p>Selecciona la forma correcta del verbo modal en pasado:</p>
+                        
+                        <div class="quiz-container">
+                            <p style="font-size: 1.2rem; margin-bottom: 25px;"><strong>Gestern __________ ich nicht kommen, weil ich krank war.</strong></p>
+                            
+                            <div class="quiz-option" data-correct="false" onclick="selectQuizOption(this, 2)">
+                                A. Ich <strong>müssen</strong> nicht kommen
+                            </div>
+                            <div class="quiz-option" data-correct="true" onclick="selectQuizOption(this, 2)">
+                                B. Ich <strong>konnte</strong> nicht kommen
+                            </div>
+                            <div class="quiz-option" data-correct="false" onclick="selectQuizOption(this, 2)">
+                                C. Ich <strong>gemusst</strong> nicht kommen
+                            </div>
+                            <div class="quiz-option" data-correct="false" onclick="selectQuizOption(this, 2)">
+                                D. Ich <strong>kann</strong> nicht kommen
+                            </div>
+                            
+                            <button class="action-btn check" onclick="checkQuiz(2)">
+                                <i class="fas fa-check"></i> Verificar respuesta
+                            </button>
+                            
+                            <div class="feedback-message" id="quizFeedback2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Historia 3: Konjunktiv II -->
+            <div class="story-card" id="story3">
+                <div class="story-header">
+                    <h2 class="story-title">
+                        <i class="fas fa-cloud-sun" style="color: var(--konjunktiv-color);"></i>
+                        Was wäre wenn...
+                    </h2>
+                    <span class="grammar-tag tag-konjunktiv">Konjunktiv II</span>
+                </div>
+                
+                <div class="story-body">
+                    <div class="story-text">
+                        <p><span class="highlight highlight-konjunktiv">Wenn ich reich wäre</span>, <span class="highlight highlight-konjunktiv">würde ich</span> um die Welt reisen. Ich <span class="highlight highlight-konjunktiv">hätte</span> ein kleines Haus am Meer und <span class="highlight highlight-konjunktiv">könnte</span> jeden Tag schwimmen gehen.</p>
+                        <p>Aber ich bin nicht reich. Also <span class="highlight highlight-konjunktiv">müsste ich</span> arbeiten, wenn ich reisen <span class="highlight highlight-konjunktiv">wollte</span>. Vielleicht <span class="highlight highlight-konjunktiv">sollte ich</span> einfach mit dem Träumen aufhören und mein Leben genießen.</p>
+                        <p><span class="highlight highlight-konjunktiv">Wäre ich</span> klüger, <span class="highlight highlight-konjunktiv">würde ich</span> weniger arbeiten und mehr Zeit mit Freunden verbringen. Das <span class="highlight highlight-konjunktiv">wäre</span> schön!</p>
+                    </div>
+                    
+                    <div class="grammar-focus">
+                        <h4><i class="fas fa-lightbulb"></i> Grammatik-Fokus</h4>
+                        <p><strong>Konjunktiv II:</strong> Para expresar deseos e situaciones irreales. Formas clave: <em>wäre, hätte, könnte, würde, sollte</em>.</p>
+                        <p><strong>Regla mnemotécnica:</strong> Para la mayoría de verbos: <strong>würde</strong> + infinitivo. Excepciones: sein → wäre, haben → hätte, können → könnte.</p>
+                    </div>
+                    
+                    <div class="audio-section">
+                        <h4><i class="fas fa-volume-up"></i> Audio de la historia</h4>
+                        <p>Escucha la entonación correcta para el Konjunktiv II:</p>
+                        
+                        <div class="audio-controls">
+                            <button class="audio-btn" id="playBtn3" onclick="playStory(3)">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="audio-btn stop" id="stopBtn3" onclick="stopSpeech()" style="display: none;">
+                                <i class="fas fa-stop"></i>
+                            </button>
+                            
+                            <select class="voice-selector" id="voiceSelector3" onchange="updateVoice(3)">
+                                <option value="">Seleccionar voz (navegador)</option>
+                            </select>
+                            
+                            <div style="flex-grow: 1; text-align: right;">
+                                <p id="audioStatus3" style="color: #666; font-size: 0.9rem;">Listo para reproducir</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="exercise-container">
+                        <h3 class="exercise-title"><i class="fas fa-gamepad"></i> Ejercicio: Kartenspiel (simulado)</h3>
+                        <p>Empareja cada verbo con su forma en Konjunktiv II:</p>
+                        
+                        <div class="drag-drop-container">
+                            <div class="drag-items">
+                                <div class="drag-item" draggable="true" data-match="wäre">sein</div>
+                                <div class="drag-item" draggable="true" data-match="hätte">haben</div>
+                                <div class="drag-item" draggable="true" data-match="könnte">können</div>
+                                <div class="drag-item" draggable="true" data-match="würde machen">machen</div>
+                                <div class="drag-item" draggable="true" data-match="würde gehen">gehen</div>
+                            </div>
+                            
+                            <p style="margin: 20px 0; font-weight: 600;">Arrastra cada verbo a su pareja correcta:</p>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                                <div class="drop-zone small" id="match1" ondrop="dropMatch(event)" ondragover="allowDrop(event)" data-match="wäre">
+                                    <p>wäre</p>
+                                </div>
+                                <div class="drop-zone small" id="match2" ondrop="dropMatch(event)" ondragover="allowDrop(event)" data-match="hätte">
+                                    <p>hätte</p>
+                                </div>
+                                <div class="drop-zone small" id="match3" ondrop="dropMatch(event)" ondragover="allowDrop(event)" data-match="könnte">
+                                    <p>könnte</p>
+                                </div>
+                                <div class="drop-zone small" id="match4" ondrop="dropMatch(event)" ondragover="allowDrop(event)" data-match="würde machen">
+                                    <p>würde machen</p>
+                                </div>
+                                <div class="drop-zone small" id="match5" ondrop="dropMatch(event)" ondragover="allowDrop(event)" data-match="würde gehen">
+                                    <p>würde gehen</p>
+                                </div>
+                            </div>
+                            
+                            <button class="action-btn check" onclick="checkMatches()" style="margin-top: 25px;">
+                                <i class="fas fa-check"></i> Comprobar emparejamientos
+                            </button>
+                            
+                            <div class="feedback-message" id="matchFeedback"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <a href="index.html" class="nav-btn prev">
+                <i class="fas fa-arrow-left"></i> Volver a DEULCHALEX
+            </a>
+            <button class="nav-btn next" onclick="loadMoreStories()">
+                Más historias <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+        
+        <footer>
+            <p><strong>DeutschLektor</strong> - Historias gramaticales interactivas</p>
+            <p>Utiliza la Web Speech API del navegador para síntesis de voz gratuita</p>
+            <p>© 2024 DEULCHALEX - Diseñado específicamente para hispanohablantes nivel A2-B1</p>
+        </footer>
+    </div>
+
+    <script>
+        // Variables globales para control de voz
+        let speech = null;
+        let currentVoice = null;
+        let voices = [];
+        
+        // Inicializar síntesis de voz al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            initSpeechSynthesis();
+            initDragAndDrop();
+        });
+        
+        // Inicializar síntesis de voz
+        function initSpeechSynthesis() {
+            // Verificar si el navegador soporta Web Speech API
+            if (!('speechSynthesis' in window)) {
+                alert('Tu navegador no soporta síntesis de voz. Prueba con Chrome, Edge o Safari.');
+                return;
+            }
+            
+            // Cargar voces disponibles
+            speechSynthesis.onvoiceschanged = function() {
+                voices = speechSynthesis.getVoices();
+                
+                // Actualizar selectores de voz
+                for (let i = 1; i <= 3; i++) {
+                    const selector = document.getElementById(`voiceSelector${i}`);
+                    if (selector) {
+                        // Limpiar opciones existentes
+                        selector.innerHTML = '<option value="">Seleccionar voz (navegador)</option>';
+                        
+                        // Añadir voces disponibles
+                        voices.forEach((voice, index) => {
+                            // Filtrar para mostrar solo voces en alemán si están disponibles
+                            if (voice.lang.startsWith('de') || voice.lang.startsWith('en')) {
+                                const option = document.createElement('option');
+                                option.value = index;
+                                option.textContent = `${voice.name} (${voice.lang})`;
+                                selector.appendChild(option);
+                            }
+                        });
+                        
+                        // Seleccionar primera voz en alemán por defecto
+                        const germanVoice = voices.find(v => v.lang.startsWith('de'));
+                        if (germanVoice) {
+                            const voiceIndex = voices.indexOf(germanVoice);
+                            selector.value = voiceIndex;
+                            if (i === 1) currentVoice = germanVoice;
+                        }
+                    }
+                }
+            };
+            
+            // Forzar carga de voces
+            voices = speechSynthesis.getVoices();
+            if (voices.length === 0) {
+                setTimeout(() => {
+                    voices = speechSynthesis.getVoices();
+                    speechSynthesis.onvoiceschanged();
+                }, 500);
+            } else {
+                speechSynthesis.onvoiceschanged();
+            }
+        }
+        
+        // Reproducir una historia específica
+        function playStory(storyNumber) {
+            // Detener cualquier audio en reproducción
+            stopSpeech();
+            
+            // Obtener el texto de la historia
+            let storyText = '';
+            const storyElement = document.getElementById(`story${storyNumber}`);
+            
+            if (storyElement) {
+                // Extraer solo el texto de la historia (sin ejercicios)
+                const storyTextElements = storyElement.querySelectorAll('.story-text p');
+                storyTextElements.forEach(p => {
+                    storyText += p.textContent + ' ';
+                });
+            }
+            
+            // Configurar y reproducir
+            speech = new SpeechSynthesisUtterance(storyText);
+            speech.lang = 'de-DE';
+            speech.rate = 0.9; // Velocidad ligeramente reducida para aprendizaje
+            
+            // Usar voz seleccionada
+            const voiceSelector = document.getElementById(`voiceSelector${storyNumber}`);
+            if (voiceSelector && voiceSelector.value !== '') {
+                const voiceIndex = parseInt(voiceSelector.value);
+                speech.voice = voices[voiceIndex];
+            } else if (currentVoice) {
+                speech.voice = currentVoice;
+            }
+            
+            // Actualizar controles de UI
+            document.getElementById(`playBtn${storyNumber}`).style.display = 'none';
+            document.getElementById(`stopBtn${storyNumber}`).style.display = 'flex';
+            document.getElementById(`audioStatus${storyNumber}`).textContent = 'Reproduciendo...';
+            document.getElementById(`audioStatus${storyNumber}`).style.color = '#27ae60';
+            
+            // Eventos de finalización
+            speech.onend = function() {
+                document.getElementById(`playBtn${storyNumber}`).style.display = 'flex';
+                document.getElementById(`stopBtn${storyNumber}`).style.display = 'none';
+                document.getElementById(`audioStatus${storyNumber}`).textContent = 'Completado';
+                document.getElementById(`audioStatus${storyNumber}`).style.color = '#666';
+            };
+            
+            speech.onerror = function(event) {
+                console.error('Error en síntesis de voz:', event);
+                document.getElementById(`playBtn${storyNumber}`).style.display = 'flex';
+                document.getElementById(`stopBtn${storyNumber}`).style.display = 'none';
+                document.getElementById(`audioStatus${storyNumber}`).textContent = 'Error al reproducir';
+                document.getElementById(`audioStatus${storyNumber}`).style.color = '#e74c3c';
+            };
+            
+            // Iniciar reproducción
+            speechSynthesis.speak(speech);
+        }
+        
+        // Detener reproducción
+        function stopSpeech() {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+                
+                // Restaurar controles de UI
+                for (let i = 1; i <= 3; i++) {
+                    const playBtn = document.getElementById(`playBtn${i}`);
+                    const stopBtn = document.getElementById(`stopBtn${i}`);
+                    const status = document.getElementById(`audioStatus${i}`);
+                    
+                    if (playBtn) playBtn.style.display = 'flex';
+                    if (stopBtn) stopBtn.style.display = 'none';
+                    if (status) {
+                        status.textContent = 'Detenido';
+                        status.style.color = '#666';
+                    }
+                }
+            }
+        }
+        
+        // Actualizar voz seleccionada
+        function updateVoice(storyNumber) {
+            const voiceSelector = document.getElementById(`voiceSelector${storyNumber}`);
+            if (voiceSelector && voiceSelector.value !== '') {
+                const voiceIndex = parseInt(voiceSelector.value);
+                currentVoice = voices[voiceIndex];
+            }
+        }
+        
+        // Funciones para arrastrar y soltar
+        function initDragAndDrop() {
+            const dragItems = document.querySelectorAll('.drag-item');
+            dragItems.forEach(item => {
+                item.addEventListener('dragstart', dragStart);
+            });
+            
+            const dropZones = document.querySelectorAll('.drop-zone');
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', dragOver);
+                zone.addEventListener('dragenter', dragEnter);
+                zone.addEventListener('dragleave', dragLeave);
+                zone.addEventListener('drop', drop);
+            });
+        }
+        
+        function dragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.answer || e.target.dataset.match);
+            e.dataTransfer.setData('correct', e.target.dataset.correct || 'false');
+            e.dataTransfer.setData('elementId', e.target.id || '');
+        }
+        
+        function dragOver(e) {
+            e.preventDefault();
+        }
+        
+        function dragEnter(e) {
+            e.preventDefault();
+            e.target.classList.add('hover');
+        }
+        
+        function dragLeave(e) {
+            e.target.classList.remove('hover');
+        }
+        
+        function drop(e, exerciseNumber) {
+            e.preventDefault();
+            e.target.classList.remove('hover');
+            
+            const answer = e.dataTransfer.getData('text/plain');
+            const isCorrect = e.dataTransfer.getData('correct') === 'true';
+            const elementId = e.dataTransfer.getData('elementId');
+            
+            // Limpiar zona de drop
+            e.target.innerHTML = '';
+            
+            // Crear elemento mostrado
+            const droppedElement = document.createElement('div');
+            droppedElement.className = 'drag-item';
+            droppedElement.textContent = answer;
+            droppedElement.dataset.correct = isCorrect;
+            droppedElement.dataset.originalId = elementId;
+            
+            // Estilo diferente según si es correcto o no
+            if (isCorrect) {
+                droppedElement.style.borderColor = '#27ae60';
+                droppedElement.style.background = 'rgba(39, 174, 96, 0.1)';
+            }
+            
+            e.target.appendChild(droppedElement);
+            e.target.classList.add('active');
+        }
+        
+        function dropMatch(e) {
+            e.preventDefault();
+            e.target.classList.remove('hover');
+            
+            const answer = e.dataTransfer.getData('text/plain');
+            const elementId = e.dataTransfer.getData('elementId');
+            const correctMatch = e.target.dataset.match;
+            
+            // Limpiar zona de drop
+            e.target.innerHTML = '';
+            
+            // Crear elemento mostrado
+            const droppedElement = document.createElement('div');
+            droppedElement.className = 'drag-item';
+            droppedElement.textContent = answer;
+            droppedElement.dataset.originalId = elementId;
+            
+            // Verificar si el emparejamiento es correcto
+            if (answer === correctMatch) {
+                droppedElement.style.borderColor = '#27ae60';
+                droppedElement.style.background = 'rgba(39, 174, 96, 0.1)';
+                e.target.dataset.correct = 'true';
+            } else {
+                droppedElement.style.borderColor = '#e74c3c';
+                droppedElement.style.background = 'rgba(231, 76, 60, 0.1)';
+                e.target.dataset.correct = 'false';
+            }
+            
+            e.target.appendChild(droppedElement);
+            e.target.classList.add('active');
+        }
+        
+        // Comprobar respuestas del ejercicio 1
+        function checkAnswer(exerciseNumber) {
+            const dropZone = document.getElementById(`dropZone${exerciseNumber}`);
+            const feedback = document.getElementById(`feedback${exerciseNumber}`);
+            
+            if (!dropZone.firstChild || dropZone.firstChild.nodeName === 'P') {
+                feedback.textContent = 'Por favor, arrastra una respuesta primero.';
+                feedback.className = 'feedback-message feedback-incorrect';
+                feedback.style.display = 'block';
+                return;
+            }
+            
+            const isCorrect = dropZone.firstChild.dataset.correct === 'true';
+            
+            if (isCorrect) {
+                feedback.innerHTML = '<i class="fas fa-check-circle"></i> ¡Correcto! "ihrem Freund" está en dativo porque el verbo "helfen" siempre pide dativo.';
+                feedback.className = 'feedback-message feedback-correct';
+                
+                // Leer explicación en voz alta
+                const explanation = new SpeechSynthesisUtterance(
+                    '¡Correcto! Ihrem Freund está en dativo porque el verbo helfen siempre pide dativo.'
+                );
+                explanation.lang = 'es-ES';
+                explanation.rate = 0.9;
+                speechSynthesis.speak(explanation);
+            } else {
+                feedback.innerHTML = '<i class="fas fa-times-circle"></i> Inténtalo de nuevo. Recuerda: "helfen" siempre pide dativo. La forma correcta es "ihrem Freund".';
+                feedback.className = 'feedback-message feedback-incorrect';
+            }
+            
+            feedback.style.display = 'block';
+        }
+        
+        // Reiniciar ejercicio
+        function resetExercise(exerciseNumber) {
+            const dropZone = document.getElementById(`dropZone${exerciseNumber}`);
+            const feedback = document.getElementById(`feedback${exerciseNumber}`);
+            
+            dropZone.innerHTML = '<p style="color: #6c757d; margin: 0;">Arrastra aquí la respuesta correcta</p>';
+            dropZone.classList.remove('active');
+            feedback.style.display = 'none';
+        }
+        
+        // Seleccionar opción de quiz
+        function selectQuizOption(element, quizNumber) {
+            // Remover selección previa
+            const options = document.querySelectorAll(`#story${quizNumber} .quiz-option`);
+            options.forEach(opt => {
+                opt.classList.remove('selected', 'wrong');
+            });
+            
+            // Marcar selección actual
+            element.classList.add('selected');
+        }
+        
+        // Comprobar quiz
+        function checkQuiz(quizNumber) {
+            const selectedOption = document.querySelector(`#story${quizNumber} .quiz-option.selected`);
+            const feedback = document.getElementById(`quizFeedback${quizNumber}`);
+            
+            if (!selectedOption) {
+                feedback.textContent = 'Por favor, selecciona una opción primero.';
+                feedback.className = 'feedback-message feedback-incorrect';
+                feedback.style.display = 'block';
+                return;
+            }
+            
+            const isCorrect = selectedOption.dataset.correct === 'true';
+            
+            if (isCorrect) {
+                feedback.innerHTML = '<i class="fas fa-check-circle"></i> ¡Correcto! "konnte" es la forma en Präteritum de "können". Verbos modales en pasado = raíz + -te (konn-te, muss-te, woll-te).';
+                feedback.className = 'feedback-message feedback-correct';
+                selectedOption.classList.add('selected');
+                
+                // Leer explicación en voz alta
+                const explanation = new SpeechSynthesisUtterance(
+                    '¡Correcto! Konnte es la forma en pretérito de können. Los verbos modales en pasado terminan en -te.'
+                );
+                explanation.lang = 'es-ES';
+                explanation.rate = 0.9;
+                speechSynthesis.speak(explanation);
+            } else {
+                feedback.innerHTML = '<i class="fas fa-times-circle"></i> No es correcto. La forma correcta es "konnte" (Präteritum de "können").';
+                feedback.className = 'feedback-message feedback-incorrect';
+                selectedOption.classList.add('wrong');
+            }
+            
+            feedback.style.display = 'block';
+        }
+        
+        // Comprobar emparejamientos
+        function checkMatches() {
+            const matchZones = document.querySelectorAll('.drop-zone.small');
+            let correctCount = 0;
+            let totalCount = 0;
+            
+            matchZones.forEach(zone => {
+                if (zone.children.length > 0 && zone.children[0].nodeName !== 'P') {
+                    totalCount++;
+                    if (zone.dataset.correct === 'true') {
+                        correctCount++;
+                        zone.style.borderColor = '#27ae60';
+                    } else {
+                        zone.style.borderColor = '#e74c3c';
+                    }
+                }
+            });
+            
+            const feedback = document.getElementById('matchFeedback');
+            
+            if (correctCount === totalCount && totalCount > 0) {
+                feedback.innerHTML = `<i class="fas fa-check-circle"></i> ¡Perfecto! ${correctCount} de ${totalCount} emparejamientos correctos.`;
+                feedback.className = 'feedback-message feedback-correct';
+            } else if (totalCount > 0) {
+                feedback.innerHTML = `<i class="fas fa-times-circle"></i> ${correctCount} de ${totalCount} correctos. Sigue practicando.`;
+                feedback.className = 'feedback-message feedback-incorrect';
+            } else {
+                feedback.textContent = 'Arrastra algunos elementos primero.';
+                feedback.className = 'feedback-message feedback-incorrect';
+            }
+            
+            feedback.style.display = 'block';
+        }
+        
+        // Cargar más historias (simulado)
+        function loadMoreStories() {
+            alert('¡Próximamente más historias! Temas que incluiremos:\n\n1. Preposiciones con caso fijo\n2. Oraciones subordinadas\n3. Verbos separables/inseparables\n4. Posición del verbo\n\nMientras tanto, practica con las historias actuales.');
+        }
+        
+        // Permitir drop (función genérica)
+        function allowDrop(e) {
+            e.preventDefault();
+        }
+        
+        // Drop (función genérica)
+        function drop(e) {
+            e.preventDefault();
+        }
+    </script>
+</body>
+</html>
