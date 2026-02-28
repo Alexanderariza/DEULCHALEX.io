@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEULCHALEX - Gedächtnisspiel</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+ 
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #1a1a2e;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --bg-gradient-start: #1a1a2e;
+            --bg-gradient-end: #16213e;
+            --card-bg: rgba(255,255,255,0.05);
+            --text-primary: var(--light);
+            --text-secondary: #bdc3c7;
+            --border-color: rgba(255,255,255,0.1);
+        }
+
+        .light-theme {
+            --primary: #34495e;
+            --secondary: #2980b9;
+            --accent: #c0392b;
+            --light: #2c3e50;
+            --dark: #ecf0f1;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --bg-gradient-start: #f5f7fa;
+            --bg-gradient-end: #c3cfe2;
+            --card-bg: rgba(0,0,0,0.03);
+            --text-primary: #2c3e50;
+            --text-secondary: #34495e;
+            --border-color: rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border-left: 5px solid var(--secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent), var(--success));
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-icon:hover {
+            background: var(--secondary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
+            border-color: transparent;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            padding: 12px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 1px solid var(--border-color);
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(-5px);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .footer-content img {
+            max-width: 150px;
+            height: auto;
+        }
+
+        .footer-text p {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        /* Estilos específicos de la cuadrícula de juegos */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        .game-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s, border-color 0.3s;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+        }
+        .game-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+        .game-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+        }
+        .game-card p {
+            color: var(--text-secondary);
+        }
+ 
+        /* Estilos específicos del juego de memoria (se mantienen) */
+        .game-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .card {
+            aspect-ratio: 3/4;
+            position: relative;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.4s;
+        }
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        .card.matched {
+            visibility: hidden;
+            animation: fadeOut 0.5s;
+        }
+        @keyframes fadeOut { to { opacity: 0; } }
+        .card .front, .card .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5px;
+            text-align: center;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .card .front {
+            background: var(--accent);
+            color: white;
+            transform: rotateY(180deg);
+        }
+        .card .back {
+            background: var(--secondary);
+            color: white;
+            transform: rotateY(0deg);
+        }
+        .card .front em, .card .back em {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin-top: 3px;
+            font-style: italic;
+        }
+        #feedback {
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .level-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .level-btn, .reset-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 600;
+            flex: 0 1 auto;
+            min-width: 120px;
+            text-align: center;
+        }
+        .level-btn {
+            background: var(--secondary);
+            color: white;
+        }
+        .level-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        .reset-btn {
+            background: var(--warning);
+            color: white;
+        }
+        .reset-btn:hover {
+            background: #e67e22;
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+                word-break: keep-all;
+            }
+            .level-btn, .reset-btn {
+                min-width: 100px;
+                font-size: 0.9rem;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Volver</a>
+                <h1><i class="fas fa-brain"></i> Gedächtnisspiel</h1>
+                <div class="header-controls">
+                    <a href="../index.html" class="btn-icon" title="Inicio"><i class="fas fa-home"></i></a>
+                    <button id="themeToggle" class="btn-icon" title="Cambiar tema"><i class="fas fa-moon"></i></button>
+                </div>
+            </div>
+        </header>
+
+        <div class="level-selector">
+            <button class="level-btn" onclick="cargarNivel(1)">Nivel 1 (fácil)</button>
+            <button class="level-btn" onclick="cargarNivel(2)">Nivel 2 (medio)</button>
+            <button class="level-btn" onclick="cargarNivel(3)">Nivel 3 (difícil)</button>
+            <button class="reset-btn" onclick="reiniciarNivel()">Reiniciar</button>
+        </div>
+
+        <div id="game-container" class="game-container"></div>
+        <p id="feedback"></p>
+
+        <!-- Sonidos en la misma carpeta -->
+        <audio id="sound-click" src="click.mp3"></audio>
+        <audio id="sound-correct" src="correct.mp3"></audio>
+        <audio id="sound-incorrect" src="incorrect.mp3"></audio>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <img src="../images/Logo5.png" alt="DEULCHALEX Logo" onerror="this.style.display='none'; this.parentElement.innerHTML += '<div style=\'color:var(--secondary); font-size:1.5rem; font-weight:bold;\'>DEULCHALEX</div>';">
+                <div class="footer-text">
+                    <p>© 2024 DEULCHALEX – Centro de Aprendizaje de Alemán • Para hispanohablantes (Niveles A1–C1)</p>
+                    <p>Todos los derechos de contenido educativo pertenecen a DEULCHALEX. Plataforma con fines educativos.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#"><i class="fas fa-info-circle"></i> Acerca de</a>
+                    <a href="#"><i class="fas fa-lightbulb"></i> Consejos</a>
+                    <a href="#"><i class="fas fa-question-circle"></i> FAQ</a>
+                    <a href="#"><i class="fas fa-envelope"></i> Contacto</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Traducciones completas (incluyendo los nuevos pares)
+        const traducciones = {
+            'groß': 'grande',
+            'klein': 'pequeño',
+            'heiß': 'caliente',
+            'kalt': 'frío',
+            'hell': 'claro',
+            'dunkel': 'oscuro',
+            'schnell': 'rápido',
+            'langsam': 'lento',
+            'glücklich': 'feliz',
+            'traurig': 'triste',
+            'sauber': 'limpio',
+            'schmutzig': 'sucio',
+            'leicht': 'ligero',
+            'schwer': 'pesado',
+            'sicher': 'seguro',
+            'gefährlich': 'peligroso',
+            'neu': 'nuevo',
+            'alt': 'viejo',
+            'freundlich': 'amigable',
+            'unfreundlich': 'antipático',
+            'anfangen': 'empezar',
+            'beenden': 'terminar',
+            'geben': 'dar',
+            'nehmen': 'tomar',
+            'kaufen': 'comprar',
+            'verkaufen': 'vender',
+            'kommen': 'venir',
+            'gehen': 'ir',
+            'fragen': 'preguntar',
+            'antworten': 'responder',
+            'hoch': 'alto',
+            'niedrig': 'bajo',
+            'laut': 'ruidoso',
+            'leise': 'silencioso',
+            'öffnen': 'abrir',
+            'schließen': 'cerrar'
+        };
+
+        // Niveles con 6 pares cada uno (12 cartas)
+        const niveles = {
+            1: [
+                { word: 'groß', antonym: 'klein' },
+                { word: 'heiß', antonym: 'kalt' },
+                { word: 'hell', antonym: 'dunkel' },
+                { word: 'schnell', antonym: 'langsam' },
+                { word: 'glücklich', antonym: 'traurig' },
+                { word: 'hoch', antonym: 'niedrig' }      // nuevo par
+            ],
+            2: [
+                { word: 'sauber', antonym: 'schmutzig' },
+                { word: 'leicht', antonym: 'schwer' },
+                { word: 'sicher', antonym: 'gefährlich' },
+                { word: 'neu', antonym: 'alt' },
+                { word: 'freundlich', antonym: 'unfreundlich' },
+                { word: 'laut', antonym: 'leise' }        // nuevo par
+            ],
+            3: [
+                { word: 'anfangen', antonym: 'beenden' },
+                { word: 'geben', antonym: 'nehmen' },
+                { word: 'kaufen', antonym: 'verkaufen' },
+                { word: 'kommen', antonym: 'gehen' },
+                { word: 'fragen', antonym: 'antworten' },
+                { word: 'öffnen', antonym: 'schließen' }   // nuevo par
+            ]
+        };
+
+        let paresActuales = [];
+        let firstCard = null;
+        let bloqueado = false;
+        let paresRestantes = 0;
+        let nivelActual = 1;
+
+        function cargarNivel(nivel) {
+            nivelActual = nivel;
+            paresActuales = niveles[nivel];
+            iniciarJuego(paresActuales);
+        }
+
+        function reiniciarNivel() {
+            cargarNivel(nivelActual);
+        }
+
+        function iniciarJuego(pares) {
+            const contenedor = document.getElementById('game-container');
+            contenedor.innerHTML = '';
+            firstCard = null;
+            bloqueado = false;
+
+            let cartas = [];
+            pares.forEach(par => {
+                cartas.push({ 
+                    texto: par.word, 
+                    traduccion: traducciones[par.word] || '', 
+                    pareja: par.antonym 
+                });
+                cartas.push({ 
+                    texto: par.antonym, 
+                    traduccion: traducciones[par.antonym] || '', 
+                    pareja: par.word 
+                });
+            });
+            cartas = cartas.sort(() => Math.random() - 0.5);
+            paresRestantes = pares.length;
+
+            cartas.forEach(carta => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="front">${carta.texto}<em>(${carta.traduccion})</em></div>
+                    <div class="back">?</div>
+                `;
+                card.dataset.pareja = carta.pareja;
+                card.dataset.texto = carta.texto;
+                card.addEventListener('click', () => manejarClick(card));
+                contenedor.appendChild(card);
+            });
+            document.getElementById('feedback').textContent = '';
+        }
+
+        function manejarClick(card) {
+            if (bloqueado || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+            card.classList.add('flipped');
+            document.getElementById('sound-click')?.play();
+
+            if (!firstCard) {
+                firstCard = card;
+                return;
+            }
+
+            if (firstCard.dataset.pareja === card.dataset.texto && card.dataset.pareja === firstCard.dataset.texto) {
+                firstCard.classList.add('matched');
+                card.classList.add('matched');
+                firstCard = null;
+                paresRestantes--;
+                document.getElementById('sound-correct')?.play();
+                document.getElementById('feedback').textContent = '¡Correcto!';
+                if (paresRestantes === 0) {
+                    document.getElementById('feedback').textContent = '🎉 ¡Ganaste! 🎉';
+                }
+            } else {
+                bloqueado = true;
+                document.getElementById('sound-incorrect')?.play();
+                document.getElementById('feedback').textContent = 'Intenta de nuevo';
+                setTimeout(() => {
+                    firstCard.classList.remove('flipped');
+                    card.classList.remove('flipped');
+                    firstCard = null;
+                    bloqueado = false;
+                }, 1000);
+            }
+        }
+
+        // Tema claro/oscuro
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-theme');
+            themeIcon.className = 'fas fa-sun';
+        } else {
+            themeIcon.className = 'fas fa-moon';
+        }
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            themeIcon.className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        window.onload = () => cargarNivel(1);
+    </script>
+</body>
+</html>

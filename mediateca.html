@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEULCHALEX - Mediothek</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== ESTILOS GLOBALES ===== */
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #1a1a2e;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --bg-gradient-start: #1a1a2e;
+            --bg-gradient-end: #16213e;
+            --card-bg: rgba(255,255,255,0.05);
+            --text-primary: var(--light);
+            --text-secondary: #bdc3c7;
+            --border-color: rgba(255,255,255,0.1);
+        }
+
+        .light-theme {
+            --primary: #34495e;
+            --secondary: #2980b9;
+            --accent: #c0392b;
+            --light: #2c3e50;
+            --dark: #ecf0f1;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --bg-gradient-start: #f5f7fa;
+            --bg-gradient-end: #c3cfe2;
+            --card-bg: rgba(0,0,0,0.03);
+            --text-primary: #2c3e50;
+            --text-secondary: #34495e;
+            --border-color: rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ===== HEADER COMÚN ===== */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border-left: 5px solid var(--secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent), var(--success));
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-icon:hover {
+            background: var(--secondary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
+            border-color: transparent;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            padding: 12px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 1px solid var(--border-color);
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(-5px);
+        }
+
+        /* ===== CUADRÍCULA DE MEDIOS ===== */
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .media-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .media-card h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: var(--secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        /* Reproductor Podbean (ocupa todo el espacio disponible) */
+        .podbean-embed {
+            flex: 1;
+            margin: 10px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            min-height: 315px;
+        }
+
+        .podbean-embed iframe {
+            width: 100%;
+            height: 315px;
+            border: none;
+            display: block;
+        }
+
+        /* Lista de canciones */
+        .playlist {
+            list-style: none;
+            flex: 1;
+        }
+
+        .playlist li {
+            margin-bottom: 10px;
+        }
+
+        .playlist a {
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .playlist a:hover {
+            background: rgba(52,152,219,0.1);
+            transform: translateX(5px);
+        }
+
+        /* Chat */
+        .chat-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 250px;
+            margin-bottom: 10px;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: flex-start;
+        }
+
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .chat-bubble {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 10px 15px;
+            max-width: 80%;
+        }
+
+        .chat-bubble small {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            color: var(--text-primary);
+        }
+
+        .chat-input input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .chat-input button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .chat-input button:hover {
+            background: #2980b9;
+            transform: scale(1.1);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .footer-content img {
+            max-width: 150px;
+            height: auto;
+        }
+
+        .footer-text p {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            .media-grid { gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Volver</a>
+                <h1><i class="fas fa-headphones"></i> Mediothek</h1>
+                <div class="header-controls">
+                    <a href="index.html" class="btn-icon" title="Inicio"><i class="fas fa-home"></i></a>
+                    <button id="themeToggle" class="btn-icon" title="Cambiar tema"><i class="fas fa-moon"></i></button>
+                </div>
+            </div>
+        </header>
+
+        <div class="media-grid">
+            <!-- Columna de Podcasts (solo reproductor, sin enlaces externos) -->
+            <div class="media-card">
+                <h2><i class="fas fa-podcast"></i> Germañol Podcast</h2>
+                <div class="podbean-embed" id="podbeanContainer">
+                    <!-- El iframe se inyectará por JavaScript para cambiar tema -->
+                </div>
+                <p style="margin-top: 10px; color: var(--text-secondary);">
+                    <i class="fas fa-info-circle"></i> Todos los episodios se reproducen aquí, sin abrir ventanas.
+                </p>
+            </div>
+
+            <!-- Columna de Música (simulada, sin enlaces externos) -->
+            <div class="media-card">
+                <h2><i class="fas fa-music"></i> Canciones recomendadas</h2>
+                <ul class="playlist">
+                    <li><a href="#" onclick="reproducirCancion('Auf uns', 'Andreas Bourani'); return false;"><i class="fab fa-spotify"></i> "Auf uns" - Andreas Bourani</a></li>
+                    <li><a href="#" onclick="reproducirCancion('Atemlos durch die Nacht', 'Helene Fischer'); return false;"><i class="fab fa-youtube"></i> "Atemlos durch die Nacht" - Helene Fischer</a></li>
+                    <li><a href="#" onclick="reproducirCancion('Geboren um zu leben', 'Unheilig'); return false;"><i class="fab fa-spotify"></i> "Geboren um zu leben" - Unheilig</a></li>
+                    <li><a href="#" onclick="reproducirCancion('99 Luftballons', 'Nena'); return false;"><i class="fas fa-music"></i> "99 Luftballons" - Nena</a></li>
+                </ul>
+                <p style="margin-top: 10px; color: var(--text-secondary);">
+                    <small>🔊 Próximamente: reproducción interna con letra.</small>
+                </p>
+            </div>
+
+            <!-- Columna de Chatbox -->
+            <div class="media-card">
+                <h2><i class="fas fa-comments"></i> Chat comunitario</h2>
+                <div class="chat-box">
+                    <div class="chat-messages">
+                        <div class="chat-message">
+                            <div class="chat-avatar"><i class="fas fa-user"></i></div>
+                            <div class="chat-bubble">
+                                <strong>Alex:</strong> ¡Bienvenido! ¿Qué te gusta escuchar en alemán?
+                                <br><small>hace 2 minutos</small>
+                            </div>
+                        </div>
+                        <div class="chat-message">
+                            <div class="chat-avatar"><i class="fas fa-user"></i></div>
+                            <div class="chat-bubble">
+                                <strong>María:</strong> Me encantan los podcasts de DeutschLektor.
+                                <br><small>hace 1 minuto</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" placeholder="Escribe un mensaje... (simulado)">
+                        <button onclick="alert('Función de chat real próximamente. Por ahora, es una simulación.'); return false;"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+                <p style="margin-top: 15px;"><small>💬 Este chat es una demo. Pronto integraremos un chat real.</small></p>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <img src="images/Logo5.png" alt="DEULCHALEX Logo" onerror="this.style.display='none'; this.parentElement.innerHTML += '<div style=\'color:var(--secondary); font-size:1.5rem; font-weight:bold;\'>DEULCHALEX</div>';">
+                <div class="footer-text">
+                    <p>© 2024 DEULCHALEX – Centro de Aprendizaje de Alemán • Para hispanohablantes (Niveles A1–C1)</p>
+                    <p>Todos los derechos de contenido educativo pertenecen a DEULCHALEX. Plataforma con fines educativos.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#"><i class="fas fa-info-circle"></i> Acerca de</a>
+                    <a href="#"><i class="fas fa-lightbulb"></i> Consejos</a>
+                    <a href="#"><i class="fas fa-question-circle"></i> FAQ</a>
+                    <a href="#"><i class="fas fa-envelope"></i> Contacto</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Función para simular reproducción de canciones (sin abrir ventanas)
+        function reproducirCancion(titulo, artista) {
+            alert(`🔊 Reproduciendo: ${titulo} - ${artista}\n(Modo simulado: aquí iría un reproductor de audio real).`);
+        }
+
+        // Función para actualizar el iframe del podcast según el tema
+        function actualizarPodbeanIframe(theme) {
+            const container = document.getElementById('podbeanContainer');
+            const btnColor = theme === 'light' ? '5dade2' : '3267a3';
+            const baseUrl = 'https://www.podbean.com/player-v2/?i=sz8e7-ec77d3-pbblog-playlist&share=1&download=1&fonts=Arial&skin=1&font-color=auto&rtl=0&logo_link=episode_page&btn-skin=' + btnColor + '&size=315';
+            container.innerHTML = `<iframe title="Germañol" allowtransparency="true" height="315" width="100%" style="border: none; min-width: min(100%, 430px); height:315px;" scrolling="no" data-name="pb-iframe-player" src="${baseUrl}" loading="lazy" allowfullscreen=""></iframe>`;
+        }
+
+        // Tema claro/oscuro
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+
+        function setTheme(theme) {
+            if (theme === 'light') {
+                document.body.classList.add('light-theme');
+                themeIcon.className = 'fas fa-sun';
+            } else {
+                document.body.classList.remove('light-theme');
+                themeIcon.className = 'fas fa-moon';
+            }
+            actualizarPodbeanIframe(theme);
+        }
+
+        setTheme(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const isLight = document.body.classList.contains('light-theme');
+            const newTheme = isLight ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            setTheme(newTheme);
+        });
+    </script>
+</body>
+</html>

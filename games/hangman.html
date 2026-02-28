@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEULCHALEX - Galgenmännchen</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== ESTILOS GLOBALES (mismos que en el resto de la plataforma) ===== */
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #1a1a2e;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --bg-gradient-start: #1a1a2e;
+            --bg-gradient-end: #16213e;
+            --card-bg: rgba(255,255,255,0.05);
+            --text-primary: var(--light);
+            --text-secondary: #bdc3c7;
+            --border-color: rgba(255,255,255,0.1);
+        }
+
+        .light-theme {
+            --primary: #34495e;
+            --secondary: #2980b9;
+            --accent: #c0392b;
+            --light: #2c3e50;
+            --dark: #ecf0f1;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --bg-gradient-start: #f5f7fa;
+            --bg-gradient-end: #c3cfe2;
+            --card-bg: rgba(0,0,0,0.03);
+            --text-primary: #2c3e50;
+            --text-secondary: #34495e;
+            --border-color: rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border-left: 5px solid var(--secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent), var(--success));
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-icon:hover {
+            background: var(--secondary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
+            border-color: transparent;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            padding: 12px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 1px solid var(--border-color);
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(-5px);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .footer-content img {
+            max-width: 150px;
+            height: auto;
+        }
+
+        .footer-text p {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        /* ===== ESTILOS ESPECÍFICOS DEL AHORCADO ===== */
+        .hangman-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .hangman-drawing {
+            font-size: 3rem;
+            margin: 20px 0;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            display: inline-block;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .word-display {
+            font-size: 2.5rem;
+            letter-spacing: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .attempts {
+            font-size: 1.3rem;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .letter-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr); /* 7 columnas para simular teclado */
+            gap: 12px;
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 2px solid var(--border-color);
+        }
+
+        .letter-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 15px 0;
+            border-radius: 12px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 0 8px 0 #1a5276, 0 10px 15px rgba(0,0,0,0.3);
+            position: relative;
+            transform: translateY(0);
+            width: 100%;
+            text-align: center;
+        }
+
+        .light-theme .letter-btn {
+            box-shadow: 0 8px 0 #1f618d, 0 10px 15px rgba(0,0,0,0.2);
+        }
+
+        .letter-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #1a5276, 0 5px 10px rgba(0,0,0,0.3);
+        }
+
+        .letter-btn:disabled {
+            opacity: 0.4;
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #1a5276, 0 5px 10px rgba(0,0,0,0.2);
+            pointer-events: none;
+        }
+
+        .new-game-btn {
+            background: linear-gradient(135deg, var(--success), #1e8449);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 20px 0;
+            box-shadow: 0 8px 0 #1e5f3a, 0 10px 20px rgba(0,0,0,0.3);
+            transition: 0.1s ease;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .new-game-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #1e5f3a, 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Ajustes responsivos */
+        @media (max-width: 600px) {
+            h1 { font-size: 2.2rem; }
+            .word-display { font-size: 1.8rem; letter-spacing: 5px; }
+            .letter-grid { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+            .letter-btn { font-size: 1.2rem; padding: 10px 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Volver</a>
+                <h1><i class="fas fa-robot"></i> Galgenmännchen</h1>
+                <div class="header-controls">
+                    <a href="../index.html" class="btn-icon" title="Inicio"><i class="fas fa-home"></i></a>
+                    <button id="themeToggle" class="btn-icon" title="Cambiar tema"><i class="fas fa-moon"></i></button>
+                </div>
+            </div>
+        </header>
+
+        <div class="hangman-container">
+            <div class="hangman-drawing" id="hangmanDrawing">😊</div>
+            <div class="word-display" id="wordDisplay"></div>
+            <div class="attempts" id="attempts">Fallos: 0 / 6</div>
+            <div id="letterGrid" class="letter-grid"></div>
+            <button class="new-game-btn" onclick="nuevoJuego()">🔄 Nueva palabra</button>
+        </div>
+
+        <!-- Sonidos (deben estar en la misma carpeta) -->
+        <audio id="sound-click" src="click.mp3"></audio>
+        <audio id="sound-correct" src="correct.mp3"></audio>
+        <audio id="sound-incorrect" src="incorrect.mp3"></audio>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <img src="../images/Logo5.png" alt="DEULCHALEX Logo" onerror="this.style.display='none'; this.parentElement.innerHTML += '<div style=\'color:var(--secondary); font-size:1.5rem; font-weight:bold;\'>DEULCHALEX</div>';">
+                <div class="footer-text">
+                    <p>© 2024 DEULCHALEX – Centro de Aprendizaje de Alemán • Para hispanohablantes (Niveles A1–C1)</p>
+                    <p>Todos los derechos de contenido educativo pertenecen a DEULCHALEX. Plataforma con fines educativos.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#"><i class="fas fa-info-circle"></i> Acerca de</a>
+                    <a href="#"><i class="fas fa-lightbulb"></i> Consejos</a>
+                    <a href="#"><i class="fas fa-question-circle"></i> FAQ</a>
+                    <a href="#"><i class="fas fa-envelope"></i> Contacto</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Banco de palabras (puedes ampliarlo)
+        const words = [
+            'HAUS', 'BAUM', 'HUND', 'KATZE', 'AUTO', 'BUCH', 'SCHULE', 'LEHRER',
+            'WASSER', 'BROT', 'APFEL', 'BANANE', 'MILCH', 'KÄSE', 'FENSTER', 'TÜR'
+        ];
+        let palabraSecreta = '';
+        let letrasAdivinadas = [];
+        let fallos = 0;
+        const maxFallos = 6;
+
+        // Elementos de sonido
+        const clickSound = document.getElementById('sound-click');
+        const correctSound = document.getElementById('sound-correct');
+        const incorrectSound = document.getElementById('sound-incorrect');
+
+        function nuevoJuego() {
+            palabraSecreta = words[Math.floor(Math.random() * words.length)];
+            letrasAdivinadas = [];
+            fallos = 0;
+            actualizarDisplay();
+            generarBotones();
+            document.getElementById('hangmanDrawing').textContent = '😊';
+        }
+
+        function actualizarDisplay() {
+            const display = palabraSecreta.split('').map(letra => 
+                letrasAdivinadas.includes(letra) ? letra : '_'
+            ).join(' ');
+            document.getElementById('wordDisplay').textContent = display;
+            document.getElementById('attempts').textContent = `Fallos: ${fallos} / ${maxFallos}`;
+
+            const estados = ['😊', '😐', '😟', '😨', '😰', '😵', '💀'];
+            document.getElementById('hangmanDrawing').textContent = estados[fallos];
+        }
+
+        function generarBotones() {
+            const grid = document.getElementById('letterGrid');
+            grid.innerHTML = '';
+            // Teclado en orden QWERTY (filas)
+            const filas = [
+                ['Q','W','E','R','T','Z','U','I','O','P','Ü'],
+                ['A','S','D','F','G','H','J','K','L','Ö','Ä'],
+                ['Y','X','C','V','B','N','M']
+            ];
+            filas.forEach(fila => {
+                fila.forEach(letra => {
+                    const btn = document.createElement('button');
+                    btn.className = 'letter-btn';
+                    btn.textContent = letra;
+                    btn.onclick = () => adivinarLetra(letra, btn);
+                    grid.appendChild(btn);
+                });
+            });
+        }
+
+        function adivinarLetra(letra, btn) {
+            // Sonido de clic
+            clickSound?.play();
+
+            btn.disabled = true;
+            if (palabraSecreta.includes(letra)) {
+                letrasAdivinadas.push(letra);
+                actualizarDisplay();
+                correctSound?.play();
+                if (!document.getElementById('wordDisplay').textContent.includes('_')) {
+                    setTimeout(() => alert('🎉 ¡Ganaste! 🎉'), 200);
+                }
+            } else {
+                fallos++;
+                actualizarDisplay();
+                incorrectSound?.play();
+                if (fallos >= maxFallos) {
+                    setTimeout(() => alert(`😵 Perdiste. La palabra era: ${palabraSecreta}`), 200);
+                }
+            }
+        }
+
+        // Tema claro/oscuro
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-theme');
+            themeIcon.className = 'fas fa-sun';
+        } else {
+            themeIcon.className = 'fas fa-moon';
+        }
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            themeIcon.className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        // Iniciar juego
+        nuevoJuego();
+    </script>
+</body>
+</html>

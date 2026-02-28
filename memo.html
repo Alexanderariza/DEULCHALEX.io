@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEULCHALEX - Memofiches</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --warning: #f39c12;
+            
+            --bg-gradient-start: #1a1a2e;
+            --bg-gradient-end: #16213e;
+            --card-bg: rgba(255,255,255,0.05);
+            --text-primary: #ecf0f1;
+            --text-secondary: #bdc3c7;
+            --border-color: rgba(255,255,255,0.1);
+            --header-bg: rgba(0,0,0,0.3);
+            --modal-bg: rgba(0,0,0,0.95);
+            --folder-info-bg: rgba(255,255,255,0.05);
+        }
+
+        .light-theme {
+            --bg-gradient-start: #f5f7fa;
+            --bg-gradient-end: #c3cfe2;
+            --card-bg: white;
+            --text-primary: #2c3e50;
+            --text-secondary: #34495e;
+            --border-color: #ddd;
+            --header-bg: rgba(255,255,255,0.3);
+            --modal-bg: rgba(0,0,0,0.9);
+            --folder-info-bg: white;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            background: var(--header-bg);
+            color: var(--text-primary);
+            padding: 30px 20px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--secondary);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent), var(--success));
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 800px;
+        }
+
+        /* Botones icono */
+        .btn-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-icon:hover {
+            background: var(--secondary);
+            color: white;
+            transform: translateY(-3px);
+            border-color: transparent;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            padding: 12px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 1px solid var(--border-color);
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(-5px);
+        }
+
+        .folder-info {
+            background: var(--folder-info-bg);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .folder-info i {
+            color: var(--secondary);
+            margin-right: 10px;
+        }
+
+        /* Grid de fichas */
+        .memo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .memo-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+        }
+
+        .memo-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+            box-shadow: 0 5px 15px rgba(52,152,219,0.2);
+        }
+
+        .memo-number {
+            background: var(--secondary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 auto 15px;
+        }
+
+        .memo-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .memo-title {
+            color: var(--text-primary);
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .memo-topic {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .view-btn {
+            display: inline-block;
+            background: var(--secondary);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            width: 100%;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .view-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--modal-bg);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            position: relative;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            overflow: hidden;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+        }
+
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .modal-body {
+            padding: 20px;
+            text-align: center;
+            max-height: 70vh;
+            overflow-y: auto;
+            color: var(--text-primary);
+        }
+
+        .memo-image {
+            max-width: 100%;
+            max-height: 60vh;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .image-not-found {
+            padding: 40px;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .image-not-found i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--border-color);
+            display: block;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            text-align: center;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .back-modal-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .back-modal-btn:hover {
+            background: #1a2530;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 60px;
+            padding: 30px;
+            background: var(--header-bg);
+            border-radius: 15px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .footer-content img {
+            max-width: 150px;
+            height: auto;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2));
+        }
+
+        .footer-text p {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .memo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10px auto;
+            }
+            
+            .memo-emoji {
+                font-size: 2rem;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-content">
+                <div>
+                    <a href="index.html" class="back-btn">
+                        <i class="fas fa-arrow-left"></i> Volver a DEULCHALEX
+                    </a>
+                </div>
+                <div style="flex-grow: 1; text-align: center;">
+                    <h1><i class="fas fa-images"></i> Memofiches</h1>
+                    <p class="subtitle">20 fichas visuales de gramática y vocabulario alemán</p>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <a href="index.html" class="btn-icon" title="Inicio">
+                        <i class="fas fa-home"></i>
+                    </a>
+                    <button id="themeToggle" class="btn-icon" title="Cambiar tema">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="folder-info">
+            <p><i class="fas fa-folder-open"></i> <strong>Carpeta:</strong> /memo/ &nbsp; | &nbsp; <i class="fas fa-file-image"></i> <strong>Archivos:</strong> memo1.jpg - memo20.jpg</p>
+        </div>
+
+        <div class="memo-grid">
+            <!-- Las fichas se generarán dinámicamente con JavaScript -->
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <img src="images/Logo5.png" alt="DEULCHALEX Logo" width="10%" height="10%" onerror="this.style.display='none'; this.parentElement.innerHTML += '<div style=\'color:var(--secondary); font-size:1.5rem; font-weight:bold;\'>DEULCHALEX</div>';">
+                <div class="footer-text">
+                    <p>© 2024 DEULCHALEX – Centro de Aprendizaje de Alemán • Para hispanohablantes (Niveles A1–C1)</p>
+                    <p>Todos los derechos de contenido educativo pertenecen a DEULCHALEX. Plataforma con fines educativos.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#"><i class="fas fa-info-circle"></i> Acerca de DEULCHALEX</a>
+                    <a href="#"><i class="fas fa-lightbulb"></i> Consejos de aprendizaje</a>
+                    <a href="#"><i class="fas fa-question-circle"></i> Preguntas frecuentes</a>
+                    <a href="#"><i class="fas fa-envelope"></i> Contacto</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal -->
+    <div id="memoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">
+                    <span id="modalEmoji"></span>
+                    <span id="modalGermanTitle"></span>
+                </h3>
+                <button class="close-btn" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modalImageContainer"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="back-modal-btn" onclick="closeModal()">
+                    <i class="fas fa-arrow-left"></i> Volver al menú
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos de las fichas
+        const memoData = [
+            { number: 1, emoji: "🌦️", german: "Wetter", spanish: "El clima", file: "memo/memo1.jpg" },
+            { number: 2, emoji: "🔄", german: "Wechselpräpositionen", spanish: "Preposiciones de cambio", file: "memo/memo2.jpg" },
+            { number: 3, emoji: "🤝", german: "Hilfsverben", spanish: "Verbos auxiliares", file: "memo/memo3.jpg" },
+            { number: 4, emoji: "⏰", german: "Die Uhrzeit", spanish: "La hora", file: "memo/memo4.jpg" },
+            { number: 5, emoji: "🔑", german: "Possessivpronomen", spanish: "Pronombres posesivos", file: "memo/memo5.jpg" },
+            { number: 6, emoji: "👥", german: "Pronomen", spanish: "Pronombres", file: "memo/memo6.jpg" },
+            { number: 7, emoji: "❓", german: "Fragen stellen", spanish: "Formular preguntas", file: "memo/memo7.jpg" },
+            { number: 8, emoji: "⚖️", german: "Je...desto", spanish: "Cuanto más... más", file: "memo/memo8.jpg" },
+            { number: 9, emoji: "🔗", german: "Präposition + Artikel", spanish: "Preposición + artículo", file: "memo/memo9.jpg" },
+            { number: 10, emoji: "👋", german: "Grußworte", spanish: "Saludos", file: "memo/memo10.jpg" },
+            { number: 11, emoji: "👤", german: "Personalpronomen", spanish: "Pronombres personales", file: "memo/memo11.jpg" },
+            { number: 12, emoji: "⚡", german: "Modalverben", spanish: "Verbos modales", file: "memo/memo12.jpg" },
+            { number: 13, emoji: "🔢", german: "Zahlen", spanish: "Números", file: "memo/memo13.jpg" },
+            { number: 14, emoji: "📢", german: "Befehle", spanish: "Órdenes", file: "memo/memo14.jpg" },
+            { number: 15, emoji: "🧭", german: "Wegbeschreibung", spanish: "Dar direcciones", file: "memo/memo15.jpg" },
+            { number: 16, emoji: "💪", german: "Mein Körper", spanish: "Mi cuerpo", file: "memo/memo16.jpg" },
+            { number: 17, emoji: "🏠", german: "Haushaltsgegenstände", spanish: "Cosas de la casa", file: "memo/memo17.jpg" },
+            { number: 18, emoji: "📍", german: "Wohin?", spanish: "¿A dónde?", file: "memo/memo18.jpg" },
+            { number: 19, emoji: "👨‍👩‍👧‍👦", german: "Die Familie", spanish: "La familia", file: "memo/memo19.jpg" },
+            { number: 20, emoji: "🇩🇪", german: "Deutschland", spanish: "Alemania", file: "memo/memo20.jpg" }
+        ];
+
+        // Generar las tarjetas dinámicamente
+        function renderMemos() {
+            const grid = document.querySelector('.memo-grid');
+            grid.innerHTML = memoData.map(memo => `
+                <div class="memo-card" data-memo="${memo.number}">
+                    <div class="memo-number">${memo.number.toString().padStart(2, '0')}</div>
+                    <span class="memo-emoji">${memo.emoji}</span>
+                    <h3 class="memo-title">${memo.german}</h3>
+                    <p class="memo-topic">${memo.spanish}</p>
+                    <button class="view-btn" onclick="openMemo(${memo.number})">
+                        <i class="fas fa-eye"></i> Ver ficha
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Abrir modal
+        function openMemo(number) {
+            const memo = memoData.find(m => m.number === number);
+            if (!memo) return;
+
+            const modal = document.getElementById('memoModal');
+            const modalTitle = document.getElementById('modalGermanTitle');
+            const modalEmoji = document.getElementById('modalEmoji');
+            const imageContainer = document.getElementById('modalImageContainer');
+
+            modalTitle.textContent = `${memo.german} - ${memo.spanish}`;
+            modalEmoji.textContent = memo.emoji;
+
+            imageContainer.innerHTML = '';
+            const img = document.createElement('img');
+            img.className = 'memo-image';
+            img.src = memo.file;
+            img.alt = `${memo.german} - ${memo.spanish}`;
+            img.onload = () => console.log(`Imagen cargada: ${memo.file}`);
+            img.onerror = () => {
+                imageContainer.innerHTML = `
+                    <div class="image-not-found">
+                        <i class="fas fa-image"></i>
+                        <p>No se pudo cargar la imagen: ${memo.file}</p>
+                        <p>Verifica que el archivo exista en la carpeta /memo/</p>
+                    </div>
+                `;
+            };
+            imageContainer.appendChild(img);
+
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('memoModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMemos();
+
+            // Tema claro/oscuro
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle.querySelector('i');
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-theme');
+                themeIcon.className = 'fas fa-sun';
+            } else {
+                themeIcon.className = 'fas fa-moon';
+            }
+
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('light-theme');
+                const isLight = document.body.classList.contains('light-theme');
+                localStorage.setItem('theme', isLight ? 'light' : 'dark');
+                themeIcon.className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+            });
+
+            // Cerrar modal con Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+            });
+
+            // Cerrar modal haciendo clic fuera
+            document.getElementById('memoModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('memoModal')) closeModal();
+            });
+
+            // Hacer que toda la tarjeta sea clickeable (además del botón)
+            document.querySelectorAll('.memo-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('view-btn')) {
+                        const memoNumber = card.getAttribute('data-memo');
+                        openMemo(parseInt(memoNumber));
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

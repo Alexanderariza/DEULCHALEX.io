@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEULCHALEX - Spielplatz</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #1a1a2e;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --bg-gradient-start: #1a1a2e;
+            --bg-gradient-end: #16213e;
+            --card-bg: rgba(255,255,255,0.05);
+            --text-primary: var(--light);
+            --text-secondary: #bdc3c7;
+            --border-color: rgba(255,255,255,0.1);
+        }
+
+        .light-theme {
+            --primary: #34495e;
+            --secondary: #2980b9;
+            --accent: #c0392b;
+            --light: #2c3e50;
+            --dark: #ecf0f1;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --bg-gradient-start: #f5f7fa;
+            --bg-gradient-end: #c3cfe2;
+            --card-bg: rgba(0,0,0,0.03);
+            --text-primary: #2c3e50;
+            --text-secondary: #34495e;
+            --border-color: rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border-left: 5px solid var(--secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent), var(--success));
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-icon:hover {
+            background: var(--secondary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
+            border-color: transparent;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            padding: 12px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 1px solid var(--border-color);
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(-5px);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .footer-content img {
+            max-width: 150px;
+            height: auto;
+        }
+
+        .footer-text p {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        /* Estilos específicos de la cuadrícula de juegos */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        .game-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s, border-color 0.3s;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+        }
+        .game-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+        .game-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+        }
+        .game-card p {
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <a href="../index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Volver</a>
+                <h1><i class="fas fa-gamepad"></i> Spielplatz</h1>
+                <div class="header-controls">
+                    <a href="../index.html" class="btn-icon" title="Inicio"><i class="fas fa-home"></i></a>
+                    <button id="themeToggle" class="btn-icon" title="Cambiar tema"><i class="fas fa-moon"></i></button>
+                </div>
+            </div>
+        </header>
+
+        <div class="games-grid">
+            <a href="memory.html" class="game-card">
+                <div class="game-icon"><i class="fas fa-brain"></i></div>
+                <h3>Gedächtnisspiel</h3>
+                <p>Empareja antónimos. 3 niveles de dificultad.</p>
+            </a>
+            <a href="hangman.html" class="game-card">
+                <div class="game-icon"><i class="fas fa-skull"></i></div>
+                <h3>Galgenmännchen</h3>
+                <p>Adivina la palabra oculta antes de que te ahorquen.</p>
+            </a>
+            <a href="match-image.html" class="game-card">
+                <div class="game-icon"><i class="fas fa-image"></i></div>
+                <h3>Bild-Wort Zuordnung</h3>
+                <p>Arrastra la imagen a la palabra correcta.</p>
+            </a>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <img src="../images/Logo5.png" alt="DEULCHALEX Logo" onerror="this.style.display='none'; this.parentElement.innerHTML += '<div style=\'color:var(--secondary); font-size:1.5rem; font-weight:bold;\'>DEULCHALEX</div>';">
+                <div class="footer-text">
+                    <p>© 2024 DEULCHALEX – Centro de Aprendizaje de Alemán • Para hispanohablantes (Niveles A1–C1)</p>
+                    <p>Todos los derechos de contenido educativo pertenecen a DEULCHALEX. Plataforma con fines educativos.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#"><i class="fas fa-info-circle"></i> Acerca de</a>
+                    <a href="#"><i class="fas fa-lightbulb"></i> Consejos</a>
+                    <a href="#"><i class="fas fa-question-circle"></i> FAQ</a>
+                    <a href="#"><i class="fas fa-envelope"></i> Contacto</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Tema claro/oscuro
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-theme');
+            themeIcon.className = 'fas fa-sun';
+        } else {
+            themeIcon.className = 'fas fa-moon';
+        }
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            themeIcon.className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+        });
+    </script>
+</body>
+</html>
