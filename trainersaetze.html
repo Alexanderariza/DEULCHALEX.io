@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEULCHALEX - Trainersätze</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --purple: #9b59b6;
+            --orange: #e67e22;
+            --teal: #1abc9c;
+            
+            --bg-gradient-start: #000000;   /* Fondo general oscuro Spotify */
+            --bg-gradient-end: #000000;     /* Fondo general oscuro Spotify */
+            --card-bg: rgba(255,255,255,0.05);
+            --text-primary: #ecf0f1;
+            --text-secondary: #bdc3c7;
+            --border-color: rgba(255,255,255,0.1);
+            --header-bg: rgba(0,0,0,0.3);
+        }
+
+        .light-theme {
+            --bg-gradient-start: #f5f7fa;
+            --bg-gradient-end: #c3cfe2;
+            --card-bg: white;
+            --text-primary: #2c3e50;
+            --text-secondary: #34495e;
+            --border-color: #ddd;
+            --header-bg: rgba(255,255,255,0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%); color: var(--text-primary); min-height: 100vh; line-height: 1.6; transition: background 0.3s, color 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        /* Header */
+        header { background: var(--header-bg); color: var(--text-primary); padding: 30px 20px; border-radius: 20px; margin-bottom: 40px; border-left: 5px solid var(--secondary); position: relative; overflow: hidden; backdrop-filter: blur(5px); }
+        header::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--secondary), var(--accent), var(--success)); }
+        .header-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        h1 { font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(90deg, var(--secondary), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .subtitle { color: var(--text-secondary); font-size: 1.1rem; max-width: 800px; }
+
+        .btn-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid var(--border-color); color: var(--text-primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; transition: 0.3s; text-decoration: none; backdrop-filter: blur(5px); }
+        .btn-icon:hover { background: var(--secondary); color: white; transform: translateY(-3px); border-color: transparent; }
+        .back-btn { display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.1); color: var(--text-primary); padding: 12px 25px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: 0.3s; border: 1px solid var(--border-color); }
+        .back-btn:hover { background: rgba(255,255,255,0.2); transform: translateX(-5px); }
+
+        /* Barra de progreso */
+        .progress-section {
+            margin: 20px 0 30px 0;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            color: var(--text-secondary);
+        }
+
+        /* Panel de estadísticas rápidas */
+        .stats-panel {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0 30px 0;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+        }
+        .stat-card { text-align: center; min-width: 100px; }
+        .stat-value { font-size: 2rem; font-weight: 700; color: var(--secondary); line-height: 1; }
+        .stat-label { font-size: 0.9rem; color: var(--text-secondary); }
+
+        /* Grid de categorías */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .category-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+        }
+        .category-card:hover { transform: translateY(-5px); border-color: var(--secondary); }
+        .category-card.selected { border-color: var(--success); background: rgba(39,174,96,0.1); }
+        .category-icon { font-size: 2.5rem; margin-bottom: 10px; }
+        .category-name { font-size: 1.2rem; font-weight: 600; }
+        .category-progress { margin-top: 10px; font-size: 0.9rem; color: var(--text-secondary); }
+
+        /* Área de ejercicio */
+        .exercise-area {
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 35px;
+            margin: 30px 0;
+            border: 1px solid var(--border-color);
+            border-top: 6px solid var(--purple);
+        }
+        .exercise-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .exercise-type {
+            background: var(--secondary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .exercise-counter { font-weight: 600; }
+        .exercise-question {
+            font-size: 1.5rem;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .exercise-target { font-size: 1.2rem; margin-bottom: 20px; text-align: center; font-style: italic; color: var(--text-secondary); }
+        
+        /* Para ejercicio de completar */
+        .fill-input {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        .fill-input:focus { outline: none; border-color: var(--secondary); }
+
+        /* Para ejercicio de ordenar */
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .word-tile {
+            background: var(--secondary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 600;
+            box-shadow: 0 4px 0 #1a5276;
+        }
+        .word-tile:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #1a5276; }
+        .word-tile.selected { background: var(--success); transform: translateY(2px); box-shadow: 0 2px 0 #1e5f3a; pointer-events: none; }
+        .sentence-builder {
+            min-height: 60px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            border: 1px dashed var(--border-color);
+        }
+        .built-word {
+            background: var(--card-bg);
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Opción múltiple */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .option-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .option-card:hover { border-color: var(--secondary); }
+        .option-card.selected { border-color: var(--success); background: rgba(39,174,96,0.1); }
+
+        .action-buttons { display: flex; gap: 15px; justify-content: center; margin: 20px 0; flex-wrap: wrap; }
+        .btn { background: linear-gradient(135deg, var(--secondary), #2980b9); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(52,152,219,0.3); }
+        .btn.reset { background: linear-gradient(135deg, #95a5a6, #7f8c8d); }
+        .hint-btn { background: none; border: 1px solid var(--warning); color: var(--warning); padding: 8px 16px; border-radius: 20px; cursor: pointer; margin-top: 10px; }
+
+        .feedback-message { padding: 15px; border-radius: 10px; margin-top: 15px; display: none; }
+        .feedback-correct { background: rgba(39,174,96,0.2); border-left: 5px solid var(--success); display: block; }
+        .feedback-incorrect { background: rgba(231,76,60,0.2); border-left: 5px solid var(--accent); display: block; }
+
+        /* Footer */
+        .footer { margin-top: 60px; padding: 30px; background: var(--header-bg); border-radius: 15px; border-top: 1px solid var(--border-color); text-align: center; }
+        .footer-content { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .footer-content img { max-width: 150px; height: auto; }
+        .footer-text p { margin-bottom: 10px; color: var(--text-secondary); font-size: 0.9rem; }
+        .footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .footer-links a { color: var(--secondary); text-decoration: none; transition: color 0.3s; }
+        .footer-links a:hover { color: var(--text-primary); }
+
+        @media (max-width: 768px) { .container { padding: 15px; } h1 { font-size: 2rem; } .header-content { flex-direction: column; text-align: center; } }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Volver</a>
+                <h1><i class="fas fa-comment-dots"></i> Trainersätze</h1>
+                <div style="display: flex; gap: 12px;">
+                    <a href="index.html" class="btn-icon" title="Inicio"><i class="fas fa-home"></i></a>
+                    <button id="themeToggle" class="btn-icon" title="Cambiar tema"><i class="fas fa-moon"></i></button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Barra de progreso general (frases dominadas) -->
+        <div class="progress-section">
+            <div class="progress-label">
+                <span><i class="fas fa-chart-line"></i> Progreso general en frases</span>
+                <span id="globalProgressPercent">0%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div id="globalProgressBar" class="progress-bar-fill" style="width: 0%;"></div>
+            </div>
+            <div class="progress-stats">
+                <span id="masteredCount">0</span> dominadas / <span id="totalPhrases">0</span> total
+            </div>
+        </div>
+
+        <!-- Panel de estadísticas (puntos, racha, nivel) -->
+        <div class="stats-panel">
+            <div class="stat-card">
+                <div class="stat-value" id="totalPoints">0</div>
+                <div class="stat-label">Puntos totales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="correctAnswers">0</div>
+                <div class="stat-label">Correctas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="streak">0</div>
+                <div class="stat-label">Racha actual</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="level">1</div>
+                <div class="stat-label">Nivel</div>
+            </div>
+        </div>
+
+        <!-- Selector de categorías -->
+        <h2 class="section-title" style="margin-bottom: 20px;"><i class="fas fa-tags"></i> Selecciona una categoría</h2>
+        <div class="categories-grid" id="categoriesContainer"></div>
+
+        <!-- Área de ejercicio (se muestra al seleccionar categoría) -->
+        <div class="exercise-area" id="exerciseArea" style="display: none;">
+            <div class="exercise-header">
+                <span class="exercise-type" id="exerciseType">Traducción</span>
+                <span class="exercise-counter" id="exerciseCounter">1 / 5</span>
+            </div>
+            <div class="exercise-question" id="questionText"></div>
+            <div id="exerciseContent"></div>
+            <div class="action-buttons">
+                <button class="btn" onclick="checkAnswer()">Comprobar</button>
+                <button class="btn reset" onclick="resetExercise()">Reiniciar</button>
+            </div>
+            <button class="hint-btn" id="hintBtn" onclick="showHint()"><i class="fas fa-lightbulb"></i> Pista</button>
+            <div class="feedback-message" id="feedback"></div>
+        </div>
+
+        <!-- Mensaje inicial -->
+        <div class="instruction" id="instruction" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+            <i class="fas fa-hand-pointer" style="font-size: 3rem; margin-bottom: 15px;"></i>
+            <p>Selecciona una categoría para comenzar los ejercicios.</p>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <img src="images/Logo5.png" alt="DEULCHALEX Logo" onerror="this.style.display='none'; this.parentElement.innerHTML += '<div style=\'color:var(--secondary); font-size:1.5rem; font-weight:bold;\'>DEULCHALEX</div>';">
+                <div class="footer-text"><p>© 2024 DEULCHALEX – Centro de Aprendizaje de Alemán</p></div>
+                <div class="footer-links"><a href="#">Acerca</a><a href="#">Consejos</a><a href="#">FAQ</a><a href="#">Contacto</a></div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // ========== CONFIGURACIÓN SUPABASE ==========
+        const supabaseUrl = 'https://kcfiacdwufadnuknkfkp.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZmlhY2R3dWZhZG51a25rZmtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxOTA5MTksImV4cCI6MjA4Nzc2NjkxOX0.bmz4K7E-a2PCM5CObDYz9ritbTKLi_OpwyiNBMOH5fU';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+        const USER_ID = '00000000-0000-0000-0000-000000000000';
+
+        // ========== DATOS DE CATEGORÍAS ==========
+        const categories = [
+            { id: 'vida_diaria', name: 'Vida diaria', icon: '🏠' },
+            { id: 'compras', name: 'Compras', icon: '🛒' },
+            { id: 'viajes', name: 'Viajes', icon: '✈️' },
+            { id: 'restaurante', name: 'Restaurante', icon: '🍽️' },
+            { id: 'trabajo', name: 'Trabajo', icon: '💼' },
+            { id: 'salud', name: 'Salud', icon: '🏥' }
+        ];
+
+        // ========== ESTADO GLOBAL ==========
+        let allPhrases = [];               // Todas las frases (de la DB)
+        let userProgress = [];              // Progreso por frase (user_phrase_progress)
+        let selectedCategory = null;
+        let currentPhraseIndex = 0;
+        let currentExerciseType = null;      // 'traduccion', 'completar', 'ordenar', 'multiple'
+        let currentPhrase = null;            // La frase actual
+        let selectedOption = null;            // Para opción múltiple
+        let selectedWords = [];               // Para ordenar
+        let userAnswer = '';                  // Para completar
+
+        // Estadísticas (puntos, racha, nivel) - podrían guardarse en user_stats
+        let stats = { points: 0, correct: 0, streak: 0, level: 1 };
+
+        // ========== FUNCIONES DE CARGA ==========
+        async function loadPhrases() {
+            const { data, error } = await supabaseClient.from('phrase_exercises').select('*');
+            if (error) {
+                console.error('Error cargando frases:', error);
+                // Datos de respaldo
+                allPhrases = defaultPhrases;
+            } else {
+                allPhrases = data;
+            }
+            document.getElementById('totalPhrases').textContent = allPhrases.length;
+            await loadUserProgress();
+            renderCategories();
+            updateGlobalProgress();
+        }
+
+        async function loadUserProgress() {
+            const { data, error } = await supabaseClient
+                .from('user_phrase_progress')
+                .select('*')
+                .eq('user_id', USER_ID);
+            if (error) {
+                console.error('Error cargando progreso:', error);
+                userProgress = [];
+            } else {
+                userProgress = data || [];
+            }
+            // Cargar estadísticas desde localStorage (o user_stats)
+            const savedStats = JSON.parse(localStorage.getItem('trainer_stats')) || { points: 0, correct: 0, streak: 0, level: 1 };
+            stats = savedStats;
+            updateStatsDisplay();
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+            categories.forEach(cat => {
+                const phrasesInCat = allPhrases.filter(p => p.category === cat.id);
+                const totalInCat = phrasesInCat.length;
+                // Contar cuántas de estas frases están mastered
+                const mastered = phrasesInCat.filter(p => {
+                    const prog = userProgress.find(up => up.phrase_id === p.id);
+                    return prog && prog.mastered;
+                }).length;
+                const card = document.createElement('div');
+                card.className = `category-card ${selectedCategory === cat.id ? 'selected' : ''}`;
+                card.dataset.category = cat.id;
+                card.innerHTML = `
+                    <div class="category-icon">${cat.icon}</div>
+                    <div class="category-name">${cat.name}</div>
+                    <div class="category-progress">${mastered}/${totalInCat} dominadas</div>
+                `;
+                card.addEventListener('click', () => selectCategory(cat.id));
+                container.appendChild(card);
+            });
+        }
+
+        function selectCategory(categoryId) {
+            selectedCategory = categoryId;
+            document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+            document.querySelector(`[data-category="${categoryId}"]`).classList.add('selected');
+
+            // Obtener frases de esta categoría que NO estén mastered (priorizar las no dominadas)
+            let available = allPhrases.filter(p => p.category === categoryId);
+            // Ordenar: las no dominadas primero
+            available.sort((a, b) => {
+                const progA = userProgress.find(up => up.phrase_id === a.id);
+                const progB = userProgress.find(up => up.phrase_id === b.id);
+                const masteredA = progA && progA.mastered;
+                const masteredB = progB && progB.mastered;
+                if (masteredA === masteredB) return 0;
+                return masteredA ? 1 : -1; // no dominadas primero
+            });
+
+            if (available.length === 0) {
+                alert('No hay frases en esta categoría.');
+                return;
+            }
+
+            // Guardar la lista de frases para esta sesión (máximo 10 para no abrumar)
+            window.currentSessionPhrases = available.slice(0, 10);
+            currentPhraseIndex = 0;
+            loadNextPhrase();
+        }
+
+        function loadNextPhrase() {
+            if (!window.currentSessionPhrases || currentPhraseIndex >= window.currentSessionPhrases.length) {
+                // Terminó la sesión, volver a selección
+                document.getElementById('exerciseArea').style.display = 'none';
+                document.getElementById('instruction').innerHTML = '<i class="fas fa-trophy"></i> ¡Has completado todas las frases disponibles! Selecciona otra categoría.';
+                document.getElementById('instruction').style.display = 'block';
+                return;
+            }
+            currentPhrase = window.currentSessionPhrases[currentPhraseIndex];
+            // Elegir un tipo de ejercicio aleatorio
+            const types = ['traduccion', 'completar', 'ordenar', 'multiple'];
+            currentExerciseType = types[Math.floor(Math.random() * types.length)];
+            renderExercise();
+            document.getElementById('exerciseArea').style.display = 'block';
+            document.getElementById('instruction').style.display = 'none';
+            document.getElementById('exerciseCounter').textContent = `${currentPhraseIndex+1} / ${window.currentSessionPhrases.length}`;
+        }
+
+        function renderExercise() {
+            const contentDiv = document.getElementById('exerciseContent');
+            const questionDiv = document.getElementById('questionText');
+            const typeSpan = document.getElementById('exerciseType');
+            typeSpan.textContent = getExerciseTypeName(currentExerciseType);
+
+            switch (currentExerciseType) {
+                case 'traduccion':
+                    questionDiv.textContent = 'Traduce al alemán:';
+                    contentDiv.innerHTML = `
+                        <div class="exercise-target">${currentPhrase.translation}</div>
+                        <input type="text" id="translationInput" class="fill-input" placeholder="Escribe la frase en alemán...">
+                    `;
+                    break;
+                case 'completar':
+                    // Elegir una palabra al azar para ocultar
+                    const words = currentPhrase.german.split(' ');
+                    const missingIndex = Math.floor(Math.random() * words.length);
+                    const missingWord = words[missingIndex];
+                    const displayWords = words.map((w, i) => i === missingIndex ? '______' : w).join(' ');
+                    questionDiv.textContent = 'Completa la frase:';
+                    contentDiv.innerHTML = `
+                        <div class="exercise-target">${displayWords}</div>
+                        <input type="text" id="completionInput" class="fill-input" placeholder="Escribe la palabra que falta...">
+                        <input type="hidden" id="missingWord" value="${missingWord}">
+                    `;
+                    break;
+                case 'ordenar':
+                    questionDiv.textContent = 'Ordena las palabras para formar la frase:';
+                    const shuffled = currentPhrase.words ? [...currentPhrase.words] : currentPhrase.german.split(' ');
+                    for (let i = shuffled.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                    }
+                    contentDiv.innerHTML = `
+                        <div class="word-bank" id="wordBank"></div>
+                        <div class="sentence-builder" id="sentenceBuilder"></div>
+                    `;
+                    selectedWords = [];
+                    renderWordBank(shuffled);
+                    break;
+                case 'multiple':
+                    questionDiv.textContent = 'Elige la opción correcta:';
+                    // Generar opciones (una correcta, 3 incorrectas de otras frases)
+                    const correct = currentPhrase.german;
+                    let options = [correct];
+                    while (options.length < 4) {
+                        const randomPhrase = allPhrases[Math.floor(Math.random() * allPhrases.length)];
+                        if (!options.includes(randomPhrase.german)) {
+                            options.push(randomPhrase.german);
+                        }
+                    }
+                    options = options.sort(() => 0.5 - Math.random());
+                    contentDiv.innerHTML = `
+                        <div class="exercise-target">${currentPhrase.translation}</div>
+                        <div class="options-grid" id="optionsGrid"></div>
+                    `;
+                    renderOptions(options);
+                    break;
+            }
+        }
+
+        function renderWordBank(words) {
+            const bank = document.getElementById('wordBank');
+            bank.innerHTML = '';
+            words.forEach(word => {
+                const tile = document.createElement('div');
+                tile.className = 'word-tile';
+                tile.textContent = word;
+                tile.onclick = () => selectWord(tile, word);
+                bank.appendChild(tile);
+            });
+        }
+
+        function selectWord(tile, word) {
+            tile.classList.add('selected');
+            selectedWords.push(word);
+            const builder = document.getElementById('sentenceBuilder');
+            const span = document.createElement('span');
+            span.className = 'built-word';
+            span.textContent = word;
+            builder.appendChild(span);
+        }
+
+        function renderOptions(options) {
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = '';
+            options.forEach(opt => {
+                const div = document.createElement('div');
+                div.className = 'option-card';
+                div.textContent = opt;
+                div.onclick = () => {
+                    document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                    div.classList.add('selected');
+                    selectedOption = opt;
+                };
+                grid.appendChild(div);
+            });
+        }
+
+        function resetExercise() {
+            renderExercise();
+            document.getElementById('feedback').style.display = 'none';
+        }
+
+        function showHint() {
+            if (!currentPhrase) return;
+            alert(`Pista: la frase comienza con "${currentPhrase.german.split(' ')[0]}"`);
+        }
+
+        async function checkAnswer() {
+            let isCorrect = false;
+            let userAnswerText = '';
+
+            switch (currentExerciseType) {
+                case 'traduccion':
+                    userAnswerText = document.getElementById('translationInput').value.trim();
+                    isCorrect = userAnswerText.toLowerCase() === currentPhrase.german.toLowerCase();
+                    break;
+                case 'completar':
+                    userAnswerText = document.getElementById('completionInput').value.trim();
+                    const missing = document.getElementById('missingWord').value;
+                    isCorrect = userAnswerText.toLowerCase() === missing.toLowerCase();
+                    break;
+                case 'ordenar':
+                    userAnswerText = selectedWords.join(' ');
+                    isCorrect = userAnswerText === currentPhrase.german;
+                    break;
+                case 'multiple':
+                    userAnswerText = selectedOption || '';
+                    isCorrect = userAnswerText === currentPhrase.german;
+                    break;
+            }
+
+            const feedback = document.getElementById('feedback');
+            if (isCorrect) {
+                feedback.innerHTML = '<i class="fas fa-check-circle"></i> ¡Correcto!';
+                feedback.className = 'feedback-message feedback-correct';
+                stats.correct++;
+                stats.points += 10;
+                stats.streak++;
+                if (stats.streak > 5) stats.level++; // simple
+                // Actualizar progreso de la frase
+                await updatePhraseProgress(currentPhrase.id, true);
+            } else {
+                feedback.innerHTML = '<i class="fas fa-times-circle"></i> Incorrecto. Intenta de nuevo.';
+                feedback.className = 'feedback-message feedback-incorrect';
+                stats.streak = 0;
+                await updatePhraseProgress(currentPhrase.id, false);
+            }
+            feedback.style.display = 'block';
+            saveStats();
+            updateStatsDisplay();
+
+            // Avanzar a la siguiente frase después de 1.5 segundos si fue correcto
+            if (isCorrect) {
+                setTimeout(() => {
+                    currentPhraseIndex++;
+                    loadNextPhrase();
+                }, 1500);
+            }
+        }
+
+        async function updatePhraseProgress(phraseId, correct) {
+            const progreso = userProgress.find(p => p.phrase_id === phraseId);
+            const hoy = new Date().toISOString().split('T')[0];
+
+            if (!progreso) {
+                const nuevo = {
+                    user_id: USER_ID,
+                    phrase_id: phraseId,
+                    repetitions: correct ? 1 : 0,
+                    interval_days: correct ? 2 : 1,
+                    next_review: correct ? sumarDias(hoy, 2) : sumarDias(hoy, 1),
+                    mistakes: correct ? 0 : 1,
+                    mastered: false,
+                    last_reviewed: hoy
+                };
+                await supabaseClient.from('user_phrase_progress').insert([nuevo]);
+                userProgress.push(nuevo);
+            } else {
+                let nuevasReps = progreso.repetitions + (correct ? 1 : 0);
+                let nuevoIntervalo = correct ? progreso.interval_days * 2 : 1;
+                let mastered = progreso.mastered;
+                if (!mastered && (nuevasReps >= 5 || nuevoIntervalo > 30)) mastered = true;
+
+                const updates = {
+                    repetitions: nuevasReps,
+                    interval_days: nuevoIntervalo,
+                    next_review: sumarDias(hoy, nuevoIntervalo),
+                    mistakes: progreso.mistakes + (correct ? 0 : 1),
+                    mastered,
+                    last_reviewed: hoy
+                };
+                await supabaseClient.from('user_phrase_progress').update(updates).eq('id', progreso.id);
+                Object.assign(progreso, updates);
+            }
+            updateGlobalProgress();
+            renderCategories(); // actualizar contadores en categorías
+        }
+
+        function sumarDias(fecha, dias) {
+            const d = new Date(fecha);
+            d.setDate(d.getDate() + dias);
+            return d.toISOString().split('T')[0];
+        }
+
+        function updateGlobalProgress() {
+            const masteredCount = userProgress.filter(p => p.mastered).length;
+            const total = allPhrases.length;
+            const percent = total > 0 ? Math.round((masteredCount / total) * 100) : 0;
+            document.getElementById('masteredCount').textContent = masteredCount;
+            document.getElementById('globalProgressBar').style.width = percent + '%';
+            document.getElementById('globalProgressPercent').textContent = percent + '%';
+        }
+
+        function saveStats() {
+            localStorage.setItem('trainer_stats', JSON.stringify(stats));
+            // Opcional: guardar en tabla user_stats
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('totalPoints').textContent = stats.points;
+            document.getElementById('correctAnswers').textContent = stats.correct;
+            document.getElementById('streak').textContent = stats.streak;
+            document.getElementById('level').textContent = stats.level;
+        }
+
+        function getExerciseTypeName(type) {
+            const map = {
+                'traduccion': 'Traducción',
+                'completar': 'Completar',
+                'ordenar': 'Ordenar',
+                'multiple': 'Opción múltiple'
+            };
+            return map[type] || type;
+        }
+
+        // Datos de respaldo por si la DB está vacía
+        const defaultPhrases = [
+            { id: 1, category: 'vida_diaria', german: 'Ich stehe um 7 Uhr auf.', translation: 'Me levanto a las 7.', words: ['Ich', 'stehe', 'um', '7', 'Uhr', 'auf.'] },
+            { id: 2, category: 'vida_diaria', german: 'Ich frühstücke mit meiner Familie.', translation: 'Desayuno con mi familia.', words: ['Ich', 'frühstücke', 'mit', 'meiner', 'Familie.'] },
+            { id: 3, category: 'compras', german: 'Ich kaufe im Supermarkt ein.', translation: 'Compro en el supermercado.', words: ['Ich', 'kaufe', 'im', 'Supermarkt', 'ein.'] },
+            { id: 4, category: 'viajes', german: 'Ich fahre mit dem Zug nach Berlin.', translation: 'Voy en tren a Berlín.', words: ['Ich', 'fahre', 'mit', 'dem', 'Zug', 'nach', 'Berlin.'] },
+            { id: 5, category: 'restaurante', german: 'Ich möchte einen Tisch für zwei Personen reservieren.', translation: 'Quiero reservar una mesa para dos.', words: ['Ich', 'möchte', 'einen', 'Tisch', 'für', 'zwei', 'Personen', 'reservieren.'] },
+            { id: 6, category: 'trabajo', german: 'Ich habe heute eine wichtige Besprechung.', translation: 'Hoy tengo una reunión importante.', words: ['Ich', 'habe', 'heute', 'eine', 'wichtige', 'Besprechung.'] },
+            { id: 7, category: 'salud', german: 'Ich fühle mich nicht gut.', translation: 'No me siento bien.', words: ['Ich', 'fühle', 'mich', 'nicht', 'gut.'] }
+        ];
+
+        // ========== TEMA CLARO/OSCURO ==========
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') { document.body.classList.add('light-theme'); themeIcon.className = 'fas fa-sun'; } 
+        else { themeIcon.className = 'fas fa-moon'; }
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            themeIcon.className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        // ========== INICIO ==========
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadPhrases();
+        });
+    </script>
+</body>
+</html>
