@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,8 +15,8 @@
             --orange: #e67e22;
             --teal: #1abc9c;
             
-            --bg-gradient-start: #000000;   /* Fondo general oscuro Spotify */
-            --bg-gradient-end: #000000;     /* Fondo general oscuro Spotify */
+            --bg-gradient-start: #000000;
+            --bg-gradient-end: #000000;
             --card-bg: rgba(255,255,255,0.05);
             --text-primary: #ecf0f1;
             --text-secondary: #bdc3c7;
@@ -84,7 +84,7 @@
             color: var(--text-secondary);
         }
 
-        /* Panel de estadísticas rápidas */
+        /* Panel de estadísticas */
         .stats-panel {
             display: flex;
             justify-content: space-around;
@@ -152,7 +152,6 @@
         }
         .exercise-target { font-size: 1.2rem; margin-bottom: 20px; text-align: center; font-style: italic; color: var(--text-secondary); }
         
-        /* Para ejercicio de completar */
         .fill-input {
             display: block;
             width: 100%;
@@ -168,7 +167,6 @@
         }
         .fill-input:focus { outline: none; border-color: var(--secondary); }
 
-        /* Para ejercicio de ordenar */
         .word-bank {
             display: flex;
             flex-wrap: wrap;
@@ -207,7 +205,6 @@
             border: 1px solid var(--border-color);
         }
 
-        /* Opción múltiple */
         .options-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -236,7 +233,82 @@
         .feedback-correct { background: rgba(39,174,96,0.2); border-left: 5px solid var(--success); display: block; }
         .feedback-incorrect { background: rgba(231,76,60,0.2); border-left: 5px solid var(--accent); display: block; }
 
-        /* Footer */
+        .chat-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 20px; margin-bottom: 20px; }
+        .chat-messages { max-height: 300px; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 15px; display: flex; flex-direction: column; }
+        .chat-message { margin-bottom: 10px; padding: 8px 12px; border-radius: 18px; max-width: 80%; display: flex; align-items: center; gap: 8px; }
+        .chat-message.user { background: var(--secondary); color: white; align-self: flex-end; }
+        .chat-message.bot { background: var(--card-bg); border: 1px solid var(--border-color); align-self: flex-start; }
+        .chat-message .btn-icon { width: 32px; height: 32px; font-size: 1rem; }
+
+        .input-with-mic {
+            position: relative;
+            width: fit-content;
+            margin: 0 auto;
+        }
+        .mic-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mic-btn:hover { background: var(--secondary); }
+
+        .result-with-speaker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .due-phrase-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid var(--warning); }
+
+        .usage-counter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--card-bg);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+        }
+        .usage-counter i { color: var(--warning); }
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
         .footer { margin-top: 60px; padding: 30px; background: var(--header-bg); border-radius: 15px; border-top: 1px solid var(--border-color); text-align: center; }
         .footer-content { display: flex; flex-direction: column; align-items: center; gap: 20px; }
         .footer-content img { max-width: 150px; height: auto; }
@@ -254,80 +326,202 @@
     <div class="container">
         <header>
             <div class="header-content">
-                <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Volver</a>
+                <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Zurück</a>
                 <h1><i class="fas fa-comment-dots"></i> Trainersätze</h1>
                 <div style="display: flex; gap: 12px;">
-                    <a href="index.html" class="btn-icon" title="Inicio"><i class="fas fa-home"></i></a>
-                    <button id="themeToggle" class="btn-icon" title="Cambiar tema"><i class="fas fa-moon"></i></button>
+                    <a href="index.html" class="btn-icon" title="Startseite"><i class="fas fa-home"></i></a>
+                    <button id="themeToggle" class="btn-icon" title="Thema wechseln"><i class="fas fa-moon"></i></button>
                 </div>
             </div>
         </header>
 
-        <!-- Barra de progreso general (frases dominadas) -->
+        <!-- Barra de progreso general -->
         <div class="progress-section">
             <div class="progress-label">
-                <span><i class="fas fa-chart-line"></i> Progreso general en frases</span>
+                <span><i class="fas fa-chart-line"></i> Gesamtfortschritt Sätze</span>
                 <span id="globalProgressPercent">0%</span>
             </div>
             <div class="progress-bar-container">
                 <div id="globalProgressBar" class="progress-bar-fill" style="width: 0%;"></div>
             </div>
             <div class="progress-stats">
-                <span id="masteredCount">0</span> dominadas / <span id="totalPhrases">0</span> total
+                <span id="masteredCount">0</span> gemeistert / <span id="totalPhrases">0</span> gesamt
             </div>
         </div>
 
-        <!-- Panel de estadísticas (puntos, racha, nivel) -->
+        <!-- Panel de estadísticas -->
         <div class="stats-panel">
             <div class="stat-card">
                 <div class="stat-value" id="totalPoints">0</div>
-                <div class="stat-label">Puntos totales</div>
+                <div class="stat-label">Punkte</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value" id="correctAnswers">0</div>
-                <div class="stat-label">Correctas</div>
+                <div class="stat-label">Richtig</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value" id="streak">0</div>
-                <div class="stat-label">Racha actual</div>
+                <div class="stat-label">Serie</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value" id="level">1</div>
-                <div class="stat-label">Nivel</div>
+                <div class="stat-label">Level</div>
+            </div>
+            <!-- Contador de uso diario -->
+            <div class="usage-counter tooltip">
+                <i class="fas fa-tachometer-alt"></i>
+                <span id="dailyUsage">200</span> / 200
+                <span class="tooltiptext">
+                    Geschätzte tägliche Nutzung (1 Punkt = 1 KI-Anfrage).<br>
+                    Nach 200 Anfragen bitte morgen weitermachen.<br>
+                    <a href="https://mistral.ai/terms/" target="_blank" style="color: var(--secondary);">Mehr Infos</a>
+                </span>
             </div>
         </div>
 
         <!-- Selector de categorías -->
-        <h2 class="section-title" style="margin-bottom: 20px;"><i class="fas fa-tags"></i> Selecciona una categoría</h2>
+        <h2 class="section-title" style="margin-bottom: 20px;"><i class="fas fa-tags"></i> Wähle eine Kategorie</h2>
         <div class="categories-grid" id="categoriesContainer"></div>
 
         <!-- Área de ejercicio (se muestra al seleccionar categoría) -->
         <div class="exercise-area" id="exerciseArea" style="display: none;">
             <div class="exercise-header">
-                <span class="exercise-type" id="exerciseType">Traducción</span>
+                <span class="exercise-type" id="exerciseType">Übersetzung</span>
                 <span class="exercise-counter" id="exerciseCounter">1 / 5</span>
             </div>
             <div class="exercise-question" id="questionText"></div>
             <div id="exerciseContent"></div>
             <div class="action-buttons">
-                <button class="btn" onclick="checkAnswer()">Comprobar</button>
-                <button class="btn reset" onclick="resetExercise()">Reiniciar</button>
+                <button class="btn" onclick="checkAnswer()">Prüfen</button>
+                <button class="btn reset" onclick="resetExercise()">Zurücksetzen</button>
             </div>
-            <button class="hint-btn" id="hintBtn" onclick="showHint()"><i class="fas fa-lightbulb"></i> Pista</button>
+            <button class="hint-btn" id="hintBtn" onclick="showHint()"><i class="fas fa-lightbulb"></i> Tipp</button>
             <div class="feedback-message" id="feedback"></div>
         </div>
 
         <!-- Mensaje inicial -->
         <div class="instruction" id="instruction" style="text-align: center; padding: 40px; color: var(--text-secondary);">
             <i class="fas fa-hand-pointer" style="font-size: 3rem; margin-bottom: 15px;"></i>
-            <p>Selecciona una categoría para comenzar los ejercicios.</p>
+            <p>Wähle eine Kategorie, um mit den Übungen zu beginnen.</p>
+        </div>
+
+        <!-- ================= AKTIVE PRAXIS (MIT SPRACHE) ================= -->
+        <div class="exercise-area" style="border-top:6px solid var(--teal);">
+            <h2 style="text-align:center;margin-bottom:20px;"><i class="fas fa-brain"></i> Aktive Praxis (mit Sprache)</h2>
+
+            <!-- FRAGE DES TAGES -->
+            <div style="margin-bottom:30px;">
+                <h3>Frage des Tages</h3>
+                <p id="dailyQuestion"></p>
+                <div class="input-with-mic">
+                    <textarea id="dailyAnswer" class="fill-input" placeholder="Schreibe oder sprich deine Antwort..."></textarea>
+                    <button class="mic-btn" onclick="startVoiceRecognition('dailyAnswer')"><i class="fas fa-microphone"></i></button>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showDailyExample()">Beispiel</button>
+                    <button class="btn reset" onclick="evaluateDailyAnswer()">KI bewerten</button>
+                </div>
+                <p id="dailyExample" style="margin-top:10px;color:var(--text-secondary)"></p>
+                <div class="result-with-speaker" id="dailyFeedbackContainer">
+                    <p id="dailyFeedback" style="color:var(--text-secondary); white-space: pre-wrap;"></p>
+                    <button class="btn-icon" onclick="speakText(document.getElementById('dailyFeedback').innerText)"><i class="fas fa-volume-up"></i></button>
+                </div>
+            </div>
+
+            <!-- EMAIL TRAINING -->
+            <div style="margin-bottom:30px;">
+                <h3>E-Mail-Training</h3>
+                <p>Du möchtest fragen, ob die Stelle noch verfügbar ist.</p>
+                <div class="input-with-mic">
+                    <textarea id="emailPractice" class="fill-input" placeholder="Schreibe oder sprich deine E-Mail..."></textarea>
+                    <button class="mic-btn" onclick="startVoiceRecognition('emailPractice')"><i class="fas fa-microphone"></i></button>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showEmailExample()">Beispiel</button>
+                    <button class="btn reset" onclick="correctEmailWithAI()">KI korrigieren</button>
+                    <button class="btn reset" onclick="evaluateEmailContent()">Inhalt bewerten</button>
+                </div>
+                <p id="emailExample" style="margin-top:10px;color:var(--text-secondary)"></p>
+                <div class="result-with-speaker">
+                    <p id="emailCorrectionResult" style="color:var(--text-secondary); white-space: pre-wrap;"></p>
+                    <button class="btn-icon" onclick="speakText(document.getElementById('emailCorrectionResult').innerText)"><i class="fas fa-volume-up"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ERWEITERTE KI-MODULE ================= -->
+        <div class="exercise-area" style="border-top:6px solid var(--orange);">
+            <h2 style="text-align:center;margin-bottom:20px;"><i class="fas fa-rocket"></i> Erweiterte KI-Module (mit Sprache)</h2>
+
+            <!-- 1. VORSTELLUNGSGESPRÄCH -->
+            <div style="margin-bottom:30px;">
+                <h3><i class="fas fa-user-tie"></i> Vorstellungsgespräch</h3>
+                <p id="interviewQuestion">Erzählen Sie etwas über sich.</p>
+                <div class="input-with-mic">
+                    <textarea id="interviewAnswer" class="fill-input" placeholder="Schreibe oder sprich deine Antwort..."></textarea>
+                    <button class="mic-btn" onclick="startVoiceRecognition('interviewAnswer')"><i class="fas fa-microphone"></i></button>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn" onclick="checkInterviewWithAI()">KI bewerten</button>
+                    <button class="btn reset" onclick="showInterviewExample()">Beispiel</button>
+                </div>
+                <div class="result-with-speaker">
+                    <p id="interviewFeedback" style="color:var(--text-secondary); white-space: pre-wrap;"></p>
+                    <button class="btn-icon" onclick="speakText(document.getElementById('interviewFeedback').innerText)"><i class="fas fa-volume-up"></i></button>
+                </div>
+            </div>
+
+            <!-- 2. KI-CHAT -->
+            <div style="margin-bottom:30px;">
+                <h3><i class="fas fa-robot"></i> KI-Chat</h3>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-message bot">Hallo! Ich bin dein KI-Assistent. Stelle mir eine Frage auf Deutsch.
+                            <button class="btn-icon" onclick="speakText('Hallo! Ich bin dein KI-Assistent.')"><i class="fas fa-volume-up"></i></button>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <div style="position: relative; flex:1;">
+                            <input type="text" id="chatInput" class="chat-input" placeholder="Schreibe oder sprich...">
+                            <button class="mic-btn" style="right: 5px;" onclick="startVoiceRecognition('chatInput')"><i class="fas fa-microphone"></i></button>
+                        </div>
+                        <button class="btn" onclick="sendChatMessageAI()">Senden</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. SATZKORREKTUR -->
+            <div style="margin-bottom:30px;">
+                <h3><i class="fas fa-spell-check"></i> Satzkorrektur</h3>
+                <div class="input-with-mic">
+                    <input type="text" id="phraseToCorrect" class="fill-input" placeholder="Schreibe oder sprich einen Satz...">
+                    <button class="mic-btn" onclick="startVoiceRecognition('phraseToCorrect')"><i class="fas fa-microphone"></i></button>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn" onclick="correctPhraseWithAI()">KI korrigieren</button>
+                </div>
+                <div class="result-with-speaker">
+                    <p id="correctionResult" style="color:var(--text-secondary); white-space: pre-wrap;"></p>
+                    <button class="btn-icon" onclick="speakText(document.getElementById('correctionResult').innerText)"><i class="fas fa-volume-up"></i></button>
+                </div>
+            </div>
+
+            <!-- 4. FÄLLIGE WIEDERHOLUNGEN -->
+            <div style="margin-bottom:30px;">
+                <h3><i class="fas fa-calendar-check"></i> Fällige Wiederholungen</h3>
+                <div id="duePhrasesList"></div>
+                <div class="action-buttons">
+                    <button class="btn" onclick="loadDuePhrases()">Aktualisieren</button>
+                    <button class="btn reset" onclick="startReviewSession()">Jetzt wiederholen</button>
+                </div>
+            </div>
         </div>
 
         <footer class="footer">
             <div class="footer-content">
                 <img src="images/Logo5.png" alt="DEULCHALEX Logo" onerror="this.style.display='none'; this.parentElement.innerHTML += '<div style=\'color:var(--secondary); font-size:1.5rem; font-weight:bold;\'>DEULCHALEX</div>';">
-                <div class="footer-text"><p>© 2024 DEULCHALEX – Centro de Aprendizaje de Alemán</p></div>
-                <div class="footer-links"><a href="#">Acerca</a><a href="#">Consejos</a><a href="#">FAQ</a><a href="#">Contacto</a></div>
+                <div class="footer-text"><p>© 2024 DEULCHALEX – Deutsch Lernzentrum</p></div>
+                <div class="footer-links"><a href="#">Über uns</a><a href="#">Tipps</a><a href="#">FAQ</a><a href="#">Kontakt</a></div>
             </div>
         </footer>
     </div>
@@ -341,26 +535,24 @@
 
         // ========== DATOS DE CATEGORÍAS ==========
         const categories = [
-            { id: 'vida_diaria', name: 'Vida diaria', icon: '🏠' },
-            { id: 'compras', name: 'Compras', icon: '🛒' },
-            { id: 'viajes', name: 'Viajes', icon: '✈️' },
-            { id: 'restaurante', name: 'Restaurante', icon: '🍽️' },
-            { id: 'trabajo', name: 'Trabajo', icon: '💼' },
-            { id: 'salud', name: 'Salud', icon: '🏥' }
+            { id: 'vida_diaria', name: 'Alltag', icon: '🏠' },
+            { id: 'compras', name: 'Einkaufen', icon: '🛒' },
+            { id: 'viajes', name: 'Reisen', icon: '✈️' },
+            { id: 'restaurante', name: 'Restaurant', icon: '🍽️' },
+            { id: 'trabajo', name: 'Arbeit', icon: '💼' },
+            { id: 'salud', name: 'Gesundheit', icon: '🏥' }
         ];
 
         // ========== ESTADO GLOBAL ==========
-        let allPhrases = [];               // Todas las frases (de la DB)
-        let userProgress = [];              // Progreso por frase (user_phrase_progress)
+        let allPhrases = [];
+        let userProgress = [];
         let selectedCategory = null;
         let currentPhraseIndex = 0;
-        let currentExerciseType = null;      // 'traduccion', 'completar', 'ordenar', 'multiple'
-        let currentPhrase = null;            // La frase actual
-        let selectedOption = null;            // Para opción múltiple
-        let selectedWords = [];               // Para ordenar
-        let userAnswer = '';                  // Para completar
-
-        // Estadísticas (puntos, racha, nivel) - podrían guardarse en user_stats
+        let currentExerciseType = null;
+        let currentPhrase = null;
+        let selectedOption = null;
+        let selectedWords = [];
+        let userAnswer = '';
         let stats = { points: 0, correct: 0, streak: 0, level: 1 };
 
         // ========== FUNCIONES DE CARGA ==========
@@ -368,7 +560,6 @@
             const { data, error } = await supabaseClient.from('phrase_exercises').select('*');
             if (error) {
                 console.error('Error cargando frases:', error);
-                // Datos de respaldo
                 allPhrases = defaultPhrases;
             } else {
                 allPhrases = data;
@@ -390,7 +581,6 @@
             } else {
                 userProgress = data || [];
             }
-            // Cargar estadísticas desde localStorage (o user_stats)
             const savedStats = JSON.parse(localStorage.getItem('trainer_stats')) || { points: 0, correct: 0, streak: 0, level: 1 };
             stats = savedStats;
             updateStatsDisplay();
@@ -402,7 +592,6 @@
             categories.forEach(cat => {
                 const phrasesInCat = allPhrases.filter(p => p.category === cat.id);
                 const totalInCat = phrasesInCat.length;
-                // Contar cuántas de estas frases están mastered
                 const mastered = phrasesInCat.filter(p => {
                     const prog = userProgress.find(up => up.phrase_id === p.id);
                     return prog && prog.mastered;
@@ -413,7 +602,7 @@
                 card.innerHTML = `
                     <div class="category-icon">${cat.icon}</div>
                     <div class="category-name">${cat.name}</div>
-                    <div class="category-progress">${mastered}/${totalInCat} dominadas</div>
+                    <div class="category-progress">${mastered}/${totalInCat} gemeistert</div>
                 `;
                 card.addEventListener('click', () => selectCategory(cat.id));
                 container.appendChild(card);
@@ -424,25 +613,19 @@
             selectedCategory = categoryId;
             document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
             document.querySelector(`[data-category="${categoryId}"]`).classList.add('selected');
-
-            // Obtener frases de esta categoría que NO estén mastered (priorizar las no dominadas)
             let available = allPhrases.filter(p => p.category === categoryId);
-            // Ordenar: las no dominadas primero
             available.sort((a, b) => {
                 const progA = userProgress.find(up => up.phrase_id === a.id);
                 const progB = userProgress.find(up => up.phrase_id === b.id);
                 const masteredA = progA && progA.mastered;
                 const masteredB = progB && progB.mastered;
                 if (masteredA === masteredB) return 0;
-                return masteredA ? 1 : -1; // no dominadas primero
+                return masteredA ? 1 : -1;
             });
-
             if (available.length === 0) {
-                alert('No hay frases en esta categoría.');
+                alert('Keine Sätze in dieser Kategorie.');
                 return;
             }
-
-            // Guardar la lista de frases para esta sesión (máximo 10 para no abrumar)
             window.currentSessionPhrases = available.slice(0, 10);
             currentPhraseIndex = 0;
             loadNextPhrase();
@@ -450,14 +633,12 @@
 
         function loadNextPhrase() {
             if (!window.currentSessionPhrases || currentPhraseIndex >= window.currentSessionPhrases.length) {
-                // Terminó la sesión, volver a selección
                 document.getElementById('exerciseArea').style.display = 'none';
-                document.getElementById('instruction').innerHTML = '<i class="fas fa-trophy"></i> ¡Has completado todas las frases disponibles! Selecciona otra categoría.';
+                document.getElementById('instruction').innerHTML = '<i class="fas fa-trophy"></i> Alle Sätze bearbeitet! Wähle eine andere Kategorie.';
                 document.getElementById('instruction').style.display = 'block';
                 return;
             }
             currentPhrase = window.currentSessionPhrases[currentPhraseIndex];
-            // Elegir un tipo de ejercicio aleatorio
             const types = ['traduccion', 'completar', 'ordenar', 'multiple'];
             currentExerciseType = types[Math.floor(Math.random() * types.length)];
             renderExercise();
@@ -474,27 +655,32 @@
 
             switch (currentExerciseType) {
                 case 'traduccion':
-                    questionDiv.textContent = 'Traduce al alemán:';
+                    questionDiv.textContent = 'Übersetze ins Deutsche:';
                     contentDiv.innerHTML = `
                         <div class="exercise-target">${currentPhrase.translation}</div>
-                        <input type="text" id="translationInput" class="fill-input" placeholder="Escribe la frase en alemán...">
+                        <div class="input-with-mic">
+                            <input type="text" id="translationInput" class="fill-input" placeholder="Schreibe oder sprich...">
+                            <button class="mic-btn" onclick="startVoiceRecognition('translationInput')"><i class="fas fa-microphone"></i></button>
+                        </div>
                     `;
                     break;
                 case 'completar':
-                    // Elegir una palabra al azar para ocultar
                     const words = currentPhrase.german.split(' ');
                     const missingIndex = Math.floor(Math.random() * words.length);
                     const missingWord = words[missingIndex];
                     const displayWords = words.map((w, i) => i === missingIndex ? '______' : w).join(' ');
-                    questionDiv.textContent = 'Completa la frase:';
+                    questionDiv.textContent = 'Vervollständige den Satz:';
                     contentDiv.innerHTML = `
                         <div class="exercise-target">${displayWords}</div>
-                        <input type="text" id="completionInput" class="fill-input" placeholder="Escribe la palabra que falta...">
+                        <div class="input-with-mic">
+                            <input type="text" id="completionInput" class="fill-input" placeholder="Schreibe oder sprich...">
+                            <button class="mic-btn" onclick="startVoiceRecognition('completionInput')"><i class="fas fa-microphone"></i></button>
+                        </div>
                         <input type="hidden" id="missingWord" value="${missingWord}">
                     `;
                     break;
                 case 'ordenar':
-                    questionDiv.textContent = 'Ordena las palabras para formar la frase:';
+                    questionDiv.textContent = 'Bringe die Wörter in die richtige Reihenfolge:';
                     const shuffled = currentPhrase.words ? [...currentPhrase.words] : currentPhrase.german.split(' ');
                     for (let i = shuffled.length - 1; i > 0; i--) {
                         const j = Math.floor(Math.random() * (i + 1));
@@ -508,8 +694,7 @@
                     renderWordBank(shuffled);
                     break;
                 case 'multiple':
-                    questionDiv.textContent = 'Elige la opción correcta:';
-                    // Generar opciones (una correcta, 3 incorrectas de otras frases)
+                    questionDiv.textContent = 'Wähle die richtige Option:';
                     const correct = currentPhrase.german;
                     let options = [correct];
                     while (options.length < 4) {
@@ -573,7 +758,7 @@
 
         function showHint() {
             if (!currentPhrase) return;
-            alert(`Pista: la frase comienza con "${currentPhrase.german.split(' ')[0]}"`);
+            alert(`Tipp: Der Satz beginnt mit "${currentPhrase.german.split(' ')[0]}"`);
         }
 
         async function checkAnswer() {
@@ -602,16 +787,15 @@
 
             const feedback = document.getElementById('feedback');
             if (isCorrect) {
-                feedback.innerHTML = '<i class="fas fa-check-circle"></i> ¡Correcto!';
+                feedback.innerHTML = '<i class="fas fa-check-circle"></i> Richtig!';
                 feedback.className = 'feedback-message feedback-correct';
                 stats.correct++;
                 stats.points += 10;
                 stats.streak++;
-                if (stats.streak > 5) stats.level++; // simple
-                // Actualizar progreso de la frase
+                if (stats.streak > 5) stats.level++;
                 await updatePhraseProgress(currentPhrase.id, true);
             } else {
-                feedback.innerHTML = '<i class="fas fa-times-circle"></i> Incorrecto. Intenta de nuevo.';
+                feedback.innerHTML = '<i class="fas fa-times-circle"></i> Falsch. Versuche es noch einmal.';
                 feedback.className = 'feedback-message feedback-incorrect';
                 stats.streak = 0;
                 await updatePhraseProgress(currentPhrase.id, false);
@@ -620,7 +804,6 @@
             saveStats();
             updateStatsDisplay();
 
-            // Avanzar a la siguiente frase después de 1.5 segundos si fue correcto
             if (isCorrect) {
                 setTimeout(() => {
                     currentPhraseIndex++;
@@ -664,7 +847,7 @@
                 Object.assign(progreso, updates);
             }
             updateGlobalProgress();
-            renderCategories(); // actualizar contadores en categorías
+            renderCategories();
         }
 
         function sumarDias(fecha, dias) {
@@ -684,7 +867,6 @@
 
         function saveStats() {
             localStorage.setItem('trainer_stats', JSON.stringify(stats));
-            // Opcional: guardar en tabla user_stats
         }
 
         function updateStatsDisplay() {
@@ -696,15 +878,14 @@
 
         function getExerciseTypeName(type) {
             const map = {
-                'traduccion': 'Traducción',
-                'completar': 'Completar',
-                'ordenar': 'Ordenar',
-                'multiple': 'Opción múltiple'
+                'traduccion': 'Übersetzung',
+                'completar': 'Vervollständigen',
+                'ordenar': 'Sortieren',
+                'multiple': 'Multiple Choice'
             };
             return map[type] || type;
         }
 
-        // Datos de respaldo por si la DB está vacía
         const defaultPhrases = [
             { id: 1, category: 'vida_diaria', german: 'Ich stehe um 7 Uhr auf.', translation: 'Me levanto a las 7.', words: ['Ich', 'stehe', 'um', '7', 'Uhr', 'auf.'] },
             { id: 2, category: 'vida_diaria', german: 'Ich frühstücke mit meiner Familie.', translation: 'Desayuno con mi familia.', words: ['Ich', 'frühstücke', 'mit', 'meiner', 'Familie.'] },
@@ -728,9 +909,298 @@
             themeIcon.className = isLight ? 'fas fa-sun' : 'fas fa-moon';
         });
 
-        // ========== INICIO ==========
         document.addEventListener('DOMContentLoaded', async () => {
             await loadPhrases();
+        });
+
+        // ===================== FUNCIONES DE PRÁCTICA ACTIVA =====================
+        const dailyQuestions = [
+            { q: "Was hast du heute gemacht?", a: "Ich habe heute Deutsch gelernt und Bewerbungen geschickt." },
+            { q: "Warum möchtest du in Deutschland arbeiten?", a: "Ich möchte in Deutschland arbeiten, weil ich meine Karriere entwickeln möchte." },
+            { q: "Was sind deine Stärken?", a: "Meine Stärke ist analytisches Denken und Problemlösung." }
+        ];
+
+        function loadDailyQuestion() {
+            const q = dailyQuestions[Math.floor(Math.random() * dailyQuestions.length)];
+            document.getElementById("dailyQuestion").innerText = q.q;
+            window.currentDailyExample = q.a;
+        }
+
+        function showDailyExample() {
+            document.getElementById("dailyExample").innerText = window.currentDailyExample;
+        }
+
+        function showEmailExample() {
+            document.getElementById("emailExample").innerText = 
+                `Sehr geehrte Damen und Herren,\n\nich möchte gerne wissen, ob die Stelle noch verfügbar ist.\n\nMit freundlichen Grüßen\nAlex`;
+        }
+
+        function showInterviewExample() {
+            document.getElementById("interviewFeedback").innerText = 
+                "Beispiel: 'Ich heiße Alex, komme aus Spanien und habe drei Jahre Erfahrung im Kundenservice. Ich möchte in Deutschland arbeiten, weil ich meine Deutschkenntnisse verbessern und mich beruflich weiterentwickeln möchte.'";
+        }
+
+        // ===================== FUNCIONES DE VOZ =====================
+        function startVoiceRecognition(targetId) {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'de-DE';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById(targetId).value = transcript;
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Spracherkennungsfehler:', event.error);
+                alert('Fehler bei der Spracherkennung: ' + event.error);
+            };
+
+            recognition.start();
+        }
+
+        function speakText(text, lang = 'de-DE') {
+            if (!window.speechSynthesis) {
+                alert('Ihr Browser unterstützt keine Sprachausgabe.');
+                return;
+            }
+            // Extraer solo la parte alemana antes de "Querías decir:" si existe
+            const parts = text.split('Querías decir:');
+            const germanPart = parts[0].trim();
+            const utterance = new SpeechSynthesisUtterance(germanPart);
+            utterance.lang = lang;
+            utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // ===================== FUNCIONES IA CON MISTRAL =====================
+        const MISTRAL_API_KEY = '9wZvZCUPPu16npLpjleEClkYCdXzterP';
+        const MISTRAL_MODEL = 'mistral-tiny';
+
+        let dailyCalls = JSON.parse(localStorage.getItem('dailyCalls')) || { date: '', count: 0 };
+        function checkDailyLimit() {
+            const today = new Date().toDateString();
+            if (dailyCalls.date !== today) {
+                dailyCalls = { date: today, count: 0 };
+            }
+            if (dailyCalls.count >= 200) {
+                throw new Error('Tägliches Nutzungslimit erreicht (200 Anfragen). Bitte versuche es morgen wieder.');
+            }
+            dailyCalls.count++;
+            localStorage.setItem('dailyCalls', JSON.stringify(dailyCalls));
+            document.getElementById('dailyUsage').innerText = 200 - dailyCalls.count;
+        }
+
+        async function callMistral(prompt) {
+            checkDailyLimit();
+            const url = 'https://api.mistral.ai/v1/chat/completions';
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${MISTRAL_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: MISTRAL_MODEL,
+                    messages: [{ role: 'user', content: prompt }],
+                    temperature: 0.7,
+                    max_tokens: 300
+                })
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                console.error('Fehler von Mistral:', data);
+                throw new Error(data.error?.message || 'Unbekannter Fehler');
+            }
+            return data.choices[0].message.content;
+        }
+
+        // ---- Evaluación diaria ----
+        async function evaluateDailyAnswer() {
+            const answer = document.getElementById('dailyAnswer').value.trim();
+            const question = document.getElementById('dailyQuestion').innerText;
+            const feedbackEl = document.getElementById('dailyFeedback');
+            if (!answer) {
+                feedbackEl.innerText = 'Bitte schreibe eine Antwort.';
+                return;
+            }
+            feedbackEl.innerText = 'Wird bewertet...';
+            const prompt = `Du bist ein Deutschlehrer für Niveau B1. Bewerte die Antwort kurz. 
+                Antworte auf Deutsch: max. 2 Sätze. Dann auf Spanisch: "Querías decir: [kurze korrigierte Version auf Deutsch]". 
+                Frage: "${question}" Antwort: "${answer}"`;
+            try {
+                const evaluation = await callMistral(prompt);
+                feedbackEl.innerText = evaluation;
+            } catch (error) {
+                feedbackEl.innerText = 'Fehler: ' + error.message;
+            }
+        }
+
+        // ---- Evaluación de email ----
+        async function evaluateEmailContent() {
+            const email = document.getElementById('emailPractice').value.trim();
+            const resultEl = document.getElementById('emailCorrectionResult');
+            if (!email) {
+                resultEl.innerText = 'Bitte schreibe eine E-Mail.';
+                return;
+            }
+            resultEl.innerText = 'Wird bewertet...';
+            const prompt = `Bewerte diese E-Mail (Stellenanfrage) kurz. Nenne eine Stärke und eine Schwäche auf Deutsch (je 1 Satz). 
+                Dann auf Spanisch: "Querías decir: [kurze Zusammenfassung auf Deutsch]". E-Mail:\n"""${email}"""`;
+            try {
+                const evaluation = await callMistral(prompt);
+                resultEl.innerText = evaluation;
+            } catch (error) {
+                resultEl.innerText = 'Fehler: ' + error.message;
+            }
+        }
+
+        // ---- Corrector de email ----
+        async function correctEmailWithAI() {
+            const email = document.getElementById('emailPractice').value.trim();
+            const resultEl = document.getElementById('emailCorrectionResult');
+            if (!email) {
+                resultEl.innerText = 'Bitte schreibe eine E-Mail.';
+                return;
+            }
+            resultEl.innerText = 'Wird korrigiert...';
+            const prompt = `Korrigiere diese E-Mail. Zeige die korrigierte Version und die wichtigste Änderung auf Deutsch (1 Satz). 
+                Dann auf Spanisch: "Querías decir: [kurze Zusammenfassung auf Deutsch]". E-Mail:\n"""${email}"""`;
+            try {
+                const correction = await callMistral(prompt);
+                resultEl.innerText = correction;
+            } catch (error) {
+                resultEl.innerText = 'Fehler: ' + error.message;
+            }
+        }
+
+        // ---- Corrector de frases ----
+        async function correctPhraseWithAI() {
+            const phrase = document.getElementById('phraseToCorrect').value.trim();
+            const resultEl = document.getElementById('correctionResult');
+            if (!phrase) {
+                resultEl.innerText = 'Bitte schreibe einen Satz.';
+                return;
+            }
+            resultEl.innerText = 'Wird korrigiert...';
+            const prompt = `Korrigiere diesen Satz (B1). Gib die korrigierte Version und eine kurze Erklärung auf Deutsch (1 Satz). 
+                Dann auf Spanisch: "Querías decir: [korrigierte Version auf Deutsch]". Satz: "${phrase}"`;
+            try {
+                const correction = await callMistral(prompt);
+                resultEl.innerText = correction;
+            } catch (error) {
+                resultEl.innerText = 'Fehler: ' + error.message;
+            }
+        }
+
+        // ---- Evaluación de entrevista ----
+        async function checkInterviewWithAI() {
+            const question = document.getElementById('interviewQuestion').innerText;
+            const answer = document.getElementById('interviewAnswer').value.trim();
+            const feedbackEl = document.getElementById('interviewFeedback');
+            if (!answer) {
+                feedbackEl.innerText = 'Bitte schreibe eine Antwort.';
+                return;
+            }
+            feedbackEl.innerText = 'Wird bewertet...';
+            const prompt = `Bewerte diese Antwort (Vorstellungsgespräch, B1). Gib eine Punktzahl (1-10) und einen kurzen Tipp auf Deutsch (max. 2 Sätze). 
+                Dann auf Spanisch: "Querías decir: [kurze Zusammenfassung auf Deutsch]". Frage: "${question}" Antwort: "${answer}"`;
+            try {
+                const evaluation = await callMistral(prompt);
+                feedbackEl.innerText = evaluation;
+            } catch (error) {
+                feedbackEl.innerText = 'Fehler: ' + error.message;
+            }
+        }
+
+        // ---- Chat IA ----
+        async function sendChatMessageAI() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const chatMessages = document.getElementById('chatMessages');
+            const userDiv = document.createElement('div');
+            userDiv.className = 'chat-message user';
+            userDiv.innerText = message;
+            chatMessages.appendChild(userDiv);
+            input.value = '';
+
+            const prompt = `Antworte kurz auf Deutsch (max. 2 Sätze) als hilfsbereiter Gesprächspartner für B1-Lerner. 
+                Dann auf Spanisch: "Significado: [traducción al español de tu respuesta]". Nachricht: "${message}"`;
+            try {
+                const botResponse = await callMistral(prompt);
+                const botDiv = document.createElement('div');
+                botDiv.className = 'chat-message bot';
+                botDiv.innerHTML = `${botResponse} <button class="btn-icon" onclick="speakText('${botResponse.split('Significado:')[0]}')"><i class="fas fa-volume-up"></i></button>`;
+                chatMessages.appendChild(botDiv);
+            } catch (error) {
+                const botDiv = document.createElement('div');
+                botDiv.className = 'chat-message bot';
+                botDiv.innerText = 'Fehler: ' + error.message;
+                chatMessages.appendChild(botDiv);
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // ---- Repaso espaciado ----
+        function getTodayString() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function loadDuePhrases() {
+            const today = getTodayString();
+            const due = userProgress.filter(p => p.next_review <= today && !p.mastered);
+            const listDiv = document.getElementById("duePhrasesList");
+            if (due.length === 0) {
+                listDiv.innerHTML = "<p>🎉 Keine fälligen Sätze für heute.</p>";
+                return;
+            }
+            let html = "";
+            due.forEach(prog => {
+                const phrase = allPhrases.find(p => p.id === prog.phrase_id);
+                if (phrase) {
+                    html += `<div class="due-phrase-item"><strong>${phrase.german}</strong> — ${phrase.translation}</div>`;
+                }
+            });
+            listDiv.innerHTML = html;
+        }
+
+        function startReviewSession() {
+            const today = getTodayString();
+            const due = userProgress.filter(p => p.next_review <= today && !p.mastered);
+            if (due.length === 0) {
+                alert("Keine fälligen Sätze. Gut gemacht!");
+                return;
+            }
+            const duePhrases = due.map(prog => allPhrases.find(p => p.id === prog.phrase_id)).filter(p => p);
+            if (duePhrases.length === 0) return;
+
+            window.currentSessionPhrases = duePhrases;
+            currentPhraseIndex = 0;
+            selectedCategory = "repaso";
+            loadNextPhrase();
+        }
+
+        // Inicializar
+        document.addEventListener("DOMContentLoaded", () => {
+            loadDailyQuestion();
+            const interviewQuestions = [
+                "Erzählen Sie etwas über sich.",
+                "Warum möchten Sie bei uns arbeiten?",
+                "Was sind Ihre Stärken und Schwächen?",
+                "Wo sehen Sie sich in fünf Jahren?",
+                "Warum haben Sie sich für diesen Beruf entschieden?"
+            ];
+            document.getElementById("interviewQuestion").innerText = interviewQuestions[Math.floor(Math.random() * interviewQuestions.length)];
+            // Inicializar contador diario
+            const today = new Date().toDateString();
+            if (dailyCalls.date !== today) {
+                dailyCalls = { date: today, count: 0 };
+                localStorage.setItem('dailyCalls', JSON.stringify(dailyCalls));
+            }
+            document.getElementById('dailyUsage').innerText = 200 - dailyCalls.count;
         });
     </script>
 </body>
