@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEULCHALEX – DeutschLektor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* ── TOKENS ── */
+    :root{
+      --bg:#0b0f1a; --surface:#131929; --s2:#1a2236; --s3:#202b42;
+      --border:rgba(255,255,255,0.07); --b2:rgba(255,255,255,0.13);
+      --blue:#4f8ef7; --bdim:rgba(79,142,247,.13);
+      --green:#22d3a5; --gdim:rgba(34,211,165,.13);
+      --red:#f75f5f;   --rdim:rgba(247,95,95,.13);
+      --yellow:#fbbf24; --ydim:rgba(251,191,36,.13);
+      --purple:#a78bfa; --pdim:rgba(167,139,250,.13);
+      --orange:#fb923c; --odim:rgba(251,146,60,.13);
+      --teal:#2dd4bf;  --tdim:rgba(45,212,191,.13);
+      --pink:#f472b6;  --pinkdim:rgba(244,114,182,.13);
+      --text:#e2e8f0;  --muted:#64748b;
+      --radius:14px; --r20:20px;
+      /* grammar highlight colors */
+      --hl-dat:rgba(79,142,247,.18);   --hl-dat-b:#4f8ef7;
+      --hl-akk:rgba(247,95,95,.18);    --hl-akk-b:#f75f5f;
+      --hl-mod:rgba(167,139,250,.18);  --hl-mod-b:#a78bfa;
+      --hl-konj:rgba(251,191,36,.18);  --hl-konj-b:#fbbf24;
+      --hl-prp:rgba(34,211,165,.18);   --hl-prp-b:#22d3a5;
+      --hl-prf:rgba(251,146,60,.18);   --hl-prf-b:#fb923c;
+    }
+    .light{
+      --bg:#f0f4f8; --surface:#fff; --s2:#e8edf4; --s3:#dde5f0;
+      --border:rgba(0,0,0,.08); --b2:rgba(0,0,0,.15);
+      --text:#1e293b; --muted:#64748b;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);
+      min-height:100vh;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased}
+
+    /* ── TOPBAR ── */
+    .topbar{display:flex;align-items:center;justify-content:space-between;
+      padding:11px 20px;background:var(--surface);border-bottom:1px solid var(--border);
+      position:sticky;top:0;z-index:300;backdrop-filter:blur(12px)}
+    .topbar-l{display:flex;align-items:center;gap:12px}
+    .back-link{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;
+      font-weight:600;color:var(--muted);text-decoration:none;padding:6px 12px;
+      border:1px solid var(--border);border-radius:10px;transition:all .2s}
+    .back-link:hover{color:var(--teal);border-color:var(--tdim)}
+    .page-ttl{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700}
+    .topbar-r{display:flex;align-items:center;gap:8px}
+    .ib{width:34px;height:34px;border-radius:9px;background:var(--s2);border:1px solid var(--border);
+      color:var(--muted);display:flex;align-items:center;justify-content:center;
+      font-size:.85rem;cursor:pointer;transition:all .2s}
+    .ib:hover{background:var(--tdim);color:var(--teal);border-color:var(--tdim)}
+    .uchip{display:flex;align-items:center;gap:6px;background:var(--s2);
+      border:1px solid var(--border);border-radius:30px;padding:4px 11px 4px 4px;font-size:.8rem}
+    .uav{width:24px;height:24px;border-radius:50%;
+      background:linear-gradient(135deg,var(--teal),var(--blue));
+      display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:#fff}
+
+    /* ── LAYOUT ── */
+    .layout{display:grid;grid-template-columns:220px 1fr;gap:0;
+      max-width:1300px;margin:0 auto;min-height:calc(100vh - 57px)}
+
+    /* ── SIDENAV ── */
+    .sidenav{position:sticky;top:57px;height:calc(100vh - 57px);overflow-y:auto;
+      padding:16px 10px;border-right:1px solid var(--border);scrollbar-width:thin}
+    .sidenav::-webkit-scrollbar{width:4px}
+    .sidenav::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+    .nav-prog{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);
+      padding:12px;margin-bottom:12px}
+    .np-hdr{display:flex;justify-content:space-between;font-size:.73rem;font-weight:600;margin-bottom:6px}
+    .np-pct{color:var(--teal);font-family:'Space Grotesk',sans-serif}
+    .bar-t{height:5px;background:var(--border);border-radius:20px;overflow:hidden}
+    .bar-f{height:100%;background:linear-gradient(90deg,var(--teal),var(--blue));
+      border-radius:20px;width:0%;transition:width .8s cubic-bezier(.23,1,.32,1)}
+    .np-stats{display:flex;gap:5px;margin-top:7px}
+    .np-s{flex:1;text-align:center;background:var(--surface);border:1px solid var(--border);
+      border-radius:7px;padding:5px 2px}
+    .np-sv{font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;
+      color:var(--teal);display:block}
+    .np-sl{font-size:.55rem;color:var(--muted)}
+    .nav-lbl{font-size:.65rem;font-weight:700;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.08em;padding:0 6px;margin:10px 0 4px}
+    .nav-item{display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:9px;
+      font-size:.77rem;font-weight:500;color:var(--muted);cursor:pointer;
+      transition:all .15s;border:none;background:none;width:100%;text-align:left;
+      text-decoration:none}
+    .nav-item:hover{background:var(--s2);color:var(--text)}
+    .nav-item.active{background:var(--tdim);color:var(--teal);font-weight:600}
+    .nav-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0}
+    .nav-item.active .nav-dot{background:var(--teal)}
+    .nav-item.done .nav-dot{background:var(--green)}
+    .nav-ck{margin-left:auto;font-size:.6rem;color:var(--green);opacity:0}
+    .nav-item.done .nav-ck{opacity:1}
+
+    /* ── MAIN ── */
+    main{padding:24px 28px 60px;min-width:0}
+
+    /* ── HERO ── */
+    .hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--r20);
+      padding:22px 26px;margin-bottom:18px;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,var(--teal),var(--blue),var(--purple))}
+    .hero-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .hero-lbl{font-size:.7rem;font-weight:700;color:var(--teal);
+      text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+    .hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.2rem,2.5vw,1.7rem);
+      font-weight:700;margin-bottom:4px}
+    .hero p{font-size:.82rem;color:var(--muted);line-height:1.6}
+    .hstats{display:flex;gap:9px;flex-wrap:wrap;flex-shrink:0}
+    .hst{text-align:center;background:var(--s2);border:1px solid var(--border);
+      border-radius:var(--radius);padding:8px 14px;min-width:66px}
+    .hst-v{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;
+      color:var(--teal);display:block;line-height:1}
+    .hst-l{font-size:.6rem;color:var(--muted)}
+
+    /* ── GLOBAL PROGRESS ── */
+    .gpbar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+      padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .gp-lbl{font-size:.78rem;font-weight:600;white-space:nowrap}
+    .gp-track{flex:1;height:6px;background:var(--s2);border-radius:20px;overflow:hidden;min-width:60px}
+    .gp-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--blue));
+      border-radius:20px;width:0%;transition:width .9s cubic-bezier(.23,1,.32,1)}
+    .gp-pct{font-family:'Space Grotesk',sans-serif;font-size:.86rem;font-weight:700;color:var(--teal)}
+    .gp-chip{font-size:.68rem;padding:2px 8px;border-radius:20px;font-weight:600;
+      background:var(--tdim);color:var(--teal);border:1px solid rgba(45,212,191,.2)}
+
+    /* ── SECTION LABEL ── */
+    .slbl{font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;
+      letter-spacing:.08em;margin-bottom:9px;display:flex;align-items:center;gap:7px}
+    .slbl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+    /* ── STORY GRID ── */
+    .story-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+      gap:12px;margin-bottom:20px}
+    .sg-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r20);
+      padding:18px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+    .sg-card:hover{border-color:var(--c,var(--teal));transform:translateY(-3px);
+      box-shadow:0 8px 24px rgba(0,0,0,.2)}
+    .sg-card.completed{border-color:rgba(34,211,165,.4)}
+    .sg-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+      background:var(--c,var(--teal))}
+    .sg-badge{display:inline-flex;align-items:center;gap:5px;font-size:.64rem;font-weight:700;
+      padding:3px 8px;border-radius:20px;margin-bottom:10px;text-transform:uppercase;
+      letter-spacing:.05em;background:color-mix(in srgb,var(--c,var(--teal)) 15%,transparent);
+      color:var(--c,var(--teal));border:1px solid color-mix(in srgb,var(--c,var(--teal)) 30%,transparent)}
+    .sg-title{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;
+      margin-bottom:5px}
+    .sg-sub{font-size:.76rem;color:var(--muted);line-height:1.4;margin-bottom:10px}
+    .sg-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .sg-tag{font-size:.62rem;padding:2px 7px;border-radius:20px;
+      background:var(--s2);color:var(--muted);border:1px solid var(--border)}
+    .sg-done{position:absolute;top:10px;right:10px;width:22px;height:22px;
+      border-radius:50%;background:var(--green);display:none;align-items:center;
+      justify-content:center;font-size:.65rem;color:#fff}
+    .sg-card.completed .sg-done{display:flex}
+    .sg-progress{height:3px;background:var(--s2);border-radius:20px;overflow:hidden;margin-top:10px}
+    .sg-prog-fill{height:100%;border-radius:20px;background:var(--c,var(--teal));
+      transition:width .5s}
+
+    /* ── STORY READER ── */
+    .reader{background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--r20);overflow:hidden;margin-bottom:16px;display:none}
+    .reader.open{display:block}
+    .reader-header{padding:18px 22px;border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .reader-title-wrap{display:flex;align-items:center;gap:12px}
+    .reader-icon{width:40px;height:40px;border-radius:12px;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;font-size:1rem}
+    .reader-title{font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:700}
+    .reader-sub{font-size:.76rem;color:var(--muted);margin-top:2px}
+    .reader-acts{display:flex;gap:8px;flex-wrap:wrap}
+    .reader-body{padding:24px}
+
+    /* Grammar focus box */
+    .gram-focus{background:color-mix(in srgb,var(--c,var(--teal)) 8%,var(--s2));
+      border:1px solid color-mix(in srgb,var(--c,var(--teal)) 25%,transparent);
+      border-left:4px solid var(--c,var(--teal));
+      border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;font-size:.83rem;line-height:1.65}
+    .gram-focus .gft{font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;
+      color:var(--c,var(--teal));margin-bottom:7px;display:flex;align-items:center;gap:6px}
+    .gram-focus p+p{margin-top:5px}
+    .gram-focus strong{color:var(--text)}
+
+    /* Story text area */
+    .story-text-wrap{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);
+      padding:22px;margin-bottom:16px}
+    .story-text{font-family:'Lora',serif;font-size:1.05rem;line-height:1.85;color:var(--text)}
+    .story-text p+p{margin-top:14px}
+    /* Grammar highlights */
+    .hl{font-weight:700;padding:1px 5px;border-radius:4px;border-bottom:2px dashed;cursor:help;
+      position:relative;display:inline;transition:background .15s}
+    .hl-dat{background:var(--hl-dat);border-bottom-color:var(--hl-dat-b)}
+    .hl-akk{background:var(--hl-akk);border-bottom-color:var(--hl-akk-b)}
+    .hl-mod{background:var(--hl-mod);border-bottom-color:var(--hl-mod-b)}
+    .hl-konj{background:var(--hl-konj);border-bottom-color:var(--hl-konj-b)}
+    .hl-prp{background:var(--hl-prp);border-bottom-color:var(--hl-prp-b)}
+    .hl-prf{background:var(--hl-prf);border-bottom-color:var(--hl-prf-b)}
+    /* Vocabulary tooltip */
+    .voc{cursor:pointer;border-bottom:1px dotted var(--muted);color:inherit}
+    .voc:hover{color:var(--teal)}
+
+    /* Vocabulary tooltip popup */
+    #vocTooltip{position:fixed;background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius);padding:10px 14px;font-size:.8rem;max-width:220px;
+      box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:500;pointer-events:none;
+      opacity:0;transition:opacity .2s;line-height:1.5}
+    #vocTooltip.show{opacity:1}
+    #vocTooltip .vt-word{font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);margin-bottom:3px}
+    #vocTooltip .vt-trans{color:var(--muted)}
+
+    /* Legend */
+    .hl-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;font-size:.72rem}
+    .hl-dot{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:20px;
+      background:var(--s2);border:1px solid var(--border);color:var(--muted)}
+    .hl-dot span{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+    /* Audio controls */
+    .audio-bar{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);
+      padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .audio-title{font-size:.78rem;font-weight:600;white-space:nowrap}
+    .audio-btns{display:flex;gap:7px}
+    .au-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;
+      border-radius:20px;border:1px solid var(--border);background:var(--surface);
+      color:var(--muted);font-size:.75rem;cursor:pointer;transition:all .2s}
+    .au-btn:hover{background:var(--tdim);color:var(--teal);border-color:var(--teal)}
+    .au-btn.playing{background:var(--rdim);color:var(--red);border-color:var(--red);
+      animation:blink .8s infinite alternate}
+    @keyframes blink{from{opacity:1}to{opacity:.6}}
+    .voice-sel{padding:6px 10px;border-radius:8px;border:1px solid var(--border);
+      background:var(--s2);color:var(--text);font-size:.78rem;outline:none;cursor:pointer}
+    .speed-btns{display:flex;gap:4px}
+    .spd-btn{padding:4px 9px;border-radius:7px;border:1px solid var(--border);
+      background:var(--s2);color:var(--muted);font-size:.7rem;cursor:pointer;transition:all .15s}
+    .spd-btn.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+    .au-status{font-size:.72rem;color:var(--muted)}
+
+    /* Vocabulary glossary */
+    .vocab-section{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);
+      padding:16px;margin-bottom:16px}
+    .vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:10px}
+    .vocab-item{background:var(--surface);border:1px solid var(--border);border-radius:9px;
+      padding:10px;font-size:.79rem}
+    .vi-word{font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--teal);margin-bottom:2px}
+    .vi-trans{color:var(--muted);font-size:.74rem}
+    .vi-art{font-size:.64rem;font-weight:700;padding:1px 5px;border-radius:5px;margin-bottom:4px;
+      display:inline-block}
+    .vi-der{background:rgba(79,142,247,.15);color:var(--blue)}
+    .vi-die{background:rgba(247,95,95,.15);color:var(--red)}
+    .vi-das{background:rgba(34,211,165,.15);color:var(--green)}
+
+    /* ── EXERCISE SECTION ── */
+    .ex-section{margin-top:20px;padding-top:18px;border-top:1px solid var(--border)}
+    .ex-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+    .ex-tab{display:flex;align-items:center;gap:5px;padding:6px 13px;border-radius:9px;
+      font-size:.76rem;font-weight:600;cursor:pointer;transition:all .2s;
+      background:var(--s2);border:1px solid var(--border);color:var(--muted)}
+    .ex-tab:hover{border-color:var(--teal);color:var(--teal)}
+    .ex-tab.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+    .ex-panel{display:none}
+    .ex-panel.active{display:block}
+
+    /* shared exercise UI */
+    .ex-q{font-size:.9rem;font-weight:600;margin-bottom:12px;color:var(--text)}
+    .ex-sentence{font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;
+      text-align:center;padding:16px;background:var(--s2);border-radius:var(--radius);
+      margin-bottom:12px;line-height:1.5}
+    .ex-fb{padding:10px 14px;border-radius:10px;font-size:.82rem;display:none;
+      margin:10px 0;line-height:1.55}
+    .ex-fb.ok{background:var(--gdim);color:var(--green);border:1px solid rgba(34,211,165,.22);display:block}
+    .ex-fb.err{background:var(--rdim);color:var(--red);border:1px solid rgba(247,95,95,.22);display:block}
+    .ex-fb .exp{color:var(--text);margin-top:4px;font-size:.78rem}
+    .ex-next{padding:9px 18px;border-radius:10px;background:var(--teal);color:#fff;
+      border:none;font-weight:700;cursor:pointer;font-size:.84rem;transition:all .2s;display:none}
+    .ex-next.show{display:inline-block}
+    .ex-next:hover{background:#20b08a}
+    .ex-score{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:20px;
+      background:var(--tdim);color:var(--teal);border:1px solid rgba(45,212,191,.2)}
+
+    /* MCQ options */
+    .mc-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+    .mc-opt{padding:10px 13px;border-radius:10px;border:1px solid var(--border);
+      background:var(--s2);cursor:pointer;transition:all .15s;font-size:.82rem;
+      font-weight:500;color:var(--text);text-align:left;display:flex;align-items:center;gap:7px}
+    .mc-opt:hover:not(:disabled){border-color:var(--teal);background:var(--tdim)}
+    .mc-opt.correct{border-color:var(--green);background:var(--gdim);color:var(--green)}
+    .mc-opt.wrong{border-color:var(--red);background:var(--rdim);color:var(--red)}
+    .mc-opt:disabled{cursor:not-allowed}
+    .mc-l{width:20px;height:20px;border-radius:5px;flex-shrink:0;background:var(--surface);
+      display:flex;align-items:center;justify-content:center;font-size:.63rem;
+      font-weight:700;color:var(--muted)}
+    .mc-opt.correct .mc-l{background:var(--green);color:#fff}
+    .mc-opt.wrong   .mc-l{background:var(--red);color:#fff}
+
+    /* True/False */
+    .tf-list{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
+    .tf-item{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);
+      padding:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .tf-stmt{font-size:.85rem;flex:1;line-height:1.5}
+    .tf-btns{display:flex;gap:6px;flex-shrink:0}
+    .tf-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);
+      background:var(--surface);font-size:.75rem;font-weight:700;cursor:pointer;transition:all .15s}
+    .tf-btn:hover:not(:disabled){border-color:var(--teal)}
+    .tf-btn.sel-t{background:var(--gdim);color:var(--green);border-color:var(--green)}
+    .tf-btn.sel-f{background:var(--rdim);color:var(--red);border-color:var(--red)}
+    .tf-btn.correct{background:var(--gdim);color:var(--green);border-color:var(--green)}
+    .tf-btn.wrong-r{background:var(--rdim);color:var(--red);border-color:var(--red)}
+    .tf-btn:disabled{cursor:not-allowed}
+
+    /* Fill blanks */
+    .fill-sent{font-family:'Lora',serif;font-size:1rem;line-height:2;
+      background:var(--s2);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+    .blank{display:inline-block;min-width:90px;border-bottom:2px solid var(--teal);
+      padding:0 4px;color:var(--teal);font-weight:700;text-align:center;
+      font-family:'Space Grotesk',sans-serif}
+    .fill-opts{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+    .fill-opt{padding:6px 14px;border-radius:20px;border:2px solid var(--border);
+      background:var(--s2);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .15s}
+    .fill-opt:hover:not(.used){border-color:var(--teal);background:var(--tdim)}
+    .fill-opt.used{opacity:.3;pointer-events:none}
+    .fill-opt.correct{border-color:var(--green);background:var(--gdim);color:var(--green)}
+    .fill-opt.wrong{border-color:var(--red);background:var(--rdim);color:var(--red)}
+
+    /* Word order */
+    .wo-bank{display:flex;flex-wrap:wrap;gap:7px;min-height:44px;margin-bottom:10px}
+    .wo-tile{background:var(--teal);color:#fff;padding:7px 13px;border-radius:8px;
+      cursor:pointer;font-weight:600;font-size:.82rem;transition:all .18s;
+      box-shadow:0 3px 0 #17a589}
+    .wo-tile:hover{transform:translateY(-2px);box-shadow:0 5px 0 #17a589}
+    .wo-tile.used{opacity:.3;pointer-events:none}
+    .wo-builder{min-height:48px;background:var(--s2);border:2px dashed var(--border);
+      border-radius:10px;padding:10px;display:flex;flex-wrap:wrap;gap:6px;
+      align-items:center;margin-bottom:10px;cursor:pointer}
+    .wo-built{background:var(--surface);border:1px solid var(--border);
+      border-radius:6px;padding:5px 11px;font-size:.82rem;cursor:pointer}
+    .wo-built:hover{border-color:var(--red);color:var(--red)}
+
+    /* Buttons */
+    .btn{padding:8px 14px;border-radius:9px;font-size:.78rem;font-weight:600;
+      cursor:pointer;transition:all .2s;border:1px solid var(--border);
+      background:var(--s2);color:var(--text);font-family:'Inter',sans-serif;
+      display:inline-flex;align-items:center;gap:5px}
+    .btn:hover{background:var(--tdim);border-color:rgba(45,212,191,.3);color:var(--teal)}
+    .btn-p{background:var(--teal);color:#fff;border-color:var(--teal)}
+    .btn-p:hover{background:#20b08a;color:#fff}
+    .btn-g{background:var(--green);color:#fff;border-color:var(--green)}
+
+    /* Mark read button */
+    .btn-read{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+      border-radius:20px;border:2px solid var(--teal);background:transparent;
+      color:var(--teal);font-size:.76rem;font-weight:700;cursor:pointer;transition:all .2s}
+    .btn-read:hover{background:var(--teal);color:#fff}
+    .btn-read.done{background:var(--green);border-color:var(--green);color:#fff}
+
+    /* ── FOOTER ── */
+    .pfoot{background:var(--surface);border-top:1px solid var(--border);padding:16px 20px}
+    .pfoot-in{max-width:1300px;margin:0 auto;display:flex;align-items:center;
+      justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .pfoot-brand{font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700}
+    .pfoot-copy{font-size:.72rem;color:var(--muted)}
+    .pfoot-links{display:flex;gap:13px}
+    .pfoot-links a{font-size:.72rem;color:var(--muted);text-decoration:none;transition:color .2s}
+    .pfoot-links a:hover{color:var(--teal)}
+
+    /* TOAST */
+    #toast{position:fixed;bottom:18px;right:18px;background:var(--surface);
+      border:1px solid var(--border);border-radius:12px;padding:10px 15px;font-size:.8rem;
+      box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:9999;
+      transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.23,1,.32,1);max-width:270px}
+    #toast.show{transform:translateY(0);opacity:1}
+    .spin{display:inline-block;width:14px;height:14px;
+      border:2px solid var(--border);border-top-color:var(--teal);
+      border-radius:50%;animation:_sp .7s linear infinite}
+    @keyframes _sp{to{transform:rotate(360deg)}}
+
+    /* RESPONSIVE */
+    @media(max-width:900px){.layout{grid-template-columns:1fr}.sidenav{display:none}
+      main{padding:16px 12px 50px}}
+    @media(max-width:600px){.story-grid{grid-template-columns:1fr}
+      .mc-opts{grid-template-columns:1fr}.hstats{gap:6px}.hst{padding:6px 10px}}
+    @media(max-width:420px){.ex-tabs{gap:4px}.ex-tab{padding:5px 9px;font-size:.7rem}}
+  </style>
+</head>
+<body>
+
+<!-- Vocabulary tooltip -->
+<div id="vocTooltip">
+  <div class="vt-word" id="vtWord"></div>
+  <div class="vt-trans" id="vtTrans"></div>
+</div>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-l">
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Inicio</a>
+    <span class="page-ttl">DeutschLektor · Módulo 05</span>
+  </div>
+  <div class="topbar-r">
+    <div class="uchip">
+      <div class="uav" id="uAv">?</div>
+      <span id="uNm" style="font-size:.79rem">—</span>
+    </div>
+    <button class="ib" id="themeBtn"><i class="fas fa-moon"></i></button>
+  </div>
+</nav>
+
+<div class="layout">
+
+<!-- ── SIDENAV ── -->
+<aside class="sidenav">
+  <div class="nav-prog">
+    <div class="np-hdr"><span>Lectura</span><span class="np-pct" id="navPct">0%</span></div>
+    <div class="bar-t"><div class="bar-f" id="navBar"></div></div>
+    <div class="np-stats">
+      <div class="np-s"><span class="np-sv" id="sRead">0</span><span class="np-sl">Leídas</span></div>
+      <div class="np-s"><span class="np-sv">6</span><span class="np-sl">Total</span></div>
+      <div class="np-s"><span class="np-sv" id="sScore">—</span><span class="np-sl">%</span></div>
+    </div>
+  </div>
+
+  <div class="nav-lbl">Historias</div>
+  <div id="navStories"></div>
+
+  <div class="nav-lbl" style="margin-top:14px">Nivel</div>
+  <button class="nav-item" onclick="filterStories('all')"><span class="nav-dot"></span>Todas</button>
+  <button class="nav-item" onclick="filterStories('A2')"><span class="nav-dot"></span>A2</button>
+  <button class="nav-item" onclick="filterStories('B1')"><span class="nav-dot"></span>B1</button>
+
+  <div class="nav-lbl" style="margin-top:14px">Gramática</div>
+  <button class="nav-item" onclick="filterStories('dativ')"><span class="nav-dot"></span>Dativ</button>
+  <button class="nav-item" onclick="filterStories('modal')"><span class="nav-dot"></span>Modalverben</button>
+  <button class="nav-item" onclick="filterStories('konjunktiv')"><span class="nav-dot"></span>Konjunktiv</button>
+  <button class="nav-item" onclick="filterStories('perfekt')"><span class="nav-dot"></span>Perfekt</button>
+  <button class="nav-item" onclick="filterStories('praepositionen')"><span class="nav-dot"></span>Präpositionen</button>
+</aside>
+
+<!-- ── MAIN ── -->
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-row">
+      <div>
+        <div class="hero-lbl">Módulo 05 · Comprensión Lectora</div>
+        <h1>DeutschLektor</h1>
+        <p>6 Micro-historias A2-B1 · Audio nativo TTS · Glosario interactivo · 4 ejercicios por historia.</p>
+      </div>
+      <div class="hstats">
+        <div class="hst"><span class="hst-v">6</span><span class="hst-l">Historias</span></div>
+        <div class="hst"><span class="hst-v" id="hRead">0</span><span class="hst-l">Leídas</span></div>
+        <div class="hst"><span class="hst-v" id="hEx">0</span><span class="hst-l">Ejercicios</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOBAL PROGRESS -->
+  <div class="gpbar">
+    <span class="gp-lbl">Progreso de lectura</span>
+    <div class="gp-track"><div class="gp-fill" id="gpFill"></div></div>
+    <span class="gp-pct" id="gpPct">0%</span>
+    <span class="gp-chip" id="gpChip">0 / 6 historias completadas</span>
+  </div>
+
+  <!-- STORY GRID -->
+  <p class="slbl"><i class="fas fa-book-open"></i> Historias</p>
+  <div class="story-grid" id="storyGrid"></div>
+
+  <!-- OPEN READER -->
+  <div class="reader" id="reader"></div>
+
+</main>
+</div><!-- /layout -->
+
+<footer class="pfoot">
+  <div class="pfoot-in">
+    <div>
+      <div class="pfoot-brand">DEULCHALEX</div>
+      <div class="pfoot-copy">© 2024 · Centro de Aprendizaje de Alemán para hispanohablantes</div>
+    </div>
+    <div class="pfoot-links">
+      <a href="index.html"><i class="fas fa-home"></i> Inicio</a>
+      <a href="trainersaetze.html"><i class="fas fa-comment-dots"></i> Trainersätze</a>
+      <a href="voca.html"><i class="fas fa-book"></i> Vocabulario</a>
+    </div>
+  </div>
+</footer>
+
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════ -->
+<script>
+/* ── SUPABASE ── */
+const SB_URL = 'https://kcfiacdwufadnuknkfkp.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZmlhY2R3dWZhZG51a25rZmtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxOTA5MTksImV4cCI6MjA4Nzc2NjkxOX0.bmz4K7E-a2PCM5CObDYz9ritbTKLi_OpwyiNBMOH5fU';
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+let USER_ID = null;
+
+/* ── STORY DATA ── */
+const STORIES = [
+  {
+    id:1, title:'Eine Verabredung in Berlin', emoji:'🏙️',
+    level:'A2', tag:'Dativ & Akkusativ', color:'#4f8ef7',
+    grammar:'Dativ vs. Akkusativ: verbos que piden cada caso y pronombres personales.',
+    focus:`<strong>Regla LE/LO:</strong> Si en español dices "<em>le</em>" → Dativ. Si dices "<em>lo/la</em>" → Akkusativ.<br>
+      <strong>Verbos Dativ:</strong> helfen, danken, geben, sagen, antworten, gehören.<br>
+      <strong>Verbos Akk.:</strong> sehen, kaufen, trinken, lieben, brauchen.`,
+    text:`<p>Anna ruft <span class="hl hl-dat" title="Dativ: ihrem Freund">ihrem Freund</span> Markus an. Sie fragt: „Kannst du <span class="hl hl-dat" title="Dativ: mir">mir</span> heute helfen? Ich gebe <span class="hl hl-dat" title="Dativ: dir">dir</span> das Buch zurück, das ich letzte Woche ausgeliehen habe."</p>
+<p>Markus antwortet: „Natürlich helfe ich <span class="hl hl-dat" title="Dativ: dir">dir</span>. Ich sehe <span class="hl hl-akk" title="Akkusativ: dich">dich</span> um 15 Uhr am Alexanderplatz. Wir können <span class="hl hl-akk" title="Akkusativ: einen Kaffee">einen Kaffee</span> trinken und uns unterhalten."</p>
+<p>Anna freut sich sehr. Sie dankt <span class="hl hl-dat" title="Dativ: ihrem Freund">ihrem Freund</span> und sagt: „Ich bringe <span class="hl hl-akk" title="Akkusativ: das Buch">das Buch</span> mit. Ohne <span class="hl hl-akk" title="Akkusativ: dich">dich</span> wüsste ich nicht, wie ich den Nachmittag verbringen sollte!"</p>`,
+    vocab:[
+      {w:'die Verabredung',art:'die',t:'la cita / el encuentro'},
+      {w:'anrufen',art:'v',t:'llamar por teléfono'},
+      {w:'ausleihen',art:'v',t:'pedir prestado'},
+      {w:'zurückgeben',art:'v',t:'devolver'},
+      {w:'sich unterhalten',art:'v',t:'conversar / charlar'},
+      {w:'danken',art:'v',t:'agradecer (+ Dativ)'},
+      {w:'verbringen',art:'v',t:'pasar (tiempo)'},
+    ],
+    exercises:{
+      mcq:[
+        {q:'¿Qué le pide Anna a Markus?',opts:['Que le preste dinero','Que la ayude','Que venga a su casa','Que estudie con ella'],correct:1,exp:'Anna sagt: "Kannst du mir heute helfen?" — verbo helfen + Dativ'},
+        {q:'¿Dónde quedan para verse?',opts:['En casa de Anna','En el tren','Am Alexanderplatz','En la biblioteca'],correct:2,exp:'Markus sagt: "Ich sehe dich um 15 Uhr am Alexanderplatz."'},
+        {q:'¿Qué va a traer Anna?',opts:['Un regalo','El libro','Un café','Su bicicleta'],correct:1,exp:'Anna sagt: "Ich bringe das Buch mit." — Akkusativ: das Buch'},
+      ],
+      tf:[
+        {stmt:'Anna llama a Markus por teléfono.',correct:true,exp:'Anna ruft ihrem Freund Markus an.'},
+        {stmt:'Quedan a las 14 horas.',correct:false,exp:'Quedan a las 15 horas (um 15 Uhr).'},
+        {stmt:'Markus acepta ayudar a Anna.',correct:true,exp:'"Natürlich helfe ich dir."'},
+      ],
+      fill:{
+        sentence:'Ich gebe _[dir]_ das Buch zurück, und dann sehe ich _[dich]_ am _[Alexanderplatz]_.',
+        blanks:['dir','dich','Alexanderplatz'],
+        opts:['mir','dir','dich','mich','Bahnhof','Alexanderplatz','Kino'],
+        exp:'dir = Dativ 2ª persona · dich = Akkusativ 2ª persona · Alexanderplatz = lugar de encuentro'
+      },
+      order:{
+        sentence:'Ich bringe das Buch mit.',
+        words:['Ich','bringe','das','Buch','mit.'],
+        exp:'Verbo "bringe" en posición 2, prefijo "mit" al final (trennbares Verb).'
+      }
+    }
+  },
+  {
+    id:2, title:'Der erste Job', emoji:'💼',
+    level:'A2', tag:'Modalverben', color:'#a78bfa',
+    grammar:'Modalverben en Präsens y Präteritum con infinitivo al final.',
+    focus:`<strong>Modalverben Präsens:</strong> können, müssen, wollen, dürfen, sollen, mögen.<br>
+      <strong>Estructura:</strong> Modal (pos.2) + ... + Infinitiv (final).<br>
+      <strong>Präteritum:</strong> konnte, musste, wollte, durfte, sollte — todos regulares.`,
+    text:`<p>Lena <span class="hl hl-mod" title="Modalverb: wollte">wollte</span> schon immer in einer Bäckerei arbeiten. Mit 18 Jahren <span class="hl hl-mod" title="Modalverb: konnte">konnte</span> sie endlich eine Ausbildung beginnen. Sie <span class="hl hl-mod" title="Modalverb: musste">musste</span> jeden Morgen um 5 Uhr aufstehen, weil die ersten Brötchen um 6 Uhr fertig sein <span class="hl hl-mod" title="Modalverb: mussten">mussten</span>.</p>
+<p>Am Anfang war es sehr schwer. Lena <span class="hl hl-mod" title="Modalverb: durfte">durfte</span> keine Fehler machen, weil jede Kleinigkeit zählte. Ihr Chef sagte: „Du <span class="hl hl-mod" title="Modalverb: sollst">sollst</span> immer auf die Qualität achten. Wenn du gut arbeiten <span class="hl hl-mod" title="Modalverb: kannst">kannst</span>, <span class="hl hl-mod" title="Modalverb: wirst">wirst</span> du eines Tages deine eigene Bäckerei haben."</p>
+<p>Nach drei Monaten liebte Lena ihren Job. Sie <span class="hl hl-mod" title="Modalverb: wollte">wollte</span> nicht mehr aufhören. Am Ende des ersten Jahres <span class="hl hl-mod" title="Modalverb: konnte">konnte</span> sie 500 Euro sparen, um sich ein Fahrrad zu kaufen.</p>`,
+    vocab:[
+      {w:'die Bäckerei',art:'die',t:'la panadería'},
+      {w:'die Ausbildung',art:'die',t:'la formación profesional'},
+      {w:'das Brötchen',art:'das',t:'el panecillo'},
+      {w:'die Kleinigkeit',art:'die',t:'la pequeñez / el detalle'},
+      {w:'die Qualität',art:'die',t:'la calidad'},
+      {w:'achten auf',art:'v',t:'prestar atención a'},
+      {w:'sparen',art:'v',t:'ahorrar'},
+    ],
+    exercises:{
+      mcq:[
+        {q:'¿Dónde quería trabajar Lena?',opts:['En un supermercado','En una oficina','En una panadería','En un hospital'],correct:2,exp:'Lena wollte schon immer in einer Bäckerei arbeiten.'},
+        {q:'¿A qué hora debía levantarse?',opts:['A las 4','A las 5','A las 6','A las 7'],correct:1,exp:'Sie musste jeden Morgen um 5 Uhr aufstehen.'},
+        {q:'¿Para qué ahorró Lena los 500 euros?',opts:['Para unas vacaciones','Para comprarse un coche','Para un libro','Para comprarse una bicicleta'],correct:3,exp:'konnte sie 500 Euro sparen, um sich ein Fahrrad zu kaufen.'},
+      ],
+      tf:[
+        {stmt:'Lena empezó su formación con 18 años.',correct:true,exp:'Mit 18 Jahren konnte sie endlich eine Ausbildung beginnen.'},
+        {stmt:'Los primeros panecillos debían estar listos a las 7.',correct:false,exp:'Die ersten Brötchen mussten um 6 Uhr fertig sein.'},
+        {stmt:'Lena quería dejar el trabajo después de tres meses.',correct:false,exp:'Sie wollte nicht mehr aufhören — no quería parar.'},
+      ],
+      fill:{
+        sentence:'Sie _[musste]_ jeden Morgen um 5 Uhr aufstehen, weil die Brötchen um 6 Uhr fertig sein _[mussten]_.',
+        blanks:['musste','mussten'],
+        opts:['wollte','musste','konnte','durfte','mussten','konnten','wollten'],
+        exp:'musste (ich/er/sie) y mussten (plural/wir/sie) = Präteritum de müssen'
+      },
+      order:{
+        sentence:'Du sollst immer auf die Qualität achten.',
+        words:['Du','sollst','immer','auf','die','Qualität','achten.'],
+        exp:'"sollst" en posición 2, "achten" al final (Modal + Infinitiv am Ende).'
+      }
+    }
+  },
+  {
+    id:3, title:'Wenn ich reich wäre…', emoji:'💭',
+    level:'B1', tag:'Konjunktiv II', color:'#fbbf24',
+    grammar:'Konjunktiv II para expresar deseos, hipótesis y situaciones irreales.',
+    focus:`<strong>Bildung:</strong> würde + Infinitiv (la forma más usada).<br>
+      <strong>Formas propias:</strong> hätte (haben), wäre (sein), könnte (können), müsste (müssen).<br>
+      <strong>Uso:</strong> Condiciones irreales (wenn..., dann würde...) y deseos educados.`,
+    text:`<p>Manchmal träumt Tomás davon, was er tun <span class="hl hl-konj" title="Konjunktiv II: würde">würde</span>, wenn er viel Geld <span class="hl hl-konj" title="Konjunktiv II: hätte">hätte</span>. „Wenn ich reich <span class="hl hl-konj" title="Konjunktiv II: wäre">wäre</span>", denkt er, „<span class="hl hl-konj" title="Konjunktiv II: würde ich">würde</span> ich sofort eine Reise nach Japan machen."</p>
+<p>Er <span class="hl hl-konj" title="Konjunktiv II: würde">würde</span> auch ein kleines Haus am Meer kaufen, wo er jeden Morgen die Wellen hören <span class="hl hl-konj" title="Konjunktiv II: könnte">könnte</span>. Außerdem <span class="hl hl-konj" title="Konjunktiv II: würde">würde</span> er seiner Mutter helfen, damit sie nicht mehr so viel arbeiten <span class="hl hl-konj" title="Konjunktiv II: müsste">müsste</span>.</p>
+<p>„Aber", sagt er sich selbst, „vielleicht <span class="hl hl-konj" title="Konjunktiv II: wäre">wäre</span> das echte Leben ohne Träume langweilig. Es ist schön, Ziele zu haben!" Tomás lächelt und fängt wieder an zu arbeiten.</p>`,
+    vocab:[
+      {w:'träumen von',art:'v',t:'soñar con'},
+      {w:'reich',art:'adj',t:'rico/a'},
+      {w:'die Welle',art:'die',t:'la ola'},
+      {w:'außerdem',art:'adv',t:'además'},
+      {w:'damit',art:'konj',t:'para que (conj.)'},
+      {w:'das Ziel',art:'das',t:'el objetivo / la meta'},
+      {w:'lächeln',art:'v',t:'sonreír'},
+    ],
+    exercises:{
+      mcq:[
+        {q:'¿Qué haría Tomás si tuviera mucho dinero?',opts:['Se compraría un coche','Viajaría a Japón','Estudiaría medicina','Se iría a vivir a Berlín'],correct:1,exp:'würde ich sofort eine Reise nach Japan machen.'},
+        {q:'¿Qué tipo de casa compraría?',opts:['Un piso en la ciudad','Una casa en la montaña','Un apartamento','Una casa pequeña junto al mar'],correct:3,exp:'Er würde ein kleines Haus am Meer kaufen.'},
+        {q:'¿Por qué ayudaría a su madre?',opts:['Porque está enferma','Para que no tuviera que trabajar tanto','Porque vive lejos','Para que pudiera estudiar'],correct:1,exp:'damit sie nicht mehr so viel arbeiten müsste.'},
+      ],
+      tf:[
+        {stmt:'Tomás quiere viajar a China.',correct:false,exp:'Quiere viajar a Japón: "eine Reise nach Japan machen."'},
+        {stmt:'Le gustaría escuchar las olas cada mañana.',correct:true,exp:'wo er jeden Morgen die Wellen hören könnte.'},
+        {stmt:'Tomás piensa que la vida sin sueños sería aburrida.',correct:true,exp:'"wäre das echte Leben ohne Träume langweilig."'},
+      ],
+      fill:{
+        sentence:'Wenn ich reich _[wäre]_, _[würde]_ ich eine Reise nach Japan machen und meiner Mutter helfen, damit sie nicht mehr arbeiten _[müsste]_.',
+        blanks:['wäre','würde','müsste'],
+        opts:['wäre','hätte','würde','könnte','müsste','sollte','dürfte'],
+        exp:'wäre = Konjunktiv II von sein · würde = Konjunktiv II Hilfsverb · müsste = Konjunktiv II von müssen'
+      },
+      order:{
+        sentence:'Wenn ich reich wäre, würde ich sofort nach Japan reisen.',
+        words:['Wenn','ich','reich','wäre,','würde','ich','sofort','nach','Japan','reisen.'],
+        exp:'Estructura wenn-Satz: verbo al final en la subordinada, würde en pos. 2 de la principal.'
+      }
+    }
+  },
+  {
+    id:4, title:'Ein Brief aus Hamburg', emoji:'📮',
+    level:'A2', tag:'Perfekt', color:'#fb923c',
+    grammar:'Perfekt con haben y sein: la forma más usada del pasado en alemán hablado.',
+    focus:`<strong>Bildung:</strong> haben/sein (konj.) + Partizip II am Ende.<br>
+      <strong>Partizip II reg.:</strong> ge- + Stamm + t (kaufen → gekauft).<br>
+      <strong>Partizip II irreg.:</strong> ge- + Stamm + en (fahren → gefahren).<br>
+      <strong>Wann sein?</strong> Verbos de movimiento o cambio de estado (gehen, kommen, fahren).`,
+    text:`<p>Liebe María, ich <span class="hl hl-prf" title="Perfekt: bin angekommen">bin</span> letzte Woche endlich in Hamburg <span class="hl hl-prf" title="Partizip II: angekommen">angekommen</span>! Die Reise <span class="hl hl-prf" title="Perfekt: hat gedauert">hat</span> sechs Stunden <span class="hl hl-prf" title="Partizip II: gedauert">gedauert</span>, aber es war es wert.</p>
+<p>Am ersten Tag <span class="hl hl-prf" title="Perfekt: habe ich besucht">habe</span> ich die Speicherstadt <span class="hl hl-prf" title="Partizip II: besucht">besucht</span>. Ich <span class="hl hl-prf" title="Perfekt: habe gegessen">habe</span> frischen Fisch auf dem Markt <span class="hl hl-prf" title="Partizip II: gegessen">gegessen</span> und einen langen Spaziergang <span class="hl hl-prf" title="Partizip II: gemacht">gemacht</span>. Abends <span class="hl hl-prf" title="Perfekt: bin ich gegangen">bin</span> ich ins Theater <span class="hl hl-prf" title="Partizip II: gegangen">gegangen</span> — das <span class="hl hl-prf" title="Perfekt: hat mir gefallen">hat</span> mir sehr gut <span class="hl hl-prf" title="Partizip II: gefallen">gefallen</span>!</p>
+<p>Heute <span class="hl hl-prf" title="Perfekt: habe ich geschrieben">habe</span> ich dir diesen Brief <span class="hl hl-prf" title="Partizip II: geschrieben">geschrieben</span>, weil ich dir alles erzählen wollte. Ich <span class="hl hl-prf" title="Perfekt: habe mitgebracht">habe</span> auch ein kleines Geschenk für dich <span class="hl hl-prf" title="Partizip II: mitgebracht">mitgebracht</span>!</p>`,
+    vocab:[
+      {w:'die Speicherstadt',art:'die',t:'el barrio de los almacenes (Hamburgo)'},
+      {w:'frisch',art:'adj',t:'fresco/a'},
+      {w:'der Spaziergang',art:'der',t:'el paseo'},
+      {w:'das Theater',art:'das',t:'el teatro'},
+      {w:'gefallen',art:'v',t:'gustar (+ Dativ)'},
+      {w:'mitbringen',art:'v',t:'traer (consigo)'},
+      {w:'es war es wert',art:'exp',t:'valió la pena'},
+    ],
+    exercises:{
+      mcq:[
+        {q:'¿Cuánto tardó el viaje?',opts:['3 horas','4 horas','6 horas','8 horas'],correct:2,exp:'Die Reise hat sechs Stunden gedauert.'},
+        {q:'¿Qué visitó el primer día?',opts:['El museo','La playa','La Speicherstadt','El puerto'],correct:2,exp:'habe ich die Speicherstadt besucht.'},
+        {q:'¿Qué trae de regalo?',opts:['Un libro','Un souvenir del teatro','Una postal','Un pequeño regalo'],correct:3,exp:'Ich habe auch ein kleines Geschenk für dich mitgebracht.'},
+      ],
+      tf:[
+        {stmt:'El escritor llegó a Hamburg hace dos semanas.',correct:false,exp:'Llegó la semana pasada: "letzte Woche angekommen."'},
+        {stmt:'Comió pescado fresco en el mercado.',correct:true,exp:'Ich habe frischen Fisch auf dem Markt gegessen.'},
+        {stmt:'No le gustó el teatro.',correct:false,exp:'Das hat mir sehr gut gefallen! — le gustó mucho.'},
+      ],
+      fill:{
+        sentence:'Ich _[bin]_ letzte Woche angekommen und _[habe]_ die Speicherstadt besucht. Abends _[bin]_ ich ins Theater _[gegangen]_.',
+        blanks:['bin','habe','bin','gegangen'],
+        opts:['bin','habe','hatte','ist','gegangen','besucht','gefahren'],
+        exp:'ankommen y gehen usan sein · besuchen usa haben · Partizip gegangen (gehen → gegangen)'
+      },
+      order:{
+        sentence:'Ich habe dir diesen Brief geschrieben, weil ich dir alles erzählen wollte.',
+        words:['Ich','habe','dir','diesen','Brief','geschrieben,','weil','ich','dir','alles','erzählen','wollte.'],
+        exp:'Perfekt: habe + geschrieben (am Ende). Weil-Satz: verbo al final (wollte).'
+      }
+    }
+  },
+  {
+    id:5, title:'Auf dem Wohnungsmarkt', emoji:'🏠',
+    level:'B1', tag:'Präpositionen', color:'#22d3a5',
+    grammar:'Präpositionen con Dativ y Akkusativ: wechselpräpositionen y fijas.',
+    focus:`<strong>Dativ fijo:</strong> mit, nach, von, zu, aus, bei, seit, gegenüber.<br>
+      <strong>Akkusativ fijo:</strong> durch, für, gegen, ohne, um, bis.<br>
+      <strong>Wechsel (WO→Dat / WOHIN→Akk):</strong> an, auf, in, vor, hinter, neben, über, unter, zwischen.`,
+    text:`<p>Stefan sucht seit zwei Monaten eine Wohnung <span class="hl hl-prp" title="Präp. + Dativ: in der Stadt">in der Stadt</span>. Er geht <span class="hl hl-prp" title="Präp. + Akkusativ: durch das Viertel">durch das Viertel</span> und schaut sich jede Wohnung genau an. Heute hat er endlich einen Termin <span class="hl hl-prp" title="Präp. + Dativ: bei einem Vermieter">bei einem Vermieter</span>.</p>
+<p>Die Wohnung liegt <span class="hl hl-prp" title="Präp. + Dativ (WO): im dritten Stock">im dritten Stock</span> und hat einen Balkon <span class="hl hl-prp" title="Präp. + Dativ: mit Blick auf">mit Blick auf</span> den Park. Der Supermarkt ist direkt <span class="hl hl-prp" title="Präp. + Dativ: gegenüber dem Haus">gegenüber dem Haus</span>. Stefan fragt: „Darf ich <span class="hl hl-prp" title="Präp. + Akkusativ: ohne Probleme">ohne Probleme</span> einen Hund halten?"</p>
+<p>Der Vermieter antwortet: „Ja, aber er muss immer <span class="hl hl-prp" title="Präp. + Dativ: an der Leine">an der Leine</span> sein, wenn er <span class="hl hl-prp" title="Präp. + Akkusativ (WOHIN): in den Keller">in den Keller</span> geht. <span class="hl hl-prp" title="Präp. + Akkusativ: um 22 Uhr">Um 22 Uhr</span> ist die Hausordnung zu beachten." Stefan unterschreibt <span class="hl hl-prp" title="Präp. + Dativ: nach dem Gespräch">nach dem Gespräch</span> sofort den Vertrag.</p>`,
+    vocab:[
+      {w:'der Wohnungsmarkt',art:'der',t:'el mercado inmobiliario'},
+      {w:'das Viertel',art:'das',t:'el barrio'},
+      {w:'der Vermieter',art:'der',t:'el arrendador / propietario'},
+      {w:'der Balkon',art:'der',t:'el balcón'},
+      {w:'gegenüber',art:'prp',t:'enfrente de (+ Dativ)'},
+      {w:'die Leine',art:'die',t:'la correa (del perro)'},
+      {w:'die Hausordnung',art:'die',t:'el reglamento de convivencia'},
+      {w:'unterschreiben',art:'v',t:'firmar'},
+    ],
+    exercises:{
+      mcq:[
+        {q:'¿Cuánto tiempo lleva Stefan buscando piso?',opts:['Una semana','Un mes','Dos meses','Seis meses'],correct:2,exp:'Stefan sucht seit zwei Monaten eine Wohnung.'},
+        {q:'¿Qué hay enfrente del edificio?',opts:['Un parque','Una farmacia','Un supermercado','El metro'],correct:2,exp:'Der Supermarkt ist direkt gegenüber dem Haus.'},
+        {q:'¿Puede tener un perro Stefan?',opts:['No, no se permiten mascotas','Sí, pero con condiciones','Solo gatos','Depende del tamaño'],correct:1,exp:'Ja, aber er muss immer an der Leine sein…'},
+      ],
+      tf:[
+        {stmt:'El piso está en el segundo piso.',correct:false,exp:'Está en el tercer piso: im dritten Stock.'},
+        {stmt:'El balcón tiene vistas al parque.',correct:true,exp:'mit Blick auf den Park.'},
+        {stmt:'Stefan firma el contrato después de hablar con el propietario.',correct:true,exp:'Stefan unterschreibt nach dem Gespräch sofort den Vertrag.'},
+      ],
+      fill:{
+        sentence:'Die Wohnung liegt _[im]_ dritten Stock. Der Supermarkt ist _[gegenüber]_ dem Haus. Der Hund muss _[an]_ der Leine sein.',
+        blanks:['im','gegenüber','an'],
+        opts:['im','in den','gegenüber','neben','an','auf','bei','von'],
+        exp:'im = in + dem (Dativ, WO) · gegenüber + Dativ · an der Leine = Dativ (WO, kein Bewegung)'
+      },
+      order:{
+        sentence:'Er geht durch das Viertel und schaut sich jede Wohnung an.',
+        words:['Er','geht','durch','das','Viertel','und','schaut','sich','jede','Wohnung','an.'],
+        exp:'"geht" en pos. 2 · durch + Akkusativ: das Viertel · anschauen separable: an al final.'
+      }
+    }
+  },
+  {
+    id:6, title:'Das Vorstellungsgespräch', emoji:'👔',
+    level:'B1', tag:'Gemischt', color:'#f472b6',
+    grammar:'Repaso mixto B1: Perfekt, Modalverben, Konjunktiv II y Konnektoren (weil, obwohl, damit).',
+    focus:`<strong>Konnektoren:</strong> weil (porque), obwohl (aunque), damit (para que), trotzdem (sin embargo).<br>
+      <strong>Recuerda:</strong> weil/obwohl/damit → verbo conjugado al FINAL.<br>
+      <strong>Kombination:</strong> Perfekt + Modalverb + Konjunktiv II en contexto real B1.`,
+    text:`<p>Heute <span class="hl hl-prf" title="Perfekt: hat... stattgefunden">hat</span> Marias erstes Vorstellungsgespräch <span class="hl hl-prf" title="Partizip II: stattgefunden">stattgefunden</span>. Sie <span class="hl hl-mod" title="Modalverb: musste">musste</span> sehr früh aufstehen, <span class="hl hl-konj" title="Konnektor: weil → Verb ans Ende">weil</span> das Büro weit weg war.</p>
+<p><span class="hl hl-konj" title="Konnektor: Obwohl → Verb ans Ende">Obwohl</span> sie sehr nervös war, <span class="hl hl-prf" title="Perfekt: hat... gemacht">hat</span> sie alles richtig <span class="hl hl-prf" title="Partizip II: gemacht">gemacht</span>. Der Chef fragte: „<span class="hl hl-mod" title="Modalverb: Können">Können</span> Sie gut mit Menschen arbeiten?" Maria antwortete: „Ja, ich <span class="hl hl-prf" title="Perfekt: habe gearbeitet">habe</span> drei Jahre in einem Team <span class="hl hl-prf" title="Partizip II: gearbeitet">gearbeitet</span>."</p>
+<p>Am Ende sagte der Chef: „Wenn Sie die Stelle bekommen <span class="hl hl-konj" title="Konjunktiv II: würden">würden</span>, <span class="hl hl-konj" title="Konjunktiv II: würden">würden</span> Sie sofort anfangen?" Maria lächelte: „Ja, damit ich meiner Familie <span class="hl hl-mod" title="Modalverb: helfen + Dativ">helfen</span> <span class="hl hl-konj" title="Konjunktiv II: könnte">könnte</span>." Drei Tage später <span class="hl hl-prf" title="Perfekt: hat... angerufen">hat</span> der Chef sie angerufen — sie <span class="hl hl-prf" title="Perfekt: hat bekommen">hat</span> die Stelle <span class="hl hl-prf" title="Partizip II: bekommen">bekommen</span>!</p>`,
+    vocab:[
+      {w:'das Vorstellungsgespräch',art:'das',t:'la entrevista de trabajo'},
+      {w:'stattfinden',art:'v',t:'tener lugar / ocurrir'},
+      {w:'nervös',art:'adj',t:'nervioso/a'},
+      {w:'obwohl',art:'konj',t:'aunque (+ Verb am Ende)'},
+      {w:'damit',art:'konj',t:'para que (+ Verb am Ende)'},
+      {w:'die Stelle',art:'die',t:'el puesto de trabajo'},
+      {w:'trotzdem',art:'adv',t:'sin embargo / de todas formas'},
+    ],
+    exercises:{
+      mcq:[
+        {q:'¿Por qué tuvo que levantarse muy temprano María?',opts:['Porque llegó tarde al trabajo','Porque la oficina estaba lejos','Porque no encontraba su ropa','Porque el bus llegaba tarde'],correct:1,exp:'weil das Büro weit weg war — verbo al final con weil.'},
+        {q:'¿Cuánto tiempo había trabajado María en un equipo?',opts:['Un año','Dos años','Tres años','Cinco años'],correct:2,exp:'ich habe drei Jahre in einem Team gearbeitet.'},
+        {q:'¿Cuándo la llamó el jefe?',opts:['El mismo día','Al día siguiente','Tres días después','Una semana después'],correct:2,exp:'Drei Tage später hat der Chef sie angerufen.'},
+      ],
+      tf:[
+        {stmt:'María estaba tranquila durante la entrevista.',correct:false,exp:'Obwohl sie sehr nervös war — estaba nerviosa.'},
+        {stmt:'María consiguió el trabajo.',correct:true,exp:'sie hat die Stelle bekommen!'},
+        {stmt:'El jefe preguntó sobre trabajo en equipo.',correct:true,exp:'"Können Sie gut mit Menschen arbeiten?"'},
+      ],
+      fill:{
+        sentence:'_[Obwohl]_ sie nervös war, hat sie alles richtig gemacht, _[weil]_ sie gut vorbereitet war und der Chef ihr die Stelle gegeben hat, _[damit]_ sie ihrer Familie helfen könnte.',
+        blanks:['Obwohl','weil','damit'],
+        opts:['Obwohl','Weil','Damit','trotzdem','wenn','weil','damit','aber'],
+        exp:'Obwohl = aunque · weil = porque · damit = para que — todos con verbo al FINAL de la subordinada.'
+      },
+      order:{
+        sentence:'Obwohl sie nervös war, hat sie alles richtig gemacht.',
+        words:['Obwohl','sie','nervös','war,','hat','sie','alles','richtig','gemacht.'],
+        exp:'"Obwohl"-Satz: war al final · Principal: hat en pos.1 (como respuesta), gemacht al final (Perfekt).'
+      }
+    }
+  }
+];
+
+/* ── STATE ── */
+let readProg = {}; // { story_id: { completed, exercises_done } }
+let currentStory = null;
+let exAnswers = {};
+let builtWO = [], usedWO = [];
+let fillAnswers = {};
+let tfAnswers = {};
+let speechObj = null;
+let voices = [];
+let speechRate = 0.9;
+let activeStoryFilter = 'all';
+
+/* ── UTILS ── */
+const $ = id => document.getElementById(id);
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
+function today(){return new Date().toISOString().split('T')[0];}
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', async () => {
+  if(localStorage.getItem('dlaTheme')==='light'){
+    document.body.classList.add('light');
+    $('themeBtn').querySelector('i').className='fas fa-sun';
+  }
+  $('themeBtn').addEventListener('click',()=>{
+    document.body.classList.toggle('light');
+    const il=document.body.classList.contains('light');
+    localStorage.setItem('dlaTheme',il?'light':'dark');
+    $('themeBtn').querySelector('i').className=il?'fas fa-sun':'fas fa-moon';
+  });
+
+  // Session
+  const {data:{session}} = await sb.auth.getSession();
+  if(session?.user){
+    USER_ID = session.user.id;
+    const name=session.user.user_metadata?.full_name||session.user.email?.split('@')[0]||'?';
+    $('uNm').textContent=name;
+    $('uAv').textContent=name.charAt(0).toUpperCase();
+  }
+
+  // Init TTS voices
+  if(window.speechSynthesis){
+    const loadVoices = () => { voices = speechSynthesis.getVoices(); };
+    loadVoices();
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+
+  // Vocabulary tooltip
+  document.addEventListener('mousemove', e => {
+    const tip = $('vocTooltip');
+    if(tip.classList.contains('show')){
+      tip.style.left = (e.clientX + 12) + 'px';
+      tip.style.top  = (e.clientY - 10) + 'px';
+    }
+  });
+
+  await loadProgress();
+  buildStoryGrid();
+  buildNavStories();
+  updateGlobalStats();
+});
+
+/* ── SUPABASE PROGRESS ── */
+async function loadProgress(){
+  if(!USER_ID) return;
+  try{
+    const {data} = await sb.from('user_reading_progress').select('*').eq('user_id',USER_ID);
+    readProg = {};
+    (data||[]).forEach(r => { readProg[r.story_id] = r; });
+  }catch(e){ console.warn('loadProgress:', e); }
+}
+
+async function saveReadProgress(storyId, completed){
+  const existing = readProg[storyId];
+  const row = { user_id:USER_ID||'anon', story_id:storyId, completed };
+  if(!USER_ID){ readProg[storyId]={...existing,...row}; updateGlobalStats(); buildStoryGrid(); buildNavStories(); return; }
+  try{
+    if(existing?.id){
+      await sb.from('user_reading_progress').update({completed}).eq('id',existing.id);
+    } else {
+      const {data} = await sb.from('user_reading_progress').insert([row]).select();
+      if(data?.[0]) row.id=data[0].id;
+    }
+    readProg[storyId]={...existing,...row};
+    updateGlobalStats();buildStoryGrid();buildNavStories();
+    if(completed) toast('✅ Historia marcada como leída!');
+  }catch(e){ console.warn('saveReadProgress:', e); readProg[storyId]={...existing,...row}; }
+}
+
+function isRead(id){ return !!readProg[id]?.completed; }
+
+/* ── STATS ── */
+function updateGlobalStats(){
+  const done = STORIES.filter(s=>isRead(s.id)).length;
+  const pct = Math.round((done/STORIES.length)*100);
+  $('hRead').textContent = done;
+  $('gpFill').style.width = pct+'%';
+  $('gpPct').textContent  = pct+'%';
+  $('gpChip').textContent = `${done} / ${STORIES.length} historias completadas`;
+  $('sRead').textContent  = done;
+  $('navBar').style.width = pct+'%';
+  $('navPct').textContent = pct+'%';
+}
+
+/* ── STORY GRID ── */
+function filterStories(f){
+  activeStoryFilter=f;
+  buildStoryGrid();
+}
+
+function buildStoryGrid(){
+  const grid=$('storyGrid');
+  grid.innerHTML='';
+  let list=STORIES;
+  if(activeStoryFilter!=='all'){
+    list=STORIES.filter(s=>s.level===activeStoryFilter||s.tag.toLowerCase().includes(activeStoryFilter));
+  }
+  list.forEach(s=>{
+    const done=isRead(s.id);
+    const card=document.createElement('div');
+    card.className='sg-card'+(done?' completed':'');
+    card.style.setProperty('--c',s.color);
+    card.onclick=()=>openStory(s.id);
+    card.innerHTML=`
+      <div class="sg-done"><i class="fas fa-check"></i></div>
+      <div class="sg-badge">${s.tag}</div>
+      <div class="sg-title">${s.emoji} ${s.title}</div>
+      <div class="sg-sub">${s.grammar.slice(0,80)}…</div>
+      <div class="sg-meta">
+        <span class="sg-tag">${s.level}</span>
+        <span class="sg-tag">${done?'✓ Leída':'No leída'}</span>
+      </div>
+      <div class="sg-progress">
+        <div class="sg-prog-fill" style="width:${done?'100':'0'}%;background:${s.color}"></div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function buildNavStories(){
+  const nav=$('navStories');
+  nav.innerHTML='';
+  STORIES.forEach(s=>{
+    const btn=document.createElement('button');
+    const done=isRead(s.id);
+    btn.className='nav-item'+(done?' done':'');
+    btn.innerHTML=`<span class="nav-dot"></span>${s.emoji} ${s.title.slice(0,22)}<i class="fas fa-check nav-ck"></i>`;
+    btn.onclick=()=>openStory(s.id);
+    nav.appendChild(btn);
+  });
+}
+
+/* ── OPEN STORY READER ── */
+function openStory(id){
+  const s=STORIES.find(x=>x.id===id);
+  if(!s)return;
+  currentStory=s;
+
+  const reader=$('reader');
+  reader.classList.add('open');
+  reader.scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  const iconStyle=`background:color-mix(in srgb,${s.color} 15%,var(--s2));color:${s.color}`;
+  const done=isRead(s.id);
+
+  reader.innerHTML=`
+    <!-- Header -->
+    <div class="reader-header">
+      <div class="reader-title-wrap">
+        <div class="reader-icon" style="${iconStyle}"><i class="fas fa-book-open"></i></div>
+        <div>
+          <div class="reader-title">${s.emoji} ${s.title}</div>
+          <div class="reader-sub">${s.tag} · Nivel ${s.level}</div>
+        </div>
+      </div>
+      <div class="reader-acts">
+        <button class="btn-read ${done?'done':''}" id="markReadBtn" onclick="toggleRead(${s.id})">
+          <i class="fas fa-${done?'check-circle':'check'}"></i> ${done?'Leída':'Marcar como leída'}
+        </button>
+        <button class="btn" onclick="closeReader()"><i class="fas fa-times"></i> Cerrar</button>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="reader-body">
+      <!-- Grammar focus -->
+      <div class="gram-focus" style="--c:${s.color}">
+        <div class="gft"><i class="fas fa-lightbulb"></i> Foco gramatical: ${s.tag}</div>
+        <p>${s.focus}</p>
+      </div>
+
+      <!-- Highlight legend -->
+      <div class="hl-legend">
+        <span class="hl-dot"><span style="background:var(--hl-dat-b)"></span>Dativ</span>
+        <span class="hl-dot"><span style="background:var(--hl-akk-b)"></span>Akkusativ</span>
+        <span class="hl-dot"><span style="background:var(--hl-mod-b)"></span>Modal</span>
+        <span class="hl-dot"><span style="background:var(--hl-konj-b)"></span>Konjunktiv</span>
+        <span class="hl-dot"><span style="background:var(--hl-prp-b)"></span>Präp.</span>
+        <span class="hl-dot"><span style="background:var(--hl-prf-b)"></span>Perfekt</span>
+      </div>
+
+      <!-- Audio bar -->
+      <div class="audio-bar">
+        <span class="audio-title"><i class="fas fa-volume-up"></i> Audio</span>
+        <div class="audio-btns">
+          <button class="au-btn" id="playBtn" onclick="playStory()"><i class="fas fa-play"></i> Escuchar</button>
+          <button class="au-btn" id="stopBtn" onclick="stopSpeech()" style="display:none"><i class="fas fa-stop"></i> Detener</button>
+        </div>
+        <select class="voice-sel" id="voiceSel" onchange="updateVoice()"></select>
+        <div class="speed-btns">
+          <button class="spd-btn" data-rate="0.7" onclick="setRate(0.7,this)">Lento</button>
+          <button class="spd-btn active" data-rate="0.9" onclick="setRate(0.9,this)">Normal</button>
+          <button class="spd-btn" data-rate="1.1" onclick="setRate(1.1,this)">Rápido</button>
+        </div>
+        <span class="au-status" id="auStatus">Listo</span>
+      </div>
+
+      <!-- Story text -->
+      <div class="story-text-wrap">
+        <div class="story-text" id="storyText">${s.text}</div>
+      </div>
+
+      <!-- Vocabulary -->
+      <div class="vocab-section">
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;margin-bottom:4px">
+          <i class="fas fa-book" style="color:var(--teal);margin-right:6px"></i>Glosario
+        </div>
+        <div class="vocab-grid">
+          ${s.vocab.map(v=>`
+            <div class="vocab-item">
+              <span class="vi-art ${v.art==='die'?'vi-die':v.art==='das'?'vi-das':v.art==='der'?'vi-der':''}">${v.art}</span>
+              <div class="vi-word">${v.w}</div>
+              <div class="vi-trans">${v.t}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- EXERCISES -->
+      <div class="ex-section">
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:12px">
+          <i class="fas fa-pencil-alt" style="color:var(--teal);margin-right:7px"></i>Ejercicios de comprensión
+        </div>
+        <div class="ex-tabs">
+          <button class="ex-tab active" data-tab="mcq-${s.id}" onclick="switchExTab('mcq-${s.id}',this)">
+            <i class="fas fa-list-ol"></i> Opción múltiple
+          </button>
+          <button class="ex-tab" data-tab="tf-${s.id}" onclick="switchExTab('tf-${s.id}',this)">
+            <i class="fas fa-check-double"></i> V / F
+          </button>
+          <button class="ex-tab" data-tab="fill-${s.id}" onclick="switchExTab('fill-${s.id}',this)">
+            <i class="fas fa-fill-drip"></i> Completar
+          </button>
+          <button class="ex-tab" data-tab="wo-${s.id}" onclick="switchExTab('wo-${s.id}',this)">
+            <i class="fas fa-sort"></i> Ordenar
+          </button>
+        </div>
+
+        <!-- MCQ -->
+        <div class="ex-panel active" id="mcq-${s.id}">
+          ${renderMCQ(s)}
+        </div>
+
+        <!-- T/F -->
+        <div class="ex-panel" id="tf-${s.id}">
+          ${renderTF(s)}
+        </div>
+
+        <!-- Fill blanks -->
+        <div class="ex-panel" id="fill-${s.id}">
+          ${renderFill(s)}
+        </div>
+
+        <!-- Word order -->
+        <div class="ex-panel" id="wo-${s.id}">
+          ${renderWO(s)}
+        </div>
+      </div>
+    </div>`;
+
+  initVoiceSelector();
+  initHighlightTooltips();
+}
+
+function closeReader(){
+  const r=$('reader');
+  r.classList.remove('open');
+  r.innerHTML='';
+  stopSpeech();
+  currentStory=null;
+}
+
+async function toggleRead(id){
+  const done=isRead(id);
+  await saveReadProgress(id,!done);
+  // Refresh button
+  const btn=$('markReadBtn');
+  if(btn){
+    btn.className='btn-read'+((!done)?' done':'');
+    btn.innerHTML=`<i class="fas fa-${(!done)?'check-circle':'check'}"></i> ${(!done)?'Leída':'Marcar como leída'}`;
+  }
+}
+
+/* ── TTS ── */
+function initVoiceSelector(){
+  const sel=$('voiceSel');if(!sel)return;
+  sel.innerHTML='<option value="">Voz automática (de-DE)</option>';
+  voices.filter(v=>v.lang.startsWith('de')||v.lang.startsWith('en')).forEach((v,i)=>{
+    const opt=document.createElement('option');
+    opt.value=voices.indexOf(v);
+    opt.textContent=`${v.name} (${v.lang})`;
+    sel.appendChild(opt);
+  });
+}
+
+function updateVoice(){}
+
+function setRate(r,btn){
+  speechRate=r;
+  document.querySelectorAll('.spd-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function playStory(){
+  if(!currentStory)return;
+  stopSpeech();
+  const textEl=$('storyText');
+  if(!textEl)return;
+  const text=textEl.innerText;
+  speechObj=new SpeechSynthesisUtterance(text);
+  speechObj.lang='de-DE';
+  speechObj.rate=speechRate;
+  const sel=$('voiceSel');
+  if(sel&&sel.value!=='') speechObj.voice=voices[parseInt(sel.value)];
+  $('playBtn').style.display='none';
+  $('stopBtn').style.display='';
+  const s=$('auStatus');if(s)s.textContent='Reproduciendo…';
+  speechObj.onend=()=>{
+    const pb=$('playBtn'),sb=$('stopBtn'),st=$('auStatus');
+    if(pb)pb.style.display='';if(sb)sb.style.display='none';
+    if(st)st.textContent='Completado ✓';
+  };
+  speechSynthesis.speak(speechObj);
+}
+
+function stopSpeech(){
+  if(window.speechSynthesis) speechSynthesis.cancel();
+  const pb=$('playBtn'),sb=$('stopBtn');
+  if(pb)pb.style.display='';if(sb)sb.style.display='none';
+  const s=$('auStatus');if(s)s.textContent='Detenido';
+}
+
+/* ── VOCABULARY TOOLTIPS ── */
+function initHighlightTooltips(){
+  document.querySelectorAll('.hl').forEach(el=>{
+    el.addEventListener('mouseenter',e=>{
+      const tip=$('vocTooltip');
+      const title=el.getAttribute('title')||'';
+      if(title){
+        $('vtWord').textContent=title.split(':')[1]?.trim()||el.textContent;
+        $('vtTrans').textContent=title.split(':')[0]||'';
+        tip.classList.add('show');
+        tip.style.left=(e.clientX+12)+'px';
+        tip.style.top =(e.clientY-10)+'px';
+      }
+    });
+    el.addEventListener('mouseleave',()=>$('vocTooltip').classList.remove('show'));
+  });
+}
+
+/* ── EXERCISE TAB SWITCH ── */
+function switchExTab(panelId, btn){
+  const story = currentStory;
+  if(!story)return;
+  document.querySelectorAll('.ex-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ex-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  const panel=$(panelId);if(panel)panel.classList.add('active');
+}
+
+/* ── RENDER EXERCISES ── */
+function renderMCQ(s){
+  let html=`<div class="ex-score" id="mcq-score-${s.id}" style="margin-bottom:12px">0/${s.exercises.mcq.length}</div>`;
+  s.exercises.mcq.forEach((q,qi)=>{
+    html+=`
+    <div style="margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)">
+      <div class="ex-q">${qi+1}. ${q.q}</div>
+      <div class="mc-opts">
+        ${q.opts.map((o,oi)=>`
+          <button class="mc-opt" id="mcq${s.id}-${qi}-${oi}"
+            onclick="answerMCQ(${s.id},${qi},${oi},${q.correct},'${q.exp.replace(/'/g,"\\'")}')" >
+            <span class="mc-l">${'ABCD'[oi]}</span>${o}
+          </button>`).join('')}
+      </div>
+      <div class="ex-fb" id="mcq-fb-${s.id}-${qi}"></div>
+    </div>`;
+  });
+  return html;
+}
+
+function answerMCQ(sid,qi,oi,correct,exp){
+  document.querySelectorAll(`[id^="mcq${sid}-${qi}-"]`).forEach(b=>b.disabled=true);
+  const btn=$(`mcq${sid}-${qi}-${oi}`);
+  const ok=oi===correct;
+  btn.classList.add(ok?'correct':'wrong');
+  if(!ok) $(`mcq${sid}-${qi}-${correct}`)?.classList.add('correct');
+  const fb=$(`mcq-fb-${sid}-${qi}`);
+  if(fb){fb.className='ex-fb '+(ok?'ok':'err');
+    fb.innerHTML=ok?`<strong>✅ Richtig!</strong><div class="exp">${exp}</div>`
+      :`<strong>❌ Falsch.</strong><div class="exp">${exp}</div>`;}
+  // Update score
+  const score=$(`mcq-score-${sid}`);
+  if(score){
+    const correct_count=document.querySelectorAll(`[id^="mcq${sid}-"] .correct`).length/2;
+    score.textContent=`${Math.round(correct_count)}/${STORIES.find(s=>s.id===sid).exercises.mcq.length}`;
+  }
+}
+
+function renderTF(s){
+  let html='<div style="margin-bottom:12px;font-size:.82rem;color:var(--muted)">Indica si cada afirmación es verdadera (V) o falsa (F):</div>';
+  html+='<div class="tf-list">';
+  s.exercises.tf.forEach((tf,i)=>{
+    html+=`
+      <div class="tf-item" id="tf-item-${s.id}-${i}">
+        <div class="tf-stmt">${i+1}. ${tf.stmt}</div>
+        <div class="tf-btns">
+          <button class="tf-btn" id="tf-v-${s.id}-${i}" onclick="answerTF(${s.id},${i},true,${tf.correct},'${tf.exp.replace(/'/g,"\\'")}')" >V</button>
+          <button class="tf-btn" id="tf-f-${s.id}-${i}" onclick="answerTF(${s.id},${i},false,${tf.correct},'${tf.exp.replace(/'/g,"\\'")}')" >F</button>
+        </div>
+      </div>
+      <div class="ex-fb" id="tf-fb-${s.id}-${i}"></div>`;
+  });
+  html+='</div>';
+  return html;
+}
+
+function answerTF(sid,qi,val,correct,exp){
+  const vBtn=$(`tf-v-${sid}-${qi}`),fBtn=$(`tf-f-${sid}-${qi}`);
+  if(vBtn)vBtn.disabled=true; if(fBtn)fBtn.disabled=true;
+  const ok=val===correct;
+  if(val===true){if(vBtn)vBtn.classList.add(ok?'correct':'wrong-r');}
+  else{if(fBtn)fBtn.classList.add(ok?'correct':'wrong-r');}
+  if(!ok){if(correct===true&&vBtn)vBtn.classList.add('correct');else if(fBtn)fBtn.classList.add('correct');}
+  const fb=$(`tf-fb-${sid}-${qi}`);
+  if(fb){fb.className='ex-fb '+(ok?'ok':'err');
+    fb.innerHTML=ok?`<strong>✅ Richtig!</strong><div class="exp">${exp}</div>`
+      :`<strong>❌ Falsch.</strong><div class="exp">${exp}</div>`;}
+}
+
+function renderFill(s){
+  const f=s.exercises.fill;
+  // Build sentence display with blanks
+  let sentDisplay=f.sentence;
+  f.blanks.forEach((b,i)=>{
+    sentDisplay=sentDisplay.replace(`_[${b}]_`,`<span class="blank" id="blank-${s.id}-${i}" data-answer="${b}">${'_'.repeat(Math.max(b.length,5))}</span>`);
+  });
+  let html=`
+    <div class="fill-sent">${sentDisplay}</div>
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:8px">Elige las palabras y colócalas en los huecos en orden:</div>
+    <div class="fill-opts" id="fill-opts-${s.id}">
+      ${s.exercises.fill.opts.map((o,i)=>`<button class="fill-opt" id="fopt-${s.id}-${i}" onclick="pickFillOpt(${s.id},${i},'${o}')">${o}</button>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn btn-p" onclick="checkFill(${s.id})"><i class="fas fa-check"></i> Comprobar</button>
+      <button class="btn" onclick="resetFill(${s.id})"><i class="fas fa-undo"></i> Reiniciar</button>
+    </div>
+    <div class="ex-fb" id="fill-fb-${s.id}"></div>`;
+  return html;
+}
+
+let fillOrder = {};
+function pickFillOpt(sid,optIdx,val){
+  if(!fillOrder[sid]) fillOrder[sid]=[];
+  const blanks=STORIES.find(s=>s.id===sid).exercises.fill.blanks;
+  const nextBlank=fillOrder[sid].length;
+  if(nextBlank>=blanks.length)return;
+  // Place into next blank
+  const blankEl=$(`blank-${sid}-${nextBlank}`);
+  if(blankEl){blankEl.textContent=val;blankEl.style.color='var(--text)';}
+  $(`fopt-${sid}-${optIdx}`)?.classList.add('used');
+  fillOrder[sid].push({optIdx,val,blankIdx:nextBlank});
+}
+
+function checkFill(sid){
+  const s=STORIES.find(x=>x.id===sid);
+  const blanks=s.exercises.fill.blanks;
+  let ok=true;
+  fillOrder[sid]?.forEach(entry=>{
+    const correct=blanks[entry.blankIdx];
+    const isOk=entry.val.toLowerCase()===correct.toLowerCase();
+    const blankEl=$(`blank-${sid}-${entry.blankIdx}`);
+    if(blankEl){blankEl.style.color=isOk?'var(--green)':'var(--red)';}
+    if(!isOk)ok=false;
+  });
+  if(!fillOrder[sid]||fillOrder[sid].length<blanks.length){ok=false;}
+  const fb=$(`fill-fb-${sid}`);
+  if(fb){fb.className='ex-fb '+(ok?'ok':'err');
+    fb.innerHTML=ok?`<strong>✅ ¡Perfekt!</strong><div class="exp">${s.exercises.fill.exp}</div>`
+      :`<strong>❌</strong> Revisa las respuestas.<div class="exp">${s.exercises.fill.exp}</div>`;}
+}
+
+function resetFill(sid){
+  const s=STORIES.find(x=>x.id===sid);
+  fillOrder[sid]=[];
+  s.exercises.fill.blanks.forEach((b,i)=>{
+    const el=$(`blank-${sid}-${i}`);
+    if(el){el.textContent='_'.repeat(Math.max(b.length,5));el.style.color='var(--teal)';}
+  });
+  document.querySelectorAll(`[id^="fopt-${sid}-"]`).forEach(b=>b.classList.remove('used','correct','wrong'));
+  const fb=$(`fill-fb-${sid}`);if(fb)fb.className='ex-fb';
+}
+
+function renderWO(s){
+  const wo=s.exercises.order;
+  const shuffled=[...wo.words].sort(()=>Math.random()-.5);
+  let html=`
+    <div class="ex-q">Ordena las palabras para formar la oración correcta:</div>
+    <div class="wo-bank" id="wo-bank-${s.id}">
+      ${shuffled.map((w,i)=>`<div class="wo-tile" id="wo-tile-${s.id}-${i}" data-word="${w}" onclick="pickWO(${s.id},${i},'${w.replace(/'/g,"\\'")}')">  ${w}</div>`).join('')}
+    </div>
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:7px">Toca las palabras · Haz clic en el constructor para deshacer</div>
+    <div class="wo-builder" id="wo-builder-${s.id}" onclick="undoWO(${s.id})"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn btn-p" onclick="checkWO(${s.id},'${wo.sentence.replace(/'/g,"\\'")}','${wo.exp.replace(/'/g,"\\'")}')">
+        <i class="fas fa-check"></i> Comprobar</button>
+      <button class="btn" onclick="clearWO(${s.id})"><i class="fas fa-undo"></i> Limpiar</button>
+    </div>
+    <div class="ex-fb" id="wo-fb-${s.id}"></div>`;
+  return html;
+}
+
+let woBuilt = {};
+function pickWO(sid,idx,word){
+  if(!woBuilt[sid])woBuilt[sid]=[];
+  if($(`wo-tile-${sid}-${idx}`)?.classList.contains('used'))return;
+  $(`wo-tile-${sid}-${idx}`)?.classList.add('used');
+  woBuilt[sid].push({idx,word});
+  const builder=$(`wo-builder-${sid}`);
+  const span=document.createElement('span');
+  span.className='wo-built';span.textContent=word;
+  builder.appendChild(span);
+}
+function undoWO(sid){
+  if(!woBuilt[sid]||!woBuilt[sid].length)return;
+  const last=woBuilt[sid].pop();
+  $(`wo-tile-${sid}-${last.idx}`)?.classList.remove('used');
+  const b=$(`wo-builder-${sid}`);
+  if(b.lastChild)b.removeChild(b.lastChild);
+}
+function clearWO(sid){
+  woBuilt[sid]=[];
+  document.querySelectorAll(`[id^="wo-tile-${sid}-"]`).forEach(t=>t.classList.remove('used'));
+  const b=$(`wo-builder-${sid}`);if(b)b.innerHTML='';
+  const fb=$(`wo-fb-${sid}`);if(fb)fb.className='ex-fb';
+}
+function checkWO(sid,correct,exp){
+  const built=(woBuilt[sid]||[]).map(w=>w.word).join(' ');
+  const ok=built.trim()===correct.trim();
+  const fb=$(`wo-fb-${sid}`);
+  if(fb){fb.className='ex-fb '+(ok?'ok':'err');
+    fb.innerHTML=ok?`<strong>✅ ¡Richtig!</strong><div class="exp">${exp}</div>`
+      :`<strong>❌ Falsch.</strong> Correcto: <strong>${correct}</strong><div class="exp">${exp}</div>`;}
+}
+</script>
+</body>
+</html>
