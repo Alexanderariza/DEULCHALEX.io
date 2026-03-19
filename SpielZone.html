@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEULCHALEX – SpielZone 🎮</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+  /* ── TOKENS ── */
+  :root{
+    --bg:#0b0f1a;--surface:#131929;--s2:#1a2236;--s3:#202b42;
+    --border:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);
+    --blue:#4f8ef7;--bdim:rgba(79,142,247,.14);
+    --green:#22d3a5;--gdim:rgba(34,211,165,.14);
+    --red:#f75f5f;--rdim:rgba(247,95,95,.14);
+    --yellow:#fbbf24;--ydim:rgba(251,191,36,.14);
+    --purple:#a78bfa;--pdim:rgba(167,139,250,.14);
+    --orange:#fb923c;--odim:rgba(251,146,60,.14);
+    --pink:#f472b6;--pinkdim:rgba(244,114,182,.14);
+    --teal:#2dd4bf;--tdim:rgba(45,212,191,.14);
+    --text:#e2e8f0;--muted:#64748b;
+    --r:14px;--r20:20px;
+  }
+  .light{
+    --bg:#f0f4f8;--surface:#fff;--s2:#e8edf4;--s3:#dde5f0;
+    --border:rgba(0,0,0,.08);--b2:rgba(0,0,0,.15);
+    --text:#1e293b;--muted:#64748b;
+  }
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);
+    min-height:100vh;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased}
+
+  /* ── TOPBAR ── */
+  .topbar{display:flex;align-items:center;justify-content:space-between;
+    padding:11px 20px;background:var(--surface);border-bottom:1px solid var(--border);
+    position:sticky;top:0;z-index:200;backdrop-filter:blur(12px)}
+  .topbar-l{display:flex;align-items:center;gap:12px}
+  .back-link{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;font-weight:600;
+    color:var(--muted);text-decoration:none;padding:6px 12px;border:1px solid var(--border);
+    border-radius:10px;transition:all .2s}
+  .back-link:hover{color:var(--yellow);border-color:var(--ydim)}
+  .page-ttl{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700}
+  .topbar-r{display:flex;align-items:center;gap:8px}
+  .ib{width:34px;height:34px;border-radius:9px;background:var(--s2);border:1px solid var(--border);
+    color:var(--muted);display:flex;align-items:center;justify-content:center;
+    font-size:.85rem;cursor:pointer;transition:all .2s}
+  .ib:hover{background:var(--ydim);color:var(--yellow)}
+
+  /* ── WRAP ── */
+  .wrap{max-width:1100px;margin:0 auto;padding:22px 16px 60px}
+
+  /* ── HERO ── */
+  .hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--r20);
+    padding:28px 30px;margin-bottom:22px;position:relative;overflow:hidden;text-align:center}
+  .hero::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;
+    background:linear-gradient(90deg,var(--red),var(--yellow),var(--green),var(--blue),var(--purple))}
+  .hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.4rem,3vw,2rem);
+    font-weight:700;margin-bottom:6px}
+  .hero p{font-size:.85rem;color:var(--muted);max-width:560px;margin:0 auto 16px}
+  .hero-stats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .hst{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);
+    padding:9px 16px;text-align:center;min-width:72px}
+  .hst-v{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;
+    color:var(--yellow);display:block}
+  .hst-l{font-size:.62rem;color:var(--muted)}
+
+  /* ── GAME SELECTOR GRID ── */
+  .game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+    gap:10px;margin-bottom:20px}
+  .game-sel-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r20);
+    padding:16px 12px;cursor:pointer;transition:all .22s;text-align:center;position:relative;
+    overflow:hidden}
+  .game-sel-card:hover{border-color:var(--c,var(--yellow));transform:translateY(-3px);
+    box-shadow:0 8px 24px rgba(0,0,0,.25)}
+  .game-sel-card.active{border-color:var(--c,var(--yellow));
+    background:color-mix(in srgb,var(--c,var(--yellow)) 9%,var(--surface))}
+  .game-sel-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:var(--c,var(--yellow))}
+  .gs-emoji{font-size:2rem;display:block;margin-bottom:7px}
+  .gs-name{font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:700;margin-bottom:3px}
+  .gs-sub{font-size:.63rem;color:var(--muted)}
+  .gs-badge{position:absolute;top:8px;right:8px;font-size:.56rem;font-weight:700;
+    padding:2px 6px;border-radius:20px;background:var(--c,var(--yellow));color:#000}
+
+  /* ── GAME PANELS ── */
+  .game-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r20);
+    padding:24px;display:none;animation:fadeIn .3s ease}
+  .game-panel.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .gp-header{display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+  .gp-title{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;
+    display:flex;align-items:center;gap:8px}
+  .gp-score{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;
+    color:var(--yellow);display:flex;align-items:center;gap:6px}
+
+  /* ── SHARED COMPONENTS ── */
+  .btn{padding:8px 15px;border-radius:9px;font-size:.78rem;font-weight:600;
+    cursor:pointer;transition:all .2s;border:1px solid var(--border);
+    background:var(--s2);color:var(--text);font-family:'Inter',sans-serif;
+    display:inline-flex;align-items:center;gap:5px}
+  .btn:hover{background:var(--ydim);border-color:var(--ydim);color:var(--yellow)}
+  .btn-y{background:var(--yellow);color:#000;border-color:var(--yellow)}
+  .btn-y:hover{background:#e6aa10;color:#000}
+  .btn-g{background:var(--green);color:#fff;border-color:var(--green)}
+  .btn-r{background:var(--red);color:#fff;border-color:var(--red)}
+  .fb-ok{background:var(--gdim);color:var(--green);border:1px solid rgba(34,211,165,.22);
+    border-radius:10px;padding:10px 14px;font-size:.83rem;margin:10px 0}
+  .fb-err{background:var(--rdim);color:var(--red);border:1px solid rgba(247,95,95,.22);
+    border-radius:10px;padding:10px 14px;font-size:.83rem;margin:10px 0}
+  .result-box{text-align:center;padding:24px;background:var(--s2);border-radius:var(--r20);
+    border:1px solid var(--border)}
+  .result-box h3{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:8px}
+  .rg{display:flex;gap:10px;justify-content:center;margin:12px 0;flex-wrap:wrap}
+  .rb{text-align:center;background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--r);padding:10px 16px}
+  .rb-v{font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:700;display:block}
+  .rb-l{font-size:.62rem;color:var(--muted)}
+
+  /* ══════════════════════════════════
+     GAME 1 — GALGENMÄNNCHEN (Hangman)
+  ══════════════════════════════════ */
+  .hangman-area{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;margin-bottom:18px}
+  .hangman-svg-wrap{flex-shrink:0;background:var(--s2);border:1px solid var(--border);
+    border-radius:var(--r);padding:14px;text-align:center}
+  .hangman-svg-wrap svg{width:140px;height:160px}
+  .hangman-right{flex:1;min-width:220px}
+  .hm-cat-badge{font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:20px;
+    background:var(--bdim);color:var(--blue);border:1px solid rgba(79,142,247,.2);margin-bottom:10px;
+    display:inline-block}
+  .hm-hint{font-size:.76rem;color:var(--muted);margin-bottom:10px;font-style:italic}
+  .word-display{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.4rem,3vw,2rem);
+    font-weight:700;letter-spacing:10px;padding:16px;text-align:center;
+    background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);
+    margin-bottom:12px;color:var(--text)}
+  .hm-attempts{font-size:.82rem;font-weight:600;margin-bottom:12px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .hm-hearts{display:flex;gap:3px}
+  .letter-kb{display:flex;flex-direction:column;gap:6px;margin:12px 0}
+  .kb-row{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+  .kb-key{width:36px;height:36px;border-radius:7px;border:none;
+    background:linear-gradient(135deg,var(--blue),#3b75d4);color:#fff;
+    font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;
+    cursor:pointer;transition:all .12s;box-shadow:0 4px 0 #1a5276}
+  .kb-key:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 0 #1a5276}
+  .kb-key:active{transform:translateY(3px);box-shadow:0 1px 0 #1a5276}
+  .kb-key:disabled{opacity:.3;cursor:not-allowed;transform:translateY(3px);box-shadow:0 1px 0 #1a5276}
+  .kb-key.hit{background:linear-gradient(135deg,var(--green),#17a589);box-shadow:0 4px 0 #0e6655}
+  .kb-key.miss{background:linear-gradient(135deg,#444,#333);box-shadow:0 4px 0 #222}
+
+  /* ══════════════════════════════════
+     GAME 2 — WORTMEISTER (Word Builder)
+  ══════════════════════════════════ */
+  .wm-target{font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700;
+    text-align:center;padding:16px;background:var(--s2);border-radius:var(--r);
+    margin-bottom:12px;color:var(--purple)}
+  .wm-clue{font-size:.82rem;color:var(--muted);text-align:center;margin-bottom:14px;font-style:italic}
+  .wm-letters{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}
+  .wm-tile{width:42px;height:42px;border-radius:8px;
+    background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff;
+    font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;transition:all .15s;box-shadow:0 4px 0 #5b21b6;
+    border:none;user-select:none}
+  .wm-tile:hover:not(.used){transform:translateY(-3px);box-shadow:0 7px 0 #5b21b6}
+  .wm-tile.used{opacity:.25;pointer-events:none;transform:translateY(3px);box-shadow:0 1px 0 #5b21b6}
+  .wm-builder{min-height:52px;background:var(--s2);border:2px dashed var(--border);
+    border-radius:var(--r);padding:10px;display:flex;flex-wrap:wrap;gap:6px;
+    align-items:center;margin-bottom:12px;cursor:pointer}
+  .wm-built{background:var(--surface);border:1px solid var(--border);
+    border-radius:6px;padding:6px 12px;font-family:'Space Grotesk',sans-serif;
+    font-size:.9rem;font-weight:700;cursor:pointer;transition:all .15s}
+  .wm-built:hover{border-color:var(--red);color:var(--red)}
+  .wm-words-found{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .wm-found-chip{padding:4px 10px;border-radius:20px;font-size:.75rem;font-weight:600;
+    background:var(--gdim);color:var(--green);border:1px solid rgba(34,211,165,.2)}
+
+  /* ══════════════════════════════════
+     GAME 3 — MEMORY (Pairs)
+  ══════════════════════════════════ */
+  .memory-grid{display:grid;gap:8px;max-width:560px;margin:0 auto}
+  .mem-card{aspect-ratio:1;border-radius:var(--r);cursor:pointer;
+    perspective:600px;position:relative}
+  .mem-inner{width:100%;height:100%;transform-style:preserve-3d;
+    transition:transform .45s cubic-bezier(.23,1,.32,1);position:relative}
+  .mem-card.flipped .mem-inner{transform:rotateY(180deg)}
+  .mem-card.matched .mem-inner{transform:rotateY(180deg)}
+  .mem-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+    border-radius:var(--r);display:flex;flex-direction:column;align-items:center;
+    justify-content:center;padding:6px;text-align:center;font-size:.75rem;
+    border:2px solid var(--border)}
+  .mem-back{background:linear-gradient(135deg,var(--green) 0%,#17a589 100%);
+    display:flex;align-items:center;justify-content:center;font-size:1.5rem}
+  .mem-front{transform:rotateY(180deg);background:var(--s2);border-color:var(--green);
+    font-family:'Space Grotesk',sans-serif;font-weight:700;gap:4px}
+  .mem-card.matched .mem-front{background:var(--gdim);border-color:var(--green)}
+  .mem-emoji{font-size:1.3rem}
+  .mem-word{font-size:.73rem;font-weight:700;color:var(--text)}
+  .mem-trans{font-size:.62rem;color:var(--muted)}
+  .mem-timer-row{display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:12px;flex-wrap:wrap;gap:8px}
+  .mem-timer{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;
+    color:var(--green)}
+  .mem-moves{font-size:.78rem;color:var(--muted)}
+
+  /* ══════════════════════════════════
+     GAME 4 — BLITZ QUIZ (Rapid fire)
+  ══════════════════════════════════ */
+  .bq-timer-bar{height:6px;background:var(--s2);border-radius:20px;overflow:hidden;margin-bottom:16px}
+  .bq-timer-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--yellow),var(--red));
+    border-radius:20px;transition:width .1s linear}
+  .bq-sentence{font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:700;
+    text-align:center;padding:18px;background:var(--s2);border-radius:var(--r);
+    margin-bottom:14px;line-height:1.5}
+  .bq-blank{display:inline-block;min-width:80px;border-bottom:3px solid var(--orange);
+    padding:0 5px;color:var(--orange);font-size:1.3rem}
+  .bq-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  .bq-opt{padding:11px 14px;border-radius:10px;border:1px solid var(--border);
+    background:var(--s2);cursor:pointer;transition:all .15s;font-size:.85rem;
+    font-weight:600;color:var(--text);text-align:center}
+  .bq-opt:hover:not(:disabled){border-color:var(--orange);background:var(--odim)}
+  .bq-opt.correct{border-color:var(--green);background:var(--gdim);color:var(--green)}
+  .bq-opt.wrong{border-color:var(--red);background:var(--rdim);color:var(--red)}
+  .bq-opt:disabled{cursor:not-allowed}
+  .bq-progress{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap}
+  .bq-dot{width:10px;height:10px;border-radius:50%;background:var(--border)}
+  .bq-dot.ok{background:var(--green)}
+  .bq-dot.err{background:var(--red)}
+
+  /* ══════════════════════════════════
+     GAME 5 — ARTIKEL BATTLE
+  ══════════════════════════════════ */
+  .ab-word{font-family:'Space Grotesk',sans-serif;font-size:2.5rem;font-weight:700;
+    text-align:center;padding:24px;background:var(--s2);border-radius:var(--r20);
+    margin-bottom:16px;letter-spacing:1px}
+  .ab-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+  .ab-btn{padding:14px 28px;border-radius:var(--r);font-family:'Space Grotesk',sans-serif;
+    font-size:1.1rem;font-weight:700;cursor:pointer;transition:all .2s;border:none;
+    box-shadow:0 5px 0 rgba(0,0,0,.3)}
+  .ab-der{background:#4f8ef7;color:#fff}
+  .ab-der:hover{background:#3a7be0;transform:translateY(-2px)}
+  .ab-die{background:#f75f5f;color:#fff}
+  .ab-die:hover{background:#e04444;transform:translateY(-2px)}
+  .ab-das{background:#22d3a5;color:#fff}
+  .ab-das:hover{background:#1ab893;transform:translateY(-2px)}
+  .ab-btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
+  .ab-streak-display{text-align:center;font-family:'Space Grotesk',sans-serif;
+    font-size:1.4rem;font-weight:700;color:var(--yellow);margin-bottom:8px}
+  .ab-combo{text-align:center;font-size:.75rem;color:var(--muted);margin-bottom:12px}
+  .ab-cat{font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:20px;
+    background:var(--pdim);color:var(--purple);border:1px solid rgba(167,139,250,.2);
+    display:inline-block;margin-bottom:8px}
+
+  /* ══════════════════════════════════
+     GAME 6 — SATZPUZZLE (Sentence Scramble)
+  ══════════════════════════════════ */
+  .sp-clue{font-size:.82rem;color:var(--muted);font-style:italic;text-align:center;
+    margin-bottom:10px;padding:10px;background:var(--s2);border-radius:var(--r)}
+  .sp-tiles{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px;min-height:50px}
+  .sp-tile{background:linear-gradient(135deg,var(--pink),#db2777);color:#fff;
+    padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:700;
+    font-size:.85rem;box-shadow:0 4px 0 #9d174d;transition:all .15s;user-select:none}
+  .sp-tile:hover:not(.used){transform:translateY(-3px);box-shadow:0 7px 0 #9d174d}
+  .sp-tile.used{opacity:.25;pointer-events:none}
+  .sp-builder{min-height:54px;background:var(--s2);border:2px dashed var(--border);
+    border-radius:var(--r);padding:10px;display:flex;flex-wrap:wrap;gap:6px;
+    align-items:center;margin-bottom:12px;cursor:pointer}
+  .sp-built{background:var(--surface);border:1px solid var(--border);
+    border-radius:6px;padding:6px 12px;font-weight:600;font-size:.85rem;cursor:pointer}
+  .sp-built:hover{border-color:var(--red);color:var(--red)}
+  .sp-prog{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:.75rem;color:var(--muted)}
+  .sp-prog-track{flex:1;height:4px;background:var(--s2);border-radius:20px;overflow:hidden}
+  .sp-prog-fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--purple));
+    border-radius:20px;transition:width .4s}
+  .sp-grammar-tip{background:var(--pinkdim);border:1px solid rgba(244,114,182,.2);
+    border-left:3px solid var(--pink);border-radius:var(--r);padding:10px 14px;
+    font-size:.79rem;margin-top:10px;line-height:1.55}
+
+  /* ── LEADERBOARD ── */
+  .lb-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r20);
+    padding:22px;margin-top:20px}
+  .lb-title{font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:700;
+    margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .lb-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r);
+    background:var(--s2);margin-bottom:7px;font-size:.82rem}
+  .lb-rank{font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--muted);
+    width:24px;flex-shrink:0;text-align:center}
+  .lb-rank.gold{color:var(--yellow)}
+  .lb-rank.silver{color:#94a3b8}
+  .lb-rank.bronze{color:#b45309}
+  .lb-game{flex:1;font-weight:600}
+  .lb-score{font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--yellow)}
+
+  /* ── FOOTER ── */
+  .pfoot{background:var(--surface);border-top:1px solid var(--border);padding:16px 20px;margin-top:20px}
+  .pfoot-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;
+    justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .pfoot-brand{font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700}
+  .pfoot-copy{font-size:.72rem;color:var(--muted)}
+  .pfoot-links{display:flex;gap:13px}
+  .pfoot-links a{font-size:.72rem;color:var(--muted);text-decoration:none;transition:color .2s}
+  .pfoot-links a:hover{color:var(--yellow)}
+
+  /* TOAST */
+  #toast{position:fixed;bottom:18px;right:18px;background:var(--surface);
+    border:1px solid var(--border);border-radius:12px;padding:10px 15px;font-size:.8rem;
+    box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:9999;
+    transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.23,1,.32,1);max-width:260px}
+  #toast.show{transform:translateY(0);opacity:1}
+  .speak-btn{background:none;border:none;color:var(--blue);font-size:.75rem;
+    cursor:pointer;padding:3px 7px;border-radius:7px;transition:all .15s;display:inline-flex;align-items:center;gap:4px}
+  .speak-btn:hover{background:var(--bdim)}
+
+  /* RESPONSIVE */
+  @media(max-width:600px){
+    .game-grid{grid-template-columns:repeat(3,1fr)}
+    .bq-opts{grid-template-columns:1fr}
+    .ab-buttons{flex-direction:column;align-items:center}
+    .hangman-area{flex-direction:column}
+  }
+  </style>
+</head>
+<body>
+
+<!-- AUDIO -->
+<audio id="sndOK"    src="games/correct.mp3"   preload="auto"></audio>
+<audio id="sndBad"   src="games/incorrect.mp3"  preload="auto"></audio>
+<audio id="sndClick" src="games/clip.mp3"        preload="auto"></audio>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-l">
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Inicio</a>
+    <span class="page-ttl">SpielZone · 6 Juegos</span>
+  </div>
+  <div class="topbar-r">
+    <button class="ib" id="themeBtn"><i class="fas fa-moon"></i></button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1>🎮 SpielZone — Lernspiele</h1>
+    <p>6 juegos pedagógicos para reforzar gramática, vocabulario y ortografía del alemán A1-B1.</p>
+    <div class="hero-stats">
+      <div class="hst"><span class="hst-v" id="hTotalScore">0</span><span class="hst-l">Puntos totales</span></div>
+      <div class="hst"><span class="hst-v" id="hGamesPlayed">0</span><span class="hst-l">Partidas</span></div>
+      <div class="hst"><span class="hst-v" id="hBestStreak">0</span><span class="hst-l">Mejor racha</span></div>
+    </div>
+  </div>
+
+  <!-- GAME SELECTOR -->
+  <div class="game-grid">
+    <div class="game-sel-card active" style="--c:#4f8ef7" data-game="hangman" onclick="selectGame('hangman',this)">
+      <span class="gs-badge">A1</span>
+      <span class="gs-emoji">🪢</span>
+      <div class="gs-name">Galgenmännchen</div>
+      <div class="gs-sub">Adivina la palabra letra a letra</div>
+    </div>
+    <div class="game-sel-card" style="--c:#a78bfa" data-game="wordbuilder" onclick="selectGame('wordbuilder',this)">
+      <span class="gs-badge">A2</span>
+      <span class="gs-emoji">🔤</span>
+      <div class="gs-name">Wortmeister</div>
+      <div class="gs-sub">Forma palabras con las letras</div>
+    </div>
+    <div class="game-sel-card" style="--c:#22d3a5" data-game="memory" onclick="selectGame('memory',this)">
+      <span class="gs-badge">A1</span>
+      <span class="gs-emoji">🃏</span>
+      <div class="gs-name">Memory</div>
+      <div class="gs-sub">Une palabras con emojis</div>
+    </div>
+    <div class="game-sel-card" style="--c:#fb923c" data-game="blitzquiz" onclick="selectGame('blitzquiz',this)">
+      <span class="gs-badge">A2</span>
+      <span class="gs-emoji">⚡</span>
+      <div class="gs-name">Blitz Quiz</div>
+      <div class="gs-sub">Completa la frase en 5 s</div>
+    </div>
+    <div class="game-sel-card" style="--c:#fbbf24" data-game="artikel" onclick="selectGame('artikel',this)">
+      <span class="gs-badge">A1</span>
+      <span class="gs-emoji">⚖️</span>
+      <div class="gs-name">Artikel Battle</div>
+      <div class="gs-sub">der · die · das — ¡rápido!</div>
+    </div>
+    <div class="game-sel-card" style="--c:#f472b6" data-game="satzpuzzle" onclick="selectGame('satzpuzzle',this)">
+      <span class="gs-badge">B1</span>
+      <span class="gs-emoji">🧩</span>
+      <div class="gs-name">Satzpuzzle</div>
+      <div class="gs-sub">Ordena la oración alemana</div>
+    </div>
+  </div>
+
+  <!-- ══ GAME 1: GALGENMÄNNCHEN ══ -->
+  <div class="game-panel active" id="panel-hangman">
+    <div class="gp-header">
+      <span class="gp-title">🪢 Galgenmännchen</span>
+      <div class="gp-score"><i class="fas fa-star"></i><span id="hmScore">0</span> pts</div>
+    </div>
+    <div class="hangman-area">
+      <!-- SVG Drawing -->
+      <div class="hangman-svg-wrap">
+        <svg id="hmSvg" viewBox="0 0 140 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Gallows -->
+          <line x1="20" y1="155" x2="120" y2="155" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+          <line x1="50" y1="155" x2="50" y2="10" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+          <line x1="50" y1="10" x2="95" y2="10" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+          <line x1="95" y1="10" x2="95" y2="28" stroke="#64748b" stroke-width="3" stroke-linecap="round"/>
+          <!-- Body parts (hidden by default) -->
+          <circle id="hm-head" cx="95" cy="40" r="12" stroke="#f75f5f" stroke-width="3" style="display:none"/>
+          <line id="hm-body" x1="95" y1="52" x2="95" y2="95" stroke="#f75f5f" stroke-width="3" stroke-linecap="round" style="display:none"/>
+          <line id="hm-la" x1="95" y1="65" x2="75" y2="80" stroke="#f75f5f" stroke-width="3" stroke-linecap="round" style="display:none"/>
+          <line id="hm-ra" x1="95" y1="65" x2="115" y2="80" stroke="#f75f5f" stroke-width="3" stroke-linecap="round" style="display:none"/>
+          <line id="hm-ll" x1="95" y1="95" x2="78" y2="120" stroke="#f75f5f" stroke-width="3" stroke-linecap="round" style="display:none"/>
+          <line id="hm-rl" x1="95" y1="95" x2="112" y2="120" stroke="#f75f5f" stroke-width="3" stroke-linecap="round" style="display:none"/>
+        </svg>
+        <div style="font-size:.7rem;color:var(--muted)" id="hmStatus">¡Adivina!</div>
+      </div>
+      <!-- Right side -->
+      <div class="hangman-right">
+        <div class="hm-cat-badge" id="hmCat">Vocabulario</div>
+        <div class="hm-hint" id="hmHint">Pista: —</div>
+        <div class="word-display" id="wordDisplay">_ _ _ _</div>
+        <div class="hm-attempts">
+          <span>Vidas: </span>
+          <div class="hm-hearts" id="hmHearts"></div>
+        </div>
+        <div class="letter-kb" id="letterKb"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-y" onclick="newHangmanGame()"><i class="fas fa-redo"></i> Nueva palabra</button>
+          <button class="speak-btn" id="hmSpeakBtn" onclick="hmSpeak()"><i class="fas fa-volume-up"></i> Escuchar</button>
+        </div>
+      </div>
+    </div>
+    <div id="hmFb"></div>
+  </div>
+
+  <!-- ══ GAME 2: WORTMEISTER ══ -->
+  <div class="game-panel" id="panel-wordbuilder">
+    <div class="gp-header">
+      <span class="gp-title">🔤 Wortmeister — Forma palabras</span>
+      <div class="gp-score"><i class="fas fa-star"></i><span id="wmScore">0</span> pts · <span id="wmFound">0</span> encontradas</div>
+    </div>
+    <div id="wmBody">
+      <div style="text-align:center;padding:30px;color:var(--muted)">Cargando…</div>
+    </div>
+  </div>
+
+  <!-- ══ GAME 3: MEMORY ══ -->
+  <div class="game-panel" id="panel-memory">
+    <div class="gp-header">
+      <span class="gp-title">🃏 Gedächtnisspiel — Memory</span>
+      <div class="gp-score">
+        <div class="mem-timer-row" style="margin:0">
+          <span class="mem-timer" id="memTimer">0:00</span>
+          <span class="mem-moves" id="memMoves">0 movimientos</span>
+          <button class="btn" onclick="newMemoryGame()"><i class="fas fa-redo"></i> Nuevo</button>
+        </div>
+      </div>
+    </div>
+    <div class="memory-grid" id="memGrid" style="grid-template-columns:repeat(4,1fr)"></div>
+    <div id="memFb"></div>
+  </div>
+
+  <!-- ══ GAME 4: BLITZ QUIZ ══ -->
+  <div class="game-panel" id="panel-blitzquiz">
+    <div class="gp-header">
+      <span class="gp-title">⚡ Blitz Quiz — Completa la frase</span>
+      <div class="gp-score"><i class="fas fa-star"></i><span id="bqScore">0</span> pts</div>
+    </div>
+    <div id="bqBody">
+      <div style="text-align:center;padding:30px;color:var(--muted)">Cargando…</div>
+    </div>
+  </div>
+
+  <!-- ══ GAME 5: ARTIKEL BATTLE ══ -->
+  <div class="game-panel" id="panel-artikel">
+    <div class="gp-header">
+      <span class="gp-title">⚖️ Artikel Battle — der · die · das</span>
+      <div class="gp-score">Racha: <span id="abStreak">0</span> 🔥</div>
+    </div>
+    <div id="abBody">
+      <div style="text-align:center;padding:30px;color:var(--muted)">Cargando…</div>
+    </div>
+  </div>
+
+  <!-- ══ GAME 6: SATZPUZZLE ══ -->
+  <div class="game-panel" id="panel-satzpuzzle">
+    <div class="gp-header">
+      <span class="gp-title">🧩 Satzpuzzle — Ordena la oración</span>
+      <div class="gp-score"><i class="fas fa-star"></i><span id="spScore">0</span> pts</div>
+    </div>
+    <div id="spBody">
+      <div style="text-align:center;padding:30px;color:var(--muted)">Cargando…</div>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="lb-section">
+    <div class="lb-title"><i class="fas fa-trophy" style="color:var(--yellow)"></i> Mis mejores resultados</div>
+    <div id="lbContent">
+      <div style="text-align:center;padding:20px;color:var(--muted);font-size:.82rem">
+        Juega para ver tus puntuaciones aquí.
+      </div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<footer class="pfoot">
+  <div class="pfoot-in">
+    <div>
+      <div class="pfoot-brand">DEULCHALEX · SpielZone</div>
+      <div class="pfoot-copy">© 2024 · 6 juegos pedagógicos A1-B1</div>
+    </div>
+    <div class="pfoot-links">
+      <a href="index.html"><i class="fas fa-home"></i> Inicio</a>
+      <a href="verben.html"><i class="fas fa-running"></i> Verbos</a>
+      <a href="voca.html"><i class="fas fa-book"></i> Vocabulario</a>
+    </div>
+  </div>
+</footer>
+
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════ -->
+<script>
+/* ── AUDIO ── */
+function playSound(id){try{const a=document.getElementById(id);if(a){a.currentTime=0;a.play().catch(()=>{});}}catch(e){}}
+const sndOK=()=>playSound('sndOK');
+const sndBad=()=>playSound('sndBad');
+const sndClk=()=>playSound('sndClick');
+
+/* ── TTS ── */
+function speak(text,lang='de-DE'){
+  if(!window.speechSynthesis)return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=lang;u.rate=0.85;
+  const v=speechSynthesis.getVoices().find(x=>x.lang.startsWith('de'));
+  if(v)u.voice=v;
+  speechSynthesis.speak(u);
+}
+
+/* ── UTILS ── */
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a;}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function $(id){return document.getElementById(id);}
+
+/* ── THEME ── */
+document.addEventListener('DOMContentLoaded',()=>{
+  if(localStorage.getItem('dlaTheme')==='light'){
+    document.body.classList.add('light');
+    $('themeBtn').querySelector('i').className='fas fa-sun';
+  }
+  $('themeBtn').addEventListener('click',()=>{
+    document.body.classList.toggle('light');
+    const il=document.body.classList.contains('light');
+    localStorage.setItem('dlaTheme',il?'light':'dark');
+    $('themeBtn').querySelector('i').className=il?'fas fa-sun':'fas fa-moon';
+  });
+  initAll();
+});
+
+/* ── GLOBAL SCORES ── */
+let globalScores = JSON.parse(localStorage.getItem('spielzone_scores')||'{}');
+let gamesPlayed  = parseInt(localStorage.getItem('spielzone_played')||'0');
+let bestStreak   = parseInt(localStorage.getItem('spielzone_streak')||'0');
+
+function saveScore(game,score){
+  if(!globalScores[game]||score>globalScores[game]) globalScores[game]=score;
+  gamesPlayed++;
+  localStorage.setItem('spielzone_scores',JSON.stringify(globalScores));
+  localStorage.setItem('spielzone_played',gamesPlayed);
+  const total=Object.values(globalScores).reduce((a,b)=>a+b,0);
+  $('hTotalScore').textContent=total;
+  $('hGamesPlayed').textContent=gamesPlayed;
+  renderLeaderboard();
+}
+
+function updateStreak(s){
+  if(s>bestStreak){bestStreak=s;localStorage.setItem('spielzone_streak',s);$('hBestStreak').textContent=s;}
+}
+
+function renderLeaderboard(){
+  const gameNames={hangman:'🪢 Galgenmännchen',wordbuilder:'🔤 Wortmeister',memory:'🃏 Memory',blitzquiz:'⚡ Blitz Quiz',artikel:'⚖️ Artikel Battle',satzpuzzle:'🧩 Satzpuzzle'};
+  const sorted=Object.entries(globalScores).sort((a,b)=>b[1]-a[1]);
+  if(sorted.length===0)return;
+  $('lbContent').innerHTML=sorted.map(([g,s],i)=>`
+    <div class="lb-row">
+      <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span>
+      <span class="lb-game">${gameNames[g]||g}</span>
+      <span class="lb-score">${s} pts</span>
+    </div>`).join('');
+  const total=Object.values(globalScores).reduce((a,b)=>a+b,0);
+  $('hTotalScore').textContent=total;
+  $('hGamesPlayed').textContent=gamesPlayed;
+  $('hBestStreak').textContent=bestStreak;
+}
+
+/* ── GAME SELECTOR ── */
+function selectGame(game,el){
+  sndClk();
+  document.querySelectorAll('.game-sel-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.game-panel').forEach(p=>p.classList.remove('active'));
+  $('panel-'+game).classList.add('active');
+}
+
+/* ── INIT ALL ── */
+function initAll(){
+  renderLeaderboard();
+  initHangman();
+  initWordBuilder();
+  initMemory();
+  initBlitzQuiz();
+  initArtikel();
+  initSatzpuzzle();
+}
+
+/* ════════════════════════════════════
+   GAME 1 — GALGENMÄNNCHEN
+════════════════════════════════════ */
+const HM_WORDS = [
+  {w:'WASSER',   hint:'Das trinkt man.',                   cat:'Nomen'},
+  {w:'HAUS',     hint:'Man wohnt darin.',                  cat:'Nomen'},
+  {w:'BUCH',     hint:'Man liest es.',                     cat:'Nomen'},
+  {w:'SCHULE',   hint:'Hier lernt man.',                   cat:'Nomen'},
+  {w:'FENSTER',  hint:'Man schaut hindurch.',              cat:'Nomen'},
+  {w:'BAHNHOF',  hint:'Hier fahren Züge ab.',              cat:'Nomen'},
+  {w:'ARBEIT',   hint:'Das macht man täglich.',            cat:'Nomen'},
+  {w:'KÜHLSCHRANK',hint:'Hier ist es kalt.',               cat:'Nomen'},
+  {w:'SPRECHEN', hint:'Auf Deutsch kommunizieren.',        cat:'Verb'},
+  {w:'LERNEN',   hint:'Was du gerade tust!',               cat:'Verb'},
+  {w:'KAUFEN',   hint:'Im Supermarkt macht man das.',      cat:'Verb'},
+  {w:'SCHREIBEN',hint:'Mit einem Stift.',                  cat:'Verb'},
+  {w:'VERSTEHEN',hint:'Wenn du alles kapierst.',           cat:'Verb'},
+  {w:'FAHREN',   hint:'Mit dem Auto oder Zug.',            cat:'Verb'},
+  {w:'SCHNELL',  hint:'Das Gegenteil von langsam.',        cat:'Adjektiv'},
+  {w:'FLEISSIG', hint:'Immer viel arbeitend.',             cat:'Adjektiv'},
+  {w:'SCHWIERIG',hint:'Nicht einfach.',                    cat:'Adjektiv'},
+  {w:'LUSTIG',   hint:'Wenn man lacht.',                   cat:'Adjektiv'},
+  {w:'DEUTSCHLAND',hint:'Das Land der deutschen Sprache.', cat:'Geografie'},
+  {w:'BERLIN',   hint:'Die Hauptstadt.',                   cat:'Geografie'},
+  {w:'MUENCHEN', hint:'Stadt mit Oktoberfest.',            cat:'Geografie'},
+  {w:'FREUNDLICH',hint:'Nett und höflich.',                cat:'Adjektiv'},
+  {w:'PRUEFUNG', hint:'Vor der man nervös ist.',           cat:'Nomen'},
+  {w:'KONJUNKTIV',hint:'Ein Grammatikthema B1.',           cat:'Grammatik'},
+];
+
+const HM_PARTS=['hm-head','hm-body','hm-la','hm-ra','hm-ll','hm-rl'];
+const MAX_FAILS=6;
+let hmWord='',hmGuessed=[],hmFails=0,hmScore=0,hmCurrentWord=null;
+
+function initHangman(){newHangmanGame();}
+
+function newHangmanGame(){
+  hmCurrentWord=HM_WORDS[Math.floor(Math.random()*HM_WORDS.length)];
+  hmWord=hmCurrentWord.w;
+  hmGuessed=[];hmFails=0;
+  HM_PARTS.forEach(id=>{const el=$(id);if(el)el.style.display='none';});
+  $('hmCat').textContent=hmCurrentWord.cat;
+  $('hmHint').textContent='Pista: '+hmCurrentWord.hint;
+  $('hmStatus').textContent='¡Adivina!';
+  $('hmFb').innerHTML='';
+  buildHmKeyboard();
+  renderHmWord();
+  renderHmHearts();
+}
+
+function buildHmKeyboard(){
+  const kb=$('letterKb');
+  const rows=[['Q','W','E','R','T','Z','U','I','O','P','Ü'],
+               ['A','S','D','F','G','H','J','K','L','Ö','Ä'],
+               ['Y','X','C','V','B','N','M']];
+  kb.innerHTML=rows.map(r=>`<div class="kb-row">${r.map(l=>`<button class="kb-key" id="hk-${l}" onclick="hmGuess('${l}',this)">${l}</button>`).join('')}</div>`).join('');
+}
+
+function renderHmWord(){
+  const display=hmWord.split('').map(l=>hmGuessed.includes(l)?`<span style="color:var(--green)">${l}</span>`:'<span style="color:var(--muted)">_</span>').join(' ');
+  $('wordDisplay').innerHTML=display;
+}
+
+function renderHmHearts(){
+  const hearts=$('hmHearts');
+  hearts.innerHTML=Array.from({length:MAX_FAILS},(_,i)=>
+    `<span style="font-size:1rem;color:${i<MAX_FAILS-hmFails?'var(--red)':'var(--muted)'}">❤️</span>`
+  ).join('');
+}
+
+function hmGuess(l,btn){
+  sndClk();
+  btn.disabled=true;
+  if(hmWord.includes(l)){
+    hmGuessed.push(l);
+    btn.classList.add('hit');
+    sndOK();
+    renderHmWord();
+    // Win check
+    if(hmWord.split('').every(c=>hmGuessed.includes(c))){
+      const pts=Math.max(10,(MAX_FAILS-hmFails)*20);
+      hmScore+=pts;
+      $('hmScore').textContent=hmScore;
+      $('hmStatus').textContent='¡Ganaste!';
+      $('hmFb').innerHTML=`<div class="fb-ok">🎉 <strong>¡Bravo!</strong> La palabra era: <strong>${hmWord}</strong> (+${pts} pts)</div>`;
+      speak(hmWord);
+      saveScore('hangman',hmScore);
+      toast('🎉 +'+pts+' puntos!');
+    }
+  } else {
+    hmFails++;
+    btn.classList.add('miss');
+    sndBad();
+    const part=$(HM_PARTS[hmFails-1]);
+    if(part)part.style.display='';
+    renderHmHearts();
+    if(hmFails>=MAX_FAILS){
+      $('hmStatus').textContent='Perdiste 😵';
+      $('hmFb').innerHTML=`<div class="fb-err">💀 La palabra era: <strong>${hmWord}</strong> — <button class="speak-btn" onclick="speak('${hmWord}')"><i class="fas fa-volume-up"></i></button></div>`;
+      document.querySelectorAll('.kb-key').forEach(b=>b.disabled=true);
+      saveScore('hangman',hmScore);
+    }
+  }
+}
+
+function hmSpeak(){
+  if(hmCurrentWord) speak(hmCurrentWord.w);
+}
+
+/* ════════════════════════════════════
+   GAME 2 — WORTMEISTER
+════════════════════════════════════ */
+const WM_SETS = [
+  {letters:'HALEBNS', words:{BAHN:'el tren',HAUS:'la casa',NAHE:'cerca',SANS:'sin (pl)',BLAN:'azul (var)'},must:['BAHN','HAUS']},
+  {letters:'SCHREIBEN', words:{SCHREIBEN:'escribir',REIN:'dentro',SEIN:'ser/estar',HIER:'aquí',BIRNE:'la pera',NEIN:'no'},must:['SCHREIBEN','SEIN']},
+  {letters:'LERNTAGE', words:{LERNEN:'aprender',GERNE:'con gusto',LATER:'más tarde',RENTE:'la pensión',LAGE:'la situación'},must:['LERNEN','GERNE']},
+  {letters:'WORTBANK', words:{WORT:'la palabra',BANK:'el banco',BART:'la barba',BROT:'el pan',WORAN:'en qué'},must:['WORT','BROT']},
+  {letters:'KAFFETAG', words:{KAFFEE:'el café',GAFFA:'(var)',FAKE:'falso',GATTE:'el esposo',KAFKA:'Kafka'},must:['KAFFEE']},
+];
+let wmSet=null,wmFound=[],wmScore=0,wmBuilt=[],wmUsed=[];
+
+function initWordBuilder(){wmScore=0;$('wmScore').textContent=0;$('wmFound').textContent=0;newWMGame();}
+function newWMGame(){
+  wmSet=WM_SETS[Math.floor(Math.random()*WM_SETS.length)];
+  wmFound=[];wmBuilt=[];wmUsed=new Array(wmSet.letters.length).fill(false);
+  renderWM();
+}
+
+function renderWM(){
+  const letters=wmSet.letters.split('');
+  $('wmBody').innerHTML=`
+    <div style="text-align:center;margin-bottom:10px;font-size:.78rem;color:var(--muted)">
+      Forma la mayor cantidad de palabras alemanas con estas letras:
+    </div>
+    <div class="wm-target">🔡 ${wmSet.letters}</div>
+    <div class="wm-clue">Usa cualquier combinación · Haz clic en "verificar" · Toca las fichas del constructor para deshacer</div>
+    <div class="wm-letters" id="wmTiles">
+      ${letters.map((l,i)=>`<button class="wm-tile" id="wmt-${i}" onclick="pickWM(${i},'${l}')">${l}</button>`).join('')}
+    </div>
+    <div class="wm-builder" id="wmBuilder" onclick="undoWM()" title="Clic para deshacer"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <button class="btn btn-y" onclick="checkWM()"><i class="fas fa-check"></i> Verificar</button>
+      <button class="btn" onclick="clearWM()"><i class="fas fa-undo"></i> Limpiar</button>
+      <button class="btn" onclick="newWMGame()"><i class="fas fa-random"></i> Nuevas letras</button>
+    </div>
+    <div id="wmFb"></div>
+    <div style="font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:7px">Palabras encontradas:</div>
+    <div class="wm-words-found" id="wmFoundList"></div>
+  `;
+}
+
+function pickWM(idx,l){
+  if(wmUsed[idx])return;sndClk();
+  wmUsed[idx]=true;
+  $('wmt-'+idx).classList.add('used');
+  wmBuilt.push({idx,l});
+  const b=$('wmBuilder');
+  const s=document.createElement('span');s.className='wm-built';s.textContent=l;
+  b.appendChild(s);
+}
+function undoWM(){
+  if(!wmBuilt.length)return;
+  const last=wmBuilt.pop();
+  wmUsed[last.idx]=false;
+  $('wmt-'+last.idx)?.classList.remove('used');
+  const b=$('wmBuilder');if(b.lastChild)b.removeChild(b.lastChild);
+}
+function clearWM(){
+  wmBuilt=[];wmUsed=new Array(wmSet.letters.length).fill(false);
+  document.querySelectorAll('[id^="wmt-"]').forEach(t=>t.classList.remove('used'));
+  const b=$('wmBuilder');if(b)b.innerHTML='';
+}
+function checkWM(){
+  const word=wmBuilt.map(w=>w.l).join('');
+  const fb=$('wmFb');
+  if(word.length<2){fb.innerHTML='<div class="fb-err">Escribe al menos 2 letras.</div>';return;}
+  if(wmFound.includes(word)){fb.innerHTML='<div class="fb-err">Ya encontraste esa palabra.</div>';return;}
+  const trans=wmSet.words[word];
+  if(trans){
+    wmFound.push(word);wmScore+=word.length*5;sndOK();
+    $('wmScore').textContent=wmScore;$('wmFound').textContent=wmFound.length;
+    fb.innerHTML=`<div class="fb-ok">✅ <strong>${word}</strong> = ${trans} (+${word.length*5} pts) <button class="speak-btn" onclick="speak('${word}')"><i class="fas fa-volume-up"></i></button></div>`;
+    $('wmFoundList').innerHTML=wmFound.map(w=>`<span class="wm-found-chip">${w}</span>`).join('');
+    saveScore('wordbuilder',wmScore);
+    toast('+'+word.length*5+' pts!');
+  }else{
+    sndBad();fb.innerHTML=`<div class="fb-err">❌ "<strong>${word}</strong>" no está en el diccionario del juego.</div>`;
+  }
+  clearWM();
+}
+
+/* ════════════════════════════════════
+   GAME 3 — MEMORY
+════════════════════════════════════ */
+const MEM_PAIRS = [
+  {de:'Hund',es:'perro',e:'🐕'},{de:'Katze',es:'gato',e:'🐈'},
+  {de:'Apfel',es:'manzana',e:'🍎'},{de:'Brot',es:'pan',e:'🍞'},
+  {de:'Haus',es:'casa',e:'🏠'},{de:'Auto',es:'coche',e:'🚗'},
+  {de:'Buch',es:'libro',e:'📚'},{de:'Schule',es:'escuela',e:'🏫'},
+  {de:'Baum',es:'árbol',e:'🌳'},{de:'Sonne',es:'sol',e:'☀️'},
+  {de:'Regen',es:'lluvia',e:'🌧️'},{de:'Musik',es:'música',e:'🎵'},
+  {de:'Wasser',es:'agua',e:'💧'},{de:'Kind',es:'niño',e:'👦'},
+  {de:'Blume',es:'flor',e:'🌸'},{de:'Vogel',es:'pájaro',e:'🐦'},
+];
+let memCards=[],memFlipped=[],memMatched=0,memMoves=0,memTimer=null,memElapsed=0,memScore=0,memLocked=false;
+
+function initMemory(){newMemoryGame();}
+function newMemoryGame(){
+  clearInterval(memTimer);memFlipped=[];memMatched=0;memMoves=0;memElapsed=0;memLocked=false;
+  const pairs=shuffle([...MEM_PAIRS]).slice(0,8);
+  memCards=shuffle([
+    ...pairs.map((p,i)=>({id:i*2,pairId:i,type:'de',text:p.de,sub:p.es,emoji:p.e})),
+    ...pairs.map((p,i)=>({id:i*2+1,pairId:i,type:'es',text:p.e,sub:p.de,emoji:p.e}))
+  ]);
+  $('memFb').innerHTML='';
+  renderMemory();
+  memTimer=setInterval(()=>{
+    memElapsed++;
+    const m=Math.floor(memElapsed/60),s=memElapsed%60;
+    $('memTimer').textContent=`${m}:${s<10?'0':''}${s}`;
+  },1000);
+}
+
+function renderMemory(){
+  const grid=$('memGrid');
+  grid.innerHTML=memCards.map(c=>`
+    <div class="mem-card" id="mc-${c.id}" onclick="flipMem(${c.id})">
+      <div class="mem-inner">
+        <div class="mem-face mem-back">🃏</div>
+        <div class="mem-face mem-front">
+          <span class="mem-emoji">${c.type==='de'?c.emoji:'🇩🇪'}</span>
+          <span class="mem-word">${c.text}</span>
+          <span class="mem-trans">${c.sub}</span>
+        </div>
+      </div>
+    </div>`).join('');
+  $('memMoves').textContent=`${memMoves} movimientos`;
+}
+
+function flipMem(id){
+  if(memLocked)return;
+  const card=memCards.find(c=>c.id===id);
+  if(!card)return;
+  const el=$('mc-'+id);
+  if(!el||el.classList.contains('flipped')||el.classList.contains('matched'))return;
+  sndClk();
+  el.classList.add('flipped');
+  memFlipped.push(id);
+  if(memFlipped.length===2){
+    memMoves++;$('memMoves').textContent=`${memMoves} movimientos`;
+    memLocked=true;
+    const [a,b]=memFlipped.map(i=>memCards.find(c=>c.id===i));
+    if(a.pairId===b.pairId){
+      sndOK();
+      memFlipped.forEach(i=>{const e=$('mc-'+i);if(e)e.classList.add('matched');});
+      memFlipped=[];memMatched++;memLocked=false;
+      if(memMatched===8){
+        clearInterval(memTimer);
+        const pts=Math.max(50,300-memMoves*5-Math.floor(memElapsed/2));
+        memScore=pts;
+        $('memFb').innerHTML=`<div class="fb-ok">🏆 ¡Completado! ${memMoves} movimientos · ${$('memTimer').textContent} · +${pts} pts</div>`;
+        saveScore('memory',pts);
+        toast('🏆 Memory completado!');
+      }
+    }else{
+      sndBad();
+      setTimeout(()=>{
+        memFlipped.forEach(i=>{const e=$('mc-'+i);if(e)e.classList.remove('flipped');});
+        memFlipped=[];memLocked=false;
+      },900);
+    }
+  }
+}
+
+/* ════════════════════════════════════
+   GAME 4 — BLITZ QUIZ
+════════════════════════════════════ */
+const BQ_QUESTIONS=[
+  {sent:'Ich ___ jeden Morgen um 7 Uhr auf.',blank:'stehe ... auf',opts:['stehe ... auf','fahre ... ab','komme ... an','gehe ... rein'],correct:0,exp:'aufstehen = trennbares Verb → auf ans Ende'},
+  {sent:'Er hat gestern Fußball ___.',blank:'gespielt',opts:['gespielt','gespielt hat','spielte','spielt'],correct:0,exp:'Perfekt mit haben: haben + Partizip II am Ende'},
+  {sent:'Ich muss heute viel ___.',blank:'lernen',opts:['lernen','lerne','gelernt','zu lernen'],correct:0,exp:'Modalverb müssen + Infinitiv am Ende'},
+  {sent:'Kannst du ___ helfen?',blank:'mir',opts:['mir','mich','ich','mein'],correct:0,exp:'helfen + Dativ: mir (nicht mich!)'},
+  {sent:'Das Buch liegt ___ dem Tisch.',blank:'auf',opts:['auf','an','in','zu'],correct:0,exp:'WO? + Dativ: auf dem Tisch (nicht in/an)'},
+  {sent:'Wenn ich reich ___, würde ich reisen.',blank:'wäre',opts:['wäre','war','bin','sei'],correct:0,exp:'Konjunktiv II von sein: wäre'},
+  {sent:'Sie ___ seit drei Jahren Deutsch.',blank:'lernt',opts:['lernt','lernte','lerne','gelernt'],correct:0,exp:'seit + Präsens für andauernde Handlungen'},
+  {sent:'Wir sind ___ Berlin gefahren.',blank:'nach',opts:['nach','in','zu','an'],correct:0,exp:'nach + Städte/Länder ohne Artikel'},
+  {sent:'___ Sie mir bitte das Salz geben?',blank:'Können',opts:['Können','Mögen','Wollen','Dürfen'],correct:0,exp:'Höfliche Bitte: Können Sie...? (am natürlichsten)'},
+  {sent:'Das Essen hat mir sehr gut ___.',blank:'gefallen',opts:['gefallen','gefallt','gefällt','gefallen hat'],correct:0,exp:'gefallen + Dativ: hat mir gefallen (Perfekt)'},
+  {sent:'___ du Deutsch sprechen?',blank:'Kannst',opts:['Kannst','Könntest','Magst','Willst'],correct:0,exp:'können für Fähigkeiten: Kannst du...?'},
+  {sent:'Ich kaufe ___ Supermarkt ___.',blank:'im ... ein',opts:['im ... ein','in den ... ein','zum ... rein','am ... ein'],correct:0,exp:'einkaufen = trennbar, im = in + dem (Dativ, WO)'},
+  {sent:'Sie hat sich ___ die Stelle beworben.',blank:'um',opts:['um','für','an','auf'],correct:0,exp:'sich bewerben um + Akkusativ'},
+  {sent:'Obwohl es regnete, ___ wir spazieren.',blank:'gingen',opts:['gingen','gegangen sind','sind gegangen','gehen'],correct:0,exp:'Hauptsatz nach obwohl: normaler Satzbau'},
+  {sent:'Ich habe ___ Kopfschmerzen.',blank:'starke',opts:['starke','starken','starkem','stark'],correct:0,exp:'starke = Akkusativ feminin (Schmerzen ist plural)'},
+];
+
+let bqIdx=0,bqScore=0,bqCorrect=0,bqTimer=null,bqTV=5,bqAnswered=false,bqQueue=[];
+
+function initBlitzQuiz(){bqScore=0;bqCorrect=0;$('bqScore').textContent=0;bqQueue=shuffle([...BQ_QUESTIONS]);bqIdx=0;renderBQ();}
+function renderBQ(){
+  clearInterval(bqTimer);
+  if(bqIdx>=bqQueue.length){renderBQResult();return;}
+  const q=bqQueue[bqIdx];
+  const pct=Math.round((bqIdx/bqQueue.length)*100);
+  bqAnswered=false;bqTV=5;
+  const dots=bqQueue.slice(0,bqIdx).map((_,i)=>`<div class="bq-dot ${i<bqCorrect?'ok':'err'}"></div>`).join('');
+  $('bqBody').innerHTML=`
+    <div class="bq-progress">${dots}<div class="bq-dot" style="background:var(--orange)"></div></div>
+    <div style="font-size:.73rem;color:var(--muted);text-align:right;margin-bottom:6px">${bqIdx+1}/${bqQueue.length}</div>
+    <div class="bq-timer-bar"><div class="bq-timer-fill" id="bqTBar" style="width:100%"></div></div>
+    <div style="font-size:.7rem;color:var(--orange);font-weight:700;text-align:center;margin-bottom:10px" id="bqTV">⏱ ${bqTV}s</div>
+    <div class="bq-sentence">${q.sent.replace('___',`<span class="bq-blank">___</span>`)}</div>
+    <div class="bq-opts">
+      ${q.opts.map((o,i)=>`<button class="bq-opt" onclick="answerBQ(${i},${q.correct},'${q.exp.replace(/'/g,"\\'")}')">${o}</button>`).join('')}
+    </div>
+    <div id="bqFb"></div>
+    <button id="bqNext" onclick="nextBQ()" style="display:none;margin-top:10px" class="btn btn-y">
+      Siguiente <i class="fas fa-arrow-right"></i>
+    </button>`;
+  bqTimer=setInterval(()=>{
+    bqTV--;
+    const tv=$('bqTV');if(tv)tv.textContent='⏱ '+bqTV+'s';
+    const bar=$('bqTBar');if(bar)bar.style.width=(bqTV/5*100)+'%';
+    if(bqTV<=0){clearInterval(bqTimer);if(!bqAnswered)autoWrongBQ(q.correct,q.exp);}
+  },1000);
+}
+
+function answerBQ(i,correct,exp){
+  if(bqAnswered)return;bqAnswered=true;clearInterval(bqTimer);
+  const ok=i===correct;
+  document.querySelectorAll('.bq-opt').forEach((b,j)=>{
+    b.disabled=true;
+    if(j===correct)b.classList.add('correct');
+    if(j===i&&!ok)b.classList.add('wrong');
+  });
+  if(ok){bqScore+=bqTV*10+10;bqCorrect++;sndOK();toast('+'+( bqTV*10+10)+' pts ⚡');}else{sndBad();}
+  $('bqScore').textContent=bqScore;
+  const fb=$('bqFb');
+  if(fb){fb.className=ok?'fb-ok':'fb-err';fb.textContent=ok?'✅ '+exp:'❌ '+exp;}
+  const nxt=$('bqNext');if(nxt)nxt.style.display='';
+}
+function autoWrongBQ(correct,exp){
+  bqAnswered=true;sndBad();
+  document.querySelectorAll('.bq-opt').forEach((b,j)=>{b.disabled=true;if(j===correct)b.classList.add('correct');});
+  const fb=$('bqFb');if(fb){fb.className='fb-err';fb.textContent='⏱ Tiempo agotado. '+exp;}
+  const nxt=$('bqNext');if(nxt)nxt.style.display='';
+}
+function nextBQ(){bqIdx++;renderBQ();}
+function renderBQResult(){
+  clearInterval(bqTimer);
+  const pct=Math.round((bqCorrect/bqQueue.length)*100);
+  $('bqBody').innerHTML=`
+    <div class="result-box">
+      <div style="font-size:2.5rem;margin-bottom:8px">${pct>=80?'🏆':pct>=50?'💪':'📚'}</div>
+      <h3>${pct>=80?'¡Blitz Master!':pct>=50?'¡Buen trabajo!':'Repasa más y vuelve'}</h3>
+      <div class="rg">
+        <div class="rb"><span class="rb-v" style="color:var(--green)">${bqCorrect}</span><span class="rb-l">Correctas</span></div>
+        <div class="rb"><span class="rb-v" style="color:var(--orange)">${bqScore}</span><span class="rb-l">Puntos</span></div>
+        <div class="rb"><span class="rb-v" style="color:var(--purple)">${pct}%</span><span class="rb-l">Acierto</span></div>
+      </div>
+      <button class="btn btn-y" onclick="initBlitzQuiz()"><i class="fas fa-redo"></i> Jugar de nuevo</button>
+    </div>`;
+  saveScore('blitzquiz',bqScore);
+}
+
+/* ════════════════════════════════════
+   GAME 5 — ARTIKEL BATTLE
+════════════════════════════════════ */
+const ARTIKEL_WORDS=[
+  {w:'Hund',art:'der',cat:'Tiere',e:'🐕'},{w:'Katze',art:'die',cat:'Tiere',e:'🐈'},
+  {w:'Kind',art:'das',cat:'Menschen',e:'👦'},{w:'Mutter',art:'die',cat:'Menschen',e:'👩'},
+  {w:'Vater',art:'der',cat:'Menschen',e:'👨'},{w:'Haus',art:'das',cat:'Wohnen',e:'🏠'},
+  {w:'Fenster',art:'das',cat:'Wohnen',e:'🪟'},{w:'Tür',art:'die',cat:'Wohnen',e:'🚪'},
+  {w:'Auto',art:'das',cat:'Verkehr',e:'🚗'},{w:'Zug',art:'der',cat:'Verkehr',e:'🚂'},
+  {w:'Straße',art:'die',cat:'Verkehr',e:'🛣️'},{w:'Buch',art:'das',cat:'Schule',e:'📚'},
+  {w:'Lehrer',art:'der',cat:'Schule',e:'👨‍🏫'},{w:'Schule',art:'die',cat:'Schule',e:'🏫'},
+  {w:'Apfel',art:'der',cat:'Essen',e:'🍎'},{w:'Milch',art:'die',cat:'Essen',e:'🥛'},
+  {w:'Brot',art:'das',cat:'Essen',e:'🍞'},{w:'Wasser',art:'das',cat:'Essen',e:'💧'},
+  {w:'Sonne',art:'die',cat:'Natur',e:'☀️'},{w:'Mond',art:'der',cat:'Natur',e:'🌙'},
+  {w:'Berg',art:'der',cat:'Natur',e:'⛰️'},{w:'Meer',art:'das',cat:'Natur',e:'🌊'},
+  {w:'Arbeit',art:'die',cat:'Beruf',e:'💼'},{w:'Chef',art:'der',cat:'Beruf',e:'👔'},
+  {w:'Büro',art:'das',cat:'Beruf',e:'🏢'},{w:'Prüfung',art:'die',cat:'Schule',e:'📝'},
+  {w:'Bahnhof',art:'der',cat:'Verkehr',e:'🚉'},{w:'Wohnung',art:'die',cat:'Wohnen',e:'🏢'},
+  {w:'Zimmer',art:'das',cat:'Wohnen',e:'🛋️'},{w:'Bruder',art:'der',cat:'Familie',e:'👦'},
+  {w:'Schwester',art:'die',cat:'Familie',e:'👧'},{w:'Mädchen',art:'das',cat:'Menschen',e:'👧'},
+];
+
+let abIdx=0,abStreak=0,abScore=0,abHistory=[];
+
+function initArtikel(){abStreak=0;abScore=0;abHistory=[];renderAB();}
+function renderAB(){
+  const w=ARTIKEL_WORDS[Math.floor(Math.random()*ARTIKEL_WORDS.length)];
+  abIdx=abHistory.length;
+  $('abStreak').textContent=abStreak;
+  $('abBody').innerHTML=`
+    <div style="text-align:center">
+      <div class="ab-streak-display">🔥 ${abStreak} en racha · ${abScore} pts</div>
+      <div class="ab-combo">Récord de racha: ${Math.max(abStreak,parseInt(localStorage.getItem('abRecord')||'0'))}</div>
+      <div class="ab-cat">${w.cat} · ${w.e}</div>
+      <div class="ab-word" id="abWord">${w.w}</div>
+      <div class="ab-buttons">
+        <button class="ab-btn ab-der" onclick="answerAB('der','${w.art}','${w.w}')">der</button>
+        <button class="ab-btn ab-die" onclick="answerAB('die','${w.art}','${w.w}')">die</button>
+        <button class="ab-btn ab-das" onclick="answerAB('das','${w.art}','${w.w}')">das</button>
+      </div>
+      <div id="abFb" style="margin-top:12px;min-height:40px"></div>
+    </div>`;
+}
+
+function answerAB(chosen,correct,word){
+  const ok=chosen===correct;
+  const fb=$('abFb');
+  document.querySelectorAll('.ab-btn').forEach(b=>b.disabled=true);
+  if(ok){
+    abStreak++;abScore+=10+(abStreak>3?abStreak*2:0);sndOK();
+    updateStreak(abStreak);
+    const rec=parseInt(localStorage.getItem('abRecord')||'0');
+    if(abStreak>rec)localStorage.setItem('abRecord',abStreak);
+    $('abStreak').textContent=abStreak;
+    fb.innerHTML=`<div class="fb-ok">✅ <strong>${correct} ${word}</strong> ¡Correcto! +${10+(abStreak>3?abStreak*2:0)} pts
+      <button class="speak-btn" onclick="speak('${correct} ${word}')"><i class="fas fa-volume-up"></i></button></div>`;
+    toast(abStreak>5?'🔥 ¡Combo x'+abStreak+'!':'✅ +'+( 10+(abStreak>3?abStreak*2:0))+' pts');
+  }else{
+    abStreak=0;sndBad();
+    fb.innerHTML=`<div class="fb-err">❌ Es: <strong>${correct} ${word}</strong>
+      <button class="speak-btn" onclick="speak('${correct} ${word}')"><i class="fas fa-volume-up"></i></button></div>`;
+  }
+  saveScore('artikel',abScore);
+  setTimeout(renderAB,1400);
+}
+
+/* ════════════════════════════════════
+   GAME 6 — SATZPUZZLE
+════════════════════════════════════ */
+const SP_SENTENCES=[
+  {words:['Ich','stehe','jeden','Morgen','um','sieben','Uhr','auf.'],es:'Me levanto todos los días a las siete.',tip:'aufstehen = trennbar → auf ans Ende'},
+  {words:['Er','hat','gestern','viel','Deutsch','gelernt.'],es:'Él aprendió mucho alemán ayer.',tip:'Perfekt: hat + Partizip II am Ende'},
+  {words:['Wenn','du','Hilfe','brauchst,','kannst','du','mich','anrufen.'],es:'Si necesitas ayuda, puedes llamarme.',tip:'wenn-Satz: Verb am Ende; Hauptsatz normal'},
+  {words:['Das','Buch','liegt','auf','dem','Tisch.'],es:'El libro está sobre la mesa.',tip:'WO? → auf + Dativ: dem Tisch'},
+  {words:['Ich','würde','gerne','nach','Deutschland','fahren.'],es:'Me gustaría ir a Alemania.',tip:'Konjunktiv II: würde + Infinitiv am Ende'},
+  {words:['Sie','muss','jeden','Tag','früh','aufstehen.'],es:'Ella tiene que levantarse temprano cada día.',tip:'müssen + Infinitiv am Ende'},
+  {words:['Obwohl','es','regnet,','gehe','ich','spazieren.'],es:'Aunque llueve, salgo a caminar.',tip:'Obwohl = Nebensatz: Verb (regnet) ans Ende'},
+  {words:['Ich','habe','mich','um','die','Stelle','beworben.'],es:'Me postulé para el puesto.',tip:'sich bewerben um + Akkusativ'},
+  {words:['Je','mehr','ich','lerne,','desto','besser','werde','ich.'],es:'Cuanto más aprendo, mejor me vuelvo.',tip:'Je...desto: je = Nebensatz, desto = Hauptsatz'},
+  {words:['Kannst','du','mir','bitte','helfen?'],es:'¿Puedes ayudarme, por favor?',tip:'helfen + Dativ: mir (no mich)'},
+];
+
+let spIdx=0,spScore=0,spBuilt=[],spUsed=[],spQueue=[];
+function initSatzpuzzle(){spScore=0;$('spScore').textContent=0;spQueue=shuffle([...SP_SENTENCES]);spIdx=0;renderSP();}
+function renderSP(){
+  if(spIdx>=spQueue.length){renderSPResult();return;}
+  const s=spQueue[spIdx];
+  const shuffled=shuffle([...s.words]);
+  spBuilt=[];spUsed=new Array(shuffled.length).fill(false);
+  const pct=Math.round((spIdx/spQueue.length)*100);
+  $('spBody').innerHTML=`
+    <div class="sp-prog">
+      <div class="sp-prog-track"><div class="sp-prog-fill" style="width:${pct}%"></div></div>
+      <span>${spIdx+1}/${spQueue.length}</span>
+    </div>
+    <div class="sp-clue">🇪🇸 ${s.es}</div>
+    <div class="sp-tiles" id="spTiles">
+      ${shuffled.map((w,i)=>`<button class="sp-tile" id="spt-${i}" data-word="${w}" onclick="pickSP(${i},'${w.replace(/'/g,"\\'")}')">${w}</button>`).join('')}
+    </div>
+    <div style="font-size:.7rem;color:var(--muted);text-align:center;margin-bottom:6px">Haz clic en el constructor para deshacer</div>
+    <div class="sp-builder" id="spBuilder" onclick="undoSP()"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn btn-y" onclick="checkSP('${s.words.join(' ').replace(/'/g,"\\'")}','${s.tip.replace(/'/g,"\\'")}')">
+        <i class="fas fa-check"></i> Comprobar</button>
+      <button class="btn" onclick="clearSP()"><i class="fas fa-undo"></i> Limpiar</button>
+      <button class="btn" onclick="nextSP()"><i class="fas fa-forward"></i> Saltar</button>
+    </div>
+    <div id="spFb"></div>
+    <button id="spNext" onclick="nextSP()" style="display:none;margin-top:8px" class="btn btn-y">
+      Siguiente <i class="fas fa-arrow-right"></i></button>`;
+}
+
+function pickSP(i,w){
+  if(spUsed[i])return;sndClk();
+  spUsed[i]=true;$('spt-'+i).classList.add('used');
+  spBuilt.push({i,w});
+  const b=$('spBuilder');
+  const s=document.createElement('span');s.className='sp-built';s.textContent=w;
+  b.appendChild(s);
+}
+function undoSP(){
+  if(!spBuilt.length)return;
+  const last=spBuilt.pop();
+  spUsed[last.i]=false;$('spt-'+last.i)?.classList.remove('used');
+  const b=$('spBuilder');if(b.lastChild)b.removeChild(b.lastChild);
+}
+function clearSP(){
+  spBuilt=[];spUsed=new Array(spUsed.length).fill(false);
+  document.querySelectorAll('[id^="spt-"]').forEach(t=>t.classList.remove('used'));
+  const b=$('spBuilder');if(b)b.innerHTML='';
+}
+function checkSP(correct,tip){
+  const user=spBuilt.map(w=>w.w).join(' ');
+  const ok=user.trim()===correct.trim();
+  const fb=$('spFb');
+  if(ok){
+    spScore+=20;$('spScore').textContent=spScore;sndOK();
+    fb.className='fb-ok';
+    fb.innerHTML=`✅ <strong>¡Richtig!</strong> <button class="speak-btn" onclick="speak('${correct.replace(/'/g,"\\'")}')"><i class="fas fa-volume-up"></i></button>
+      <div class="sp-grammar-tip">💡 ${tip}</div>`;
+    toast('+20 pts!');
+    saveScore('satzpuzzle',spScore);
+  }else{
+    sndBad();
+    fb.className='fb-err';
+    fb.innerHTML=`❌ Correcto: <strong>${correct}</strong>
+      <div class="sp-grammar-tip">💡 ${tip}</div>`;
+  }
+  document.querySelectorAll('.sp-tile').forEach(t=>t.classList.add('used'));
+  const nxt=$('spNext');if(nxt)nxt.style.display='';
+}
+function nextSP(){spIdx++;renderSP();}
+function renderSPResult(){
+  $('spBody').innerHTML=`
+    <div class="result-box">
+      <div style="font-size:2.5rem;margin-bottom:8px">🏆</div>
+      <h3>¡Satzpuzzle completado!</h3>
+      <div class="rg">
+        <div class="rb"><span class="rb-v" style="color:var(--pink)">${spScore}</span><span class="rb-l">Puntos</span></div>
+        <div class="rb"><span class="rb-v" style="color:var(--text)">${spQueue.length}</span><span class="rb-l">Oraciones</span></div>
+      </div>
+      <button class="btn btn-y" onclick="initSatzpuzzle()"><i class="fas fa-redo"></i> Jugar de nuevo</button>
+    </div>`;
+  saveScore('satzpuzzle',spScore);
+}
+</script>
+</body>
+</html>
