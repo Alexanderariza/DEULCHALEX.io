@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEULCHALEX – Grundlagentheorie</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* ── TOKENS ── */
+    :root {
+      --bg:        #0b0f1a;
+      --surface:   #131929;
+      --surface2:  #1a2236;
+      --border:    rgba(255,255,255,0.07);
+      --blue:      #4f8ef7;
+      --blue-dim:  rgba(79,142,247,0.12);
+      --green:     #22d3a5;
+      --green-dim: rgba(34,211,165,0.12);
+      --red:       #f75f5f;
+      --red-dim:   rgba(247,95,95,0.12);
+      --yellow:    #fbbf24;
+      --yel-dim:   rgba(251,191,36,0.12);
+      --purple:    #a78bfa;
+      --pur-dim:   rgba(167,139,250,0.12);
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --radius:    14px;
+      /* case colors */
+      --nom: #4f8ef7;   --nom-dim: rgba(79,142,247,.13);
+      --akk: #f75f5f;   --akk-dim: rgba(247,95,95,.13);
+      --dat: #a78bfa;   --dat-dim: rgba(167,139,250,.13);
+      --gen: #fbbf24;   --gen-dim: rgba(251,191,36,.13);
+    }
+    .light {
+      --bg:        #f0f4f8;
+      --surface:   #ffffff;
+      --surface2:  #e8edf4;
+      --border:    rgba(0,0,0,0.08);
+      --text:      #1e293b;
+      --muted:     #64748b;
+      --blue-dim:  rgba(79,142,247,0.09);
+      --green-dim: rgba(34,211,165,0.09);
+      --red-dim:   rgba(247,95,95,0.09);
+      --nom-dim:   rgba(79,142,247,.09);
+      --akk-dim:   rgba(247,95,95,.09);
+      --dat-dim:   rgba(167,139,250,.09);
+      --gen-dim:   rgba(251,191,36,.09);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      font-family:'Inter',sans-serif;
+      background:var(--bg);color:var(--text);
+      min-height:100vh;transition:background .3s,color .3s;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:12px 20px;
+      background:var(--surface);border-bottom:1px solid var(--border);
+      position:sticky;top:0;z-index:200;
+      backdrop-filter:blur(12px);
+    }
+    .topbar-left{display:flex;align-items:center;gap:12px}
+    .back-btn{
+      display:inline-flex;align-items:center;gap:7px;
+      font-size:.82rem;font-weight:600;color:var(--muted);
+      text-decoration:none;padding:7px 12px;
+      border:1px solid var(--border);border-radius:10px;
+      transition:all .2s;
+    }
+    .back-btn:hover{color:var(--blue);border-color:rgba(79,142,247,.3)}
+    .page-title{
+      font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;
+    }
+    .topbar-right{display:flex;align-items:center;gap:8px}
+    .icon-btn{
+      width:36px;height:36px;border-radius:10px;
+      background:var(--surface2);border:1px solid var(--border);
+      color:var(--muted);display:flex;align-items:center;justify-content:center;
+      font-size:.9rem;cursor:pointer;transition:all .2s;
+    }
+    .icon-btn:hover{background:var(--blue-dim);color:var(--blue);border-color:rgba(79,142,247,.3)}
+    .user-chip{
+      display:flex;align-items:center;gap:7px;
+      background:var(--surface2);border:1px solid var(--border);
+      border-radius:30px;padding:5px 12px 5px 5px;font-size:.82rem;
+    }
+    .avatar{
+      width:26px;height:26px;border-radius:50%;
+      background:linear-gradient(135deg,var(--blue),var(--purple));
+      display:flex;align-items:center;justify-content:center;
+      font-size:.72rem;font-weight:700;color:#fff;
+    }
+
+    /* ── LAYOUT ── */
+    .layout{
+      display:grid;
+      grid-template-columns:240px 1fr;
+      gap:0;
+      max-width:1300px;margin:0 auto;
+      min-height:calc(100vh - 57px);
+    }
+
+    /* ── SIDENAV ── */
+    .sidenav{
+      position:sticky;top:57px;
+      height:calc(100vh - 57px);
+      overflow-y:auto;
+      padding:20px 12px;
+      border-right:1px solid var(--border);
+      scrollbar-width:thin;
+    }
+    .sidenav::-webkit-scrollbar{width:4px}
+    .sidenav::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+    .nav-section{margin-bottom:24px}
+    .nav-section-label{
+      font-size:.68rem;font-weight:700;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.08em;
+      padding:0 8px;margin-bottom:8px;
+    }
+    .nav-item{
+      display:flex;align-items:center;gap:10px;
+      padding:9px 10px;border-radius:10px;
+      font-size:.82rem;font-weight:500;color:var(--muted);
+      text-decoration:none;cursor:pointer;
+      transition:all .15s;border:none;background:none;width:100%;text-align:left;
+    }
+    .nav-item:hover{background:var(--surface2);color:var(--text)}
+    .nav-item.active{background:var(--blue-dim);color:var(--blue);font-weight:600}
+    .nav-item .nav-dot{
+      width:8px;height:8px;border-radius:50%;flex-shrink:0;
+      background:var(--muted);transition:background .2s;
+    }
+    .nav-item.done .nav-dot{background:var(--green)}
+    .nav-item.active .nav-dot{background:var(--blue)}
+    .nav-check{
+      margin-left:auto;font-size:.65rem;color:var(--green);
+      opacity:0;transition:opacity .2s;
+    }
+    .nav-item.done .nav-check{opacity:1}
+
+    /* Progress in sidenav */
+    .nav-progress{
+      background:var(--surface2);border:1px solid var(--border);
+      border-radius:var(--radius);padding:14px;margin-bottom:16px;
+    }
+    .nav-progress-label{
+      display:flex;justify-content:space-between;align-items:center;
+      font-size:.78rem;font-weight:600;margin-bottom:8px;
+    }
+    .nav-progress-pct{color:var(--blue)}
+    .bar-track{height:6px;background:var(--border);border-radius:20px;overflow:hidden}
+    .bar-fill{
+      height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));
+      border-radius:20px;width:0%;transition:width .8s cubic-bezier(.23,1,.32,1);
+    }
+    .nav-stats{display:flex;gap:8px;margin-top:10px}
+    .nav-stat{
+      flex:1;text-align:center;padding:8px 4px;
+      background:var(--surface);border:1px solid var(--border);border-radius:8px;
+    }
+    .nav-stat-val{
+      font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;
+      color:var(--blue);display:block;
+    }
+    .nav-stat-lbl{font-size:.62rem;color:var(--muted)}
+
+    /* ── MAIN CONTENT ── */
+    main{padding:28px 32px 60px;min-width:0}
+
+    /* page hero */
+    .page-hero{
+      background:var(--surface);border:1px solid var(--border);border-radius:20px;
+      padding:28px 32px;margin-bottom:24px;position:relative;overflow:hidden;
+    }
+    .page-hero::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,var(--blue),var(--purple),var(--green));
+    }
+    .hero-label{
+      font-size:.75rem;font-weight:700;color:var(--blue);
+      text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;
+    }
+    .page-hero h1{
+      font-family:'Space Grotesk',sans-serif;
+      font-size:clamp(1.4rem,2.5vw,1.9rem);font-weight:700;margin-bottom:8px;
+    }
+    .page-hero p{font-size:.9rem;color:var(--muted);max-width:600px;line-height:1.6}
+
+    /* ── SECTION CARDS ── */
+    .grammar-section{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:20px;padding:28px;margin-bottom:20px;
+      scroll-margin-top:80px;
+    }
+    .grammar-section.s-nom{border-top:3px solid var(--nom)}
+    .grammar-section.s-akk{border-top:3px solid var(--akk)}
+    .grammar-section.s-dat{border-top:3px solid var(--dat)}
+    .grammar-section.s-gen{border-top:3px solid var(--gen)}
+    .grammar-section.s-pron{border-top:3px solid var(--blue)}
+    .grammar-section.s-satz{border-top:3px solid var(--green)}
+    .grammar-section.s-prep{border-top:3px solid var(--purple)}
+    .grammar-section.s-wechsel{border-top:3px solid var(--yellow)}
+    .grammar-section.s-trucos{border-top:3px solid var(--red)}
+    .grammar-section.s-resumen{border-top:3px solid var(--green)}
+
+    .section-header{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--border);
+      gap:12px;flex-wrap:wrap;
+    }
+    .section-title-wrap{display:flex;align-items:center;gap:12px}
+    .section-icon{
+      width:44px;height:44px;border-radius:12px;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+    }
+    .section-header h2{
+      font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;
+    }
+    .section-header .sub{font-size:.8rem;color:var(--muted);margin-top:2px}
+    .done-badge{
+      display:inline-flex;align-items:center;gap:5px;
+      font-size:.72rem;font-weight:600;color:var(--green);
+      background:var(--green-dim);border:1px solid rgba(34,211,165,.25);
+      padding:4px 10px;border-radius:20px;
+    }
+
+    /* ── THEORY BOXES ── */
+    .rule-box{
+      background:var(--surface2);border:1px solid var(--border);
+      border-radius:var(--radius);padding:18px 20px;margin:14px 0;
+    }
+    .rule-box-title{
+      font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700;
+      margin-bottom:8px;display:flex;align-items:center;gap:7px;color:var(--blue);
+    }
+    .rule-box p{font-size:.85rem;color:var(--muted);line-height:1.65}
+    .rule-box p+p{margin-top:6px}
+    .rule-box strong{color:var(--text)}
+
+    .tip-box{
+      background:var(--green-dim);border:1px solid rgba(34,211,165,.2);
+      border-radius:var(--radius);padding:16px 20px;margin:14px 0;
+    }
+    .tip-box .tip-title{
+      font-size:.82rem;font-weight:700;color:var(--green);
+      margin-bottom:8px;display:flex;align-items:center;gap:7px;
+    }
+    .tip-box p{font-size:.83rem;color:var(--muted);line-height:1.65}
+    .tip-box p+p{margin-top:5px}
+    .tip-box strong{color:var(--text)}
+
+    .mnemonic-box{
+      background:var(--yel-dim);border:1px solid rgba(251,191,36,.2);
+      border-radius:var(--radius);padding:16px 20px;margin:14px 0;
+    }
+    .mnemonic-box .mn-title{
+      font-size:.82rem;font-weight:700;color:var(--yellow);
+      margin-bottom:8px;display:flex;align-items:center;gap:7px;
+    }
+    .mnemonic-box p{font-size:.83rem;color:var(--muted);line-height:1.65}
+    .mnemonic-box p+p{margin-top:5px}
+    .mnemonic-box strong{color:var(--text)}
+
+    /* ── DECLENSION TABLES ── */
+    .table-wrap{overflow-x:auto;margin:16px 0;border-radius:var(--radius);border:1px solid var(--border)}
+    table{width:100%;border-collapse:collapse;font-size:.82rem}
+    thead th{
+      background:var(--surface2);font-family:'Space Grotesk',sans-serif;
+      font-weight:700;padding:12px 16px;text-align:center;
+      border-bottom:1px solid var(--border);font-size:.78rem;
+      text-transform:uppercase;letter-spacing:.04em;color:var(--muted);
+    }
+    tbody td{
+      padding:11px 16px;text-align:center;
+      border-bottom:1px solid var(--border);font-weight:500;font-size:.85rem;
+    }
+    tbody tr:last-child td{border-bottom:none}
+    .row-nom td{background:var(--nom-dim)}
+    .row-akk td{background:var(--akk-dim)}
+    .row-dat td{background:var(--dat-dim)}
+    .row-gen td{background:var(--gen-dim)}
+    .case-label{
+      font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.78rem;
+      text-align:left!important;white-space:nowrap;
+    }
+    .hl-nom{background:rgba(79,142,247,.25);color:var(--nom);border-radius:4px;padding:2px 5px;font-weight:700}
+    .hl-akk{background:rgba(247,95,95,.25);color:var(--akk);border-radius:4px;padding:2px 5px;font-weight:700}
+    .hl-dat{background:rgba(167,139,250,.25);color:var(--dat);border-radius:4px;padding:2px 5px;font-weight:700}
+    .hl-gen{background:rgba(251,191,36,.25);color:var(--gen);border-radius:4px;padding:2px 5px;font-weight:700}
+
+    /* ── CASE CARDS GRID ── */
+    .case-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:16px 0}
+    .case-card{
+      background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+      padding:16px;border-top:3px solid;
+    }
+    .case-card.nom{border-top-color:var(--nom)}
+    .case-card.akk{border-top-color:var(--akk)}
+    .case-card.dat{border-top-color:var(--dat)}
+    .case-card.gen{border-top-color:var(--gen)}
+    .case-card-title{
+      font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700;margin-bottom:8px;
+    }
+    .case-card .q-mark{font-size:1.3rem;margin-bottom:6px;display:block}
+    .case-card p{font-size:.8rem;color:var(--muted);line-height:1.55}
+    .case-card .example{
+      margin-top:10px;padding:8px 10px;background:var(--surface);
+      border-radius:8px;font-size:.79rem;line-height:1.5;
+    }
+
+    /* ── PREPOSITION CARDS ── */
+    .prep-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:14px 0}
+    .prep-card{
+      background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+      padding:14px;text-align:center;
+    }
+    .prep-card .prep-word{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;margin-bottom:4px}
+    .prep-card .prep-meaning{font-size:.75rem;color:var(--muted);margin-bottom:8px}
+    .prep-card .prep-example{font-size:.73rem;color:var(--text);line-height:1.5;
+      background:var(--surface);border-radius:7px;padding:6px;margin-top:6px}
+    .prep-card.dat{border-top:3px solid var(--dat)}
+    .prep-card.akk{border-top:3px solid var(--akk)}
+    .prep-card.gen{border-top:3px solid var(--gen)}
+    .prep-card.wechsel{border-top:3px solid var(--yellow)}
+    .badge{
+      display:inline-block;font-size:.62rem;font-weight:700;padding:2px 7px;
+      border-radius:20px;margin-bottom:6px;text-transform:uppercase;
+    }
+    .badge.dat{background:var(--dat-dim);color:var(--dat)}
+    .badge.akk{background:var(--akk-dim);color:var(--akk)}
+    .badge.gen{background:var(--gen-dim);color:var(--gen)}
+    .badge.wechsel{background:var(--yel-dim);color:var(--yellow)}
+
+    /* ── QUICK SUMMARY ── */
+    .summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:14px 0}
+    .summary-card{
+      background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;
+    }
+    .summary-card-title{
+      font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;
+      margin-bottom:10px;color:var(--blue);
+    }
+    .summary-card p{font-size:.78rem;color:var(--muted);line-height:1.55}
+    .summary-card p+p{margin-top:4px}
+    .summary-card strong{color:var(--text)}
+
+    /* ── QUIZ ENGINE ── */
+    .quiz-wrap{
+      margin-top:22px;background:var(--surface2);border:1px solid var(--border);
+      border-radius:var(--radius);overflow:hidden;
+    }
+    .quiz-header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 18px;border-bottom:1px solid var(--border);
+    }
+    .quiz-title{font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:700}
+    .quiz-meta{display:flex;align-items:center;gap:10px}
+    .quiz-counter{font-size:.78rem;color:var(--muted)}
+    .quiz-score-badge{
+      font-size:.72rem;font-weight:600;padding:3px 8px;border-radius:20px;
+      background:var(--blue-dim);color:var(--blue);border:1px solid rgba(79,142,247,.2);
+    }
+    .quiz-body{padding:18px}
+    .quiz-question{
+      font-size:.95rem;font-weight:600;margin-bottom:14px;line-height:1.5;color:var(--text);
+    }
+    .quiz-tip{
+      font-size:.75rem;color:var(--muted);margin-bottom:14px;
+      display:flex;align-items:center;gap:5px;
+    }
+    .options-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+    .opt{
+      display:flex;align-items:center;gap:10px;
+      padding:11px 14px;border-radius:10px;
+      border:1px solid var(--border);background:var(--surface);
+      cursor:pointer;transition:all .15s;font-size:.85rem;
+      text-align:left;width:100%;color:var(--text);
+    }
+    .opt:hover{border-color:var(--blue);background:var(--blue-dim)}
+    .opt.selected{border-color:var(--blue);background:var(--blue-dim)}
+    .opt.correct{border-color:var(--green);background:var(--green-dim);color:var(--green)}
+    .opt.wrong{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+    .opt-letter{
+      width:24px;height:24px;border-radius:6px;flex-shrink:0;
+      background:var(--surface2);display:flex;align-items:center;justify-content:center;
+      font-size:.72rem;font-weight:700;color:var(--muted);
+    }
+    .opt.selected .opt-letter{background:var(--blue);color:#fff}
+    .opt.correct .opt-letter{background:var(--green);color:#fff}
+    .opt.wrong .opt-letter{background:var(--red);color:#fff}
+    .opt:disabled,.opt[disabled]{cursor:not-allowed;opacity:.7}
+
+    .quiz-feedback{
+      padding:12px 14px;border-radius:10px;font-size:.83rem;
+      margin-top:10px;display:none;line-height:1.55;
+    }
+    .quiz-feedback.correct{
+      background:var(--green-dim);color:var(--green);
+      border:1px solid rgba(34,211,165,.25);display:block;
+    }
+    .quiz-feedback.wrong{
+      background:var(--red-dim);color:var(--red);
+      border:1px solid rgba(247,95,95,.25);display:block;
+    }
+    .quiz-feedback .fb-explanation{color:var(--text);margin-top:6px;font-size:.8rem}
+
+    .quiz-footer{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:12px 18px;border-top:1px solid var(--border);gap:10px;flex-wrap:wrap;
+    }
+    .btn-quiz{
+      padding:9px 16px;border-radius:10px;font-size:.82rem;font-weight:600;
+      cursor:pointer;transition:all .2s;border:none;font-family:'Inter',sans-serif;
+    }
+    .btn-prev{background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+    .btn-prev:hover:not(:disabled){background:var(--surface2);color:var(--text)}
+    .btn-next,.btn-check{background:var(--blue);color:#fff}
+    .btn-next:hover,.btn-check:hover{background:#3a7fe0;transform:translateY(-1px)}
+    .btn-retry{background:var(--yel-dim);color:var(--yellow);border:1px solid rgba(251,191,36,.25)}
+    .btn-retry:hover{background:rgba(251,191,36,.2)}
+    .btn-quiz:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+
+    /* Progress bar inside quiz */
+    .quiz-progress-bar{height:3px;background:var(--border)}
+    .quiz-progress-fill{
+      height:100%;background:linear-gradient(90deg,var(--blue),var(--green));
+      transition:width .3s;
+    }
+
+    /* ── STATS PANEL ── */
+    .stats-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .stat-pill{
+      display:flex;align-items:center;gap:6px;
+      padding:6px 12px;border-radius:20px;font-size:.75rem;font-weight:600;
+      background:var(--surface);border:1px solid var(--border);
+    }
+    .stat-pill i{font-size:.7rem}
+    .stat-pill.correct-stat{color:var(--green)}
+    .stat-pill.wrong-stat{color:var(--red)}
+    .stat-pill.pct-stat{color:var(--blue)}
+
+    /* ── TOPIC COMPLETE BANNER ── */
+    .complete-banner{
+      background:var(--green-dim);border:1px solid rgba(34,211,165,.25);
+      border-radius:var(--radius);padding:16px 20px;margin-top:16px;
+      display:none;align-items:center;gap:12px;font-size:.88rem;
+    }
+    .complete-banner.show{display:flex}
+    .complete-banner i{font-size:1.3rem;color:var(--green)}
+    .complete-banner strong{color:var(--green)}
+    .complete-banner p{color:var(--muted);font-size:.82rem;margin-top:2px}
+
+    /* ── FOOTER ── */
+    .page-footer{
+      background:var(--surface);border-top:1px solid var(--border);
+      padding:20px 32px;
+    }
+    .footer-inner{
+      max-width:1300px;margin:0 auto;
+      display:flex;align-items:center;justify-content:space-between;
+      gap:16px;flex-wrap:wrap;
+    }
+    .footer-brand{font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:700}
+    .footer-copy{font-size:.75rem;color:var(--muted)}
+    .footer-links{display:flex;gap:14px}
+    .footer-links a{font-size:.75rem;color:var(--muted);text-decoration:none;transition:color .2s}
+    .footer-links a:hover{color:var(--blue)}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:900px){
+      .layout{grid-template-columns:1fr}
+      .sidenav{
+        display:none;
+        /* on mobile show as drawer if needed */
+      }
+      main{padding:20px 16px 50px}
+    }
+    @media(max-width:600px){
+      .page-hero{padding:20px}
+      .grammar-section{padding:20px}
+      .case-grid{grid-template-columns:1fr 1fr}
+      .summary-grid{grid-template-columns:1fr}
+    }
+
+    /* Utility */
+    .mt-0{margin-top:0!important}
+    .mt-12{margin-top:12px}
+    .divider{height:1px;background:var(--border);margin:18px 0}
+    .tag{
+      display:inline-block;font-size:.7rem;padding:2px 8px;
+      border-radius:20px;background:var(--surface2);
+      color:var(--muted);border:1px solid var(--border);margin:2px;
+    }
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:540px){.two-col{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-left">
+    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Inicio</a>
+    <span class="page-title">Grundlagentheorie · Módulo 01</span>
+  </div>
+  <div class="topbar-right">
+    <div class="user-chip">
+      <div class="avatar" id="uAvatar">?</div>
+      <span id="uName" style="font-size:.82rem">—</span>
+    </div>
+    <button class="icon-btn" id="themeBtn" title="Tema"><i class="fas fa-moon"></i></button>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- SIDENAV -->
+  <aside class="sidenav">
+    <!-- Progress -->
+    <div class="nav-progress">
+      <div class="nav-progress-label">
+        <span style="font-size:.78rem;font-weight:600">Progreso del módulo</span>
+        <span class="nav-progress-pct" id="navPct">0%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" id="navBar"></div></div>
+      <div class="nav-stats">
+        <div class="nav-stat">
+          <span class="nav-stat-val" id="statDone">0</span>
+          <span class="nav-stat-lbl">Completados</span>
+        </div>
+        <div class="nav-stat">
+          <span class="nav-stat-val" id="statTotal">10</span>
+          <span class="nav-stat-lbl">Temas</span>
+        </div>
+        <div class="nav-stat">
+          <span class="nav-stat-val" id="statScore">–</span>
+          <span class="nav-stat-lbl">Aciertos</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Gramática</div>
+      <button class="nav-item" onclick="scrollTo('declinacion')" data-nav="declinacion">
+        <span class="nav-dot"></span> Declinación
+        <i class="fas fa-check nav-check"></i>
+      </button>
+      <button class="nav-item" onclick="scrollTo('casos')" data-nav="casos">
+        <span class="nav-dot"></span> Los 4 Casos
+        <i class="fas fa-check nav-check"></i>
+      </button>
+      <button class="nav-item" onclick="scrollTo('pronomen')" data-nav="pronomen">
+        <span class="nav-dot"></span> Pronombres
+        <i class="fas fa-check nav-check"></i>
+      </button>
+      <button class="nav-item" onclick="scrollTo('satzbau')" data-nav="satzbau">
+        <span class="nav-dot"></span> Satzbau
+        <i class="fas fa-check nav-check"></i>
+      </button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Preposiciones</div>
+      <button class="nav-item" onclick="scrollTo('prapositionen')" data-nav="prapositionen">
+        <span class="nav-dot"></span> Caso Fijo
+        <i class="fas fa-check nav-check"></i>
+      </button>
+      <button class="nav-item" onclick="scrollTo('wechsel')" data-nav="wechsel">
+        <span class="nav-dot"></span> Wechselpräp.
+        <i class="fas fa-check nav-check"></i>
+      </button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Recursos</div>
+      <button class="nav-item" onclick="scrollTo('trucos')" data-nav="trucos">
+        <span class="nav-dot"></span> Trucos A2-B1
+        <i class="fas fa-check nav-check"></i>
+      </button>
+      <button class="nav-item" onclick="scrollTo('resumen')" data-nav="resumen">
+        <span class="nav-dot"></span> Resumen B1
+        <i class="fas fa-check nav-check"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- HERO -->
+    <div class="page-hero">
+      <div class="hero-label">Módulo 01 · Gramática Esencial</div>
+      <h1>Grundlagentheorie</h1>
+      <p>Toda la teoría gramatical esencial para hispanohablantes. Tablas de declinación, los 4 casos, preposiciones y trucos mnemotécnicos para alcanzar el nivel B1.</p>
+    </div>
+
+    <!-- ══════════════════════════
+         SECCIÓN 1 – DECLINACIÓN
+    ══════════════════════════ -->
+    <section class="grammar-section s-nom" id="declinacion" data-topic="declinacion">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon" style="background:var(--nom-dim);color:var(--nom)"><i class="fas fa-table"></i></div>
+          <div>
+            <h2>Tablas de Declinación</h2>
+            <div class="sub">Artículos determinados e indeterminados — Los 4 casos</div>
+          </div>
+        </div>
+        <span class="done-badge" id="badge-declinacion" style="display:none"><i class="fas fa-check"></i> Completado</span>
+      </div>
+
+      <div class="rule-box">
+        <div class="rule-box-title"><i class="fas fa-info-circle"></i> ¿Por qué es crucial?</div>
+        <p>En alemán, el artículo cambia según el <strong>caso gramatical</strong> (función en la oración). A diferencia del español, donde el artículo es siempre "el/la/los", en alemán el artículo te dice si la palabra es sujeto, objeto directo, indirecto o posesión.</p>
+      </div>
+
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;margin:18px 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Artículos Determinados (der/die/das)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Caso</th><th>🚹 Mask.</th><th>🚺 Fem.</th><th>⚧ Neut.</th><th>🔢 Plural</th><th>Función</th></tr>
+          </thead>
+          <tbody>
+            <tr class="row-nom"><td class="case-label"><span class="hl-nom">Nominativ</span></td><td>der</td><td>die</td><td>das</td><td>die</td><td style="text-align:left;font-size:.78rem;color:var(--muted)">Sujeto</td></tr>
+            <tr class="row-akk"><td class="case-label"><span class="hl-akk">Akkusativ</span></td><td><strong>den</strong></td><td>die</td><td>das</td><td>die</td><td style="text-align:left;font-size:.78rem;color:var(--muted)">Obj. directo</td></tr>
+            <tr class="row-dat"><td class="case-label"><span class="hl-dat">Dativ</span></td><td><strong>dem</strong></td><td><strong>der</strong></td><td><strong>dem</strong></td><td><strong>den+n</strong></td><td style="text-align:left;font-size:.78rem;color:var(--muted)">Obj. indirecto</td></tr>
+            <tr class="row-gen"><td class="case-label"><span class="hl-gen">Genitiv</span></td><td><strong>des+s</strong></td><td>der</td><td><strong>des+s</strong></td><td>der</td><td style="text-align:left;font-size:.78rem;color:var(--muted)">Posesión</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;margin:18px 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Artículos Indeterminados (ein/eine)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Caso</th><th>🚹 Mask.</th><th>🚺 Fem.</th><th>⚧ Neut.</th><th>🔢 Plural</th></tr>
+          </thead>
+          <tbody>
+            <tr class="row-nom"><td class="case-label"><span class="hl-nom">Nominativ</span></td><td>ein</td><td>eine</td><td>ein</td><td>—</td></tr>
+            <tr class="row-akk"><td class="case-label"><span class="hl-akk">Akkusativ</span></td><td><strong>einen</strong></td><td>eine</td><td>ein</td><td>—</td></tr>
+            <tr class="row-dat"><td class="case-label"><span class="hl-dat">Dativ</span></td><td><strong>einem</strong></td><td><strong>einer</strong></td><td><strong>einem</strong></td><td>—</td></tr>
+            <tr class="row-gen"><td class="case-label"><span class="hl-gen">Genitiv</span></td><td><strong>eines</strong></td><td><strong>einer</strong></td><td><strong>eines</strong></td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tip-box">
+        <div class="tip-title"><i class="fas fa-lightbulb"></i> Truco: Sólo cambia el masculino en Akkusativ</div>
+        <p>De los 16 artículos, el único que cambia significativamente es el masculino en <strong>Akkusativ</strong>: <span class="hl-nom">der</span> → <span class="hl-akk">den</span>. El resto siguen un patrón predecible. Memoriza ese cambio primero.</p>
+      </div>
+
+      <!-- QUIZ 1 -->
+      <div class="quiz-wrap" id="quiz-declinacion">
+        <div class="quiz-header">
+          <span class="quiz-title"><i class="fas fa-question-circle" style="color:var(--blue);margin-right:6px"></i>Test: Declinación</span>
+          <div class="quiz-meta">
+            <span class="quiz-counter" id="ctr-declinacion">Cargando…</span>
+            <span class="quiz-score-badge" id="score-declinacion">0/0</span>
+          </div>
+        </div>
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qbar-declinacion" style="width:0%"></div></div>
+        <div class="quiz-body">
+          <div class="quiz-question" id="q-declinacion">Cargando pregunta…</div>
+          <div class="quiz-tip" id="qtip-declinacion"></div>
+          <div class="options-grid" id="opts-declinacion"></div>
+          <div class="quiz-feedback" id="fb-declinacion"></div>
+          <div class="stats-row" id="stats-declinacion"></div>
+        </div>
+        <div class="quiz-footer">
+          <button class="btn-quiz btn-retry" onclick="retryWrong('declinacion')"><i class="fas fa-redo"></i> Repasar errores</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn-quiz btn-prev" id="prev-declinacion" onclick="navigate('declinacion',-1)" disabled>← Ant.</button>
+            <button class="btn-quiz btn-next" id="check-declinacion" onclick="checkAnswer('declinacion')">Comprobar</button>
+            <button class="btn-quiz btn-next" id="next-declinacion" onclick="navigate('declinacion',1)" disabled>Sig. →</button>
+          </div>
+        </div>
+        <div class="complete-banner" id="banner-declinacion">
+          <i class="fas fa-star"></i>
+          <div><strong>¡Tema completado!</strong><p>Has dominado la declinación. Progreso guardado en Supabase.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════
+         SECCIÓN 2 – LOS 4 CASOS
+    ══════════════════════════ -->
+    <section class="grammar-section s-akk" id="casos" data-topic="casos">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon" style="background:var(--akk-dim);color:var(--akk)"><i class="fas fa-layer-group"></i></div>
+          <div><h2>Los 4 Casos Gramaticales</h2><div class="sub">Nominativ · Akkusativ · Dativ · Genitiv</div></div>
+        </div>
+        <span class="done-badge" id="badge-casos" style="display:none"><i class="fas fa-check"></i> Completado</span>
+      </div>
+
+      <div class="case-grid">
+        <div class="case-card nom">
+          <span class="q-mark">❓ Wer? Was?</span>
+          <div class="case-card-title"><span class="hl-nom">Nominativ</span> — Sujeto</div>
+          <p>El sujeto de la oración. Quien realiza la acción. Pregunta: ¿Quién? / ¿Qué?</p>
+          <div class="example"><em>→ <span class="hl-nom">Der Mann</span> kauft Brot.</em><br><small style="color:var(--muted)">El hombre compra pan.</small></div>
+        </div>
+        <div class="case-card akk">
+          <span class="q-mark">❓ Wen? Was?</span>
+          <div class="case-card-title"><span class="hl-akk">Akkusativ</span> — Objeto directo</div>
+          <p>El objeto directo. Quien/qué recibe directamente la acción. Pregunta: ¿A quién? / ¿Qué?</p>
+          <div class="example"><em>→ Der Mann kauft <span class="hl-akk">einen Apfel</span>.</em><br><small style="color:var(--muted)">El hombre compra una manzana.</small></div>
+        </div>
+        <div class="case-card dat">
+          <span class="q-mark">❓ Wem?</span>
+          <div class="case-card-title"><span class="hl-dat">Dativ</span> — Objeto indirecto</div>
+          <p>El objeto indirecto. Para quien / a quien se da algo. Pregunta: ¿A quién? (de forma indirecta)</p>
+          <div class="example"><em>→ Ich gebe <span class="hl-dat">dem Kind</span> den Apfel.</em><br><small style="color:var(--muted)">Le doy la manzana al niño.</small></div>
+        </div>
+        <div class="case-card gen">
+          <span class="q-mark">❓ Wessen?</span>
+          <div class="case-card-title"><span class="hl-gen">Genitiv</span> — Posesión</div>
+          <p>Indica posesión o pertenencia. Equivale al "de" en español. Pregunta: ¿De quién?</p>
+          <div class="example"><em>→ Das Auto <span class="hl-gen">des Mannes</span> ist neu.</em><br><small style="color:var(--muted)">El coche del hombre es nuevo.</small></div>
+        </div>
+      </div>
+
+      <div class="mnemonic-box">
+        <div class="mn-title"><i class="fas fa-brain"></i> Mnemotécnico W-Formel</div>
+        <p><strong>Wer → Nom | Wen → Akk | Wem → Dat | Wessen → Gen</strong></p>
+        <p>Frase de anclaje: <em>"<strong>W</strong>er <strong>w</strong>ar <strong>w</strong>em <strong>w</strong>essen Freund?"</em> → la W te recuerda la pregunta de cada caso.</p>
+      </div>
+
+      <div class="rule-box">
+        <div class="rule-box-title"><i class="fas fa-exclamation-triangle"></i> Errores frecuentes del hispanohablante</div>
+        <p>❌ "Ich helfe <strong>das</strong> Kind" → Correcto: "Ich helfe <span class="hl-dat">dem</span> Kind" (helfen exige Dativ)</p>
+        <p>❌ "Ich gebe <strong>die</strong> Frau das Buch" → Correcto: "Ich gebe <span class="hl-dat">der</span> Frau das Buch"</p>
+        <p>❌ Traducir literalmente "LE doy" sin pensar en el caso del sustantivo.</p>
+      </div>
+
+      <!-- QUIZ 2 -->
+      <div class="quiz-wrap" id="quiz-casos">
+        <div class="quiz-header">
+          <span class="quiz-title"><i class="fas fa-question-circle" style="color:var(--akk);margin-right:6px"></i>Test: Los 4 Casos</span>
+          <div class="quiz-meta">
+            <span class="quiz-counter" id="ctr-casos">Cargando…</span>
+            <span class="quiz-score-badge" id="score-casos">0/0</span>
+          </div>
+        </div>
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qbar-casos" style="width:0%"></div></div>
+        <div class="quiz-body">
+          <div class="quiz-question" id="q-casos">Cargando pregunta…</div>
+          <div class="quiz-tip" id="qtip-casos"></div>
+          <div class="options-grid" id="opts-casos"></div>
+          <div class="quiz-feedback" id="fb-casos"></div>
+          <div class="stats-row" id="stats-casos"></div>
+        </div>
+        <div class="quiz-footer">
+          <button class="btn-quiz btn-retry" onclick="retryWrong('casos')"><i class="fas fa-redo"></i> Repasar errores</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn-quiz btn-prev" id="prev-casos" onclick="navigate('casos',-1)" disabled>← Ant.</button>
+            <button class="btn-quiz btn-next" id="check-casos" onclick="checkAnswer('casos')">Comprobar</button>
+            <button class="btn-quiz btn-next" id="next-casos" onclick="navigate('casos',1)" disabled>Sig. →</button>
+          </div>
+        </div>
+        <div class="complete-banner" id="banner-casos">
+          <i class="fas fa-star"></i>
+          <div><strong>¡Tema completado!</strong><p>Has dominado los 4 casos. ¡Excelente!</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════
+         SECCIÓN 3 – PRONOMBRES
+    ══════════════════════════ -->
+    <section class="grammar-section s-pron" id="pronomen" data-topic="pronomen">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon" style="background:var(--blue-dim);color:var(--blue)"><i class="fas fa-user"></i></div>
+          <div><h2>Pronombres Personales y Posesivos</h2><div class="sub">Declinación completa A2-B1</div></div>
+        </div>
+        <span class="done-badge" id="badge-pronomen" style="display:none"><i class="fas fa-check"></i> Completado</span>
+      </div>
+
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700;margin:0 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Pronombres Personales</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Persona</th><th><span class="hl-nom">Nom.</span></th><th><span class="hl-akk">Akk.</span></th><th><span class="hl-dat">Dat.</span></th></tr>
+          </thead>
+          <tbody>
+            <tr><td style="text-align:left;font-size:.78rem;color:var(--muted)">1ª sing.</td><td>ich</td><td>mich</td><td>mir</td></tr>
+            <tr><td style="text-align:left;font-size:.78rem;color:var(--muted)">2ª sing.</td><td>du</td><td>dich</td><td>dir</td></tr>
+            <tr><td style="text-align:left;font-size:.78rem;color:var(--muted)">3ª m.</td><td>er</td><td>ihn</td><td>ihm</td></tr>
+            <tr><td style="text-align:left;font-size:.78rem;color:var(--muted)">3ª f.</td><td>sie</td><td>sie</td><td>ihr</td></tr>
+            <tr><td style="text-align:left;font-size:.78rem;color:var(--muted)">3ª n.</td><td>es</td><td>es</td><td>ihm</td></tr>
+            <tr><td style="text-align:left;font-size:.78rem;color:var(--muted)">1ª pl.</td><td>wir</td><td>uns</td><td>uns</td></tr>
+            <tr><td style="text-align:left;font-size:.78rem;color:var(--muted)">2ª pl.</td><td>ihr</td><td>euch</td><td>euch</td></tr>
+            <tr><td style="text-align:left;font-size:.78rem;color:var(--muted)">3ª pl./formal</td><td>sie/Sie</td><td>sie/Sie</td><td>ihnen/Ihnen</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tip-box mt-12">
+        <div class="tip-title"><i class="fas fa-lightbulb"></i> Posesivos: se declinan como "ein"</div>
+        <p>mein, dein, sein, ihr, unser, euer, ihr/Ihr — todos siguen exactamente el patrón de "ein/eine/ein". Si dominas "ein", dominas todos los posesivos.</p>
+        <p>Ejemplo: <strong>mein</strong> (nom. m.) → <strong>meinen</strong> (akk. m.) → <strong>meinem</strong> (dat. m.)</p>
+      </div>
+
+      <!-- QUIZ 3 -->
+      <div class="quiz-wrap" id="quiz-pronomen">
+        <div class="quiz-header">
+          <span class="quiz-title"><i class="fas fa-question-circle" style="color:var(--blue);margin-right:6px"></i>Test: Pronombres</span>
+          <div class="quiz-meta">
+            <span class="quiz-counter" id="ctr-pronomen">Cargando…</span>
+            <span class="quiz-score-badge" id="score-pronomen">0/0</span>
+          </div>
+        </div>
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qbar-pronomen" style="width:0%"></div></div>
+        <div class="quiz-body">
+          <div class="quiz-question" id="q-pronomen">Cargando pregunta…</div>
+          <div class="quiz-tip" id="qtip-pronomen"></div>
+          <div class="options-grid" id="opts-pronomen"></div>
+          <div class="quiz-feedback" id="fb-pronomen"></div>
+          <div class="stats-row" id="stats-pronomen"></div>
+        </div>
+        <div class="quiz-footer">
+          <button class="btn-quiz btn-retry" onclick="retryWrong('pronomen')"><i class="fas fa-redo"></i> Repasar errores</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn-quiz btn-prev" id="prev-pronomen" onclick="navigate('pronomen',-1)" disabled>← Ant.</button>
+            <button class="btn-quiz btn-next" id="check-pronomen" onclick="checkAnswer('pronomen')">Comprobar</button>
+            <button class="btn-quiz btn-next" id="next-pronomen" onclick="navigate('pronomen',1)" disabled>Sig. →</button>
+          </div>
+        </div>
+        <div class="complete-banner" id="banner-pronomen">
+          <i class="fas fa-star"></i>
+          <div><strong>¡Tema completado!</strong><p>Pronombres dominados.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════
+         SECCIÓN 4 – SATZBAU
+    ══════════════════════════ -->
+    <section class="grammar-section s-satz" id="satzbau" data-topic="satzbau">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon" style="background:var(--green-dim);color:var(--green)"><i class="fas fa-bars"></i></div>
+          <div><h2>Satzbau — Estructura de la Oración</h2><div class="sub">El verbo en posición 2 y oraciones subordinadas</div></div>
+        </div>
+        <span class="done-badge" id="badge-satzbau" style="display:none"><i class="fas fa-check"></i> Completado</span>
+      </div>
+
+      <div class="rule-box">
+        <div class="rule-box-title"><i class="fas fa-star"></i> Regla de Oro: Verbo SIEMPRE en posición 2</div>
+        <p>En una oración principal, el verbo conjugado ocupa <strong>siempre la segunda posición</strong>, sin excepciones. No importa qué elemento esté en primer lugar.</p>
+      </div>
+
+      <div class="two-col">
+        <div class="tip-box mt-0">
+          <div class="tip-title">✅ Correcto</div>
+          <p><strong>Ich</strong> <span class="hl-nom">lerne</span> Deutsch. (sujeto primero)</p>
+          <p><strong>Heute</strong> <span class="hl-nom">lerne</span> ich Deutsch. (tiempo primero)</p>
+          <p><strong>Morgen</strong> <span class="hl-nom">fahre</span> ich nach Berlin.</p>
+        </div>
+        <div class="mnemonic-box mt-0">
+          <div class="mn-title">❌ Error típico</div>
+          <p>"Heute ich lerne Deutsch." ← INCORRECTO</p>
+          <p>"Morgen ich fahre nach Berlin." ← INCORRECTO</p>
+          <p>Si algo está antes del sujeto, el verbo lo "empuja" al 3er lugar.</p>
+        </div>
+      </div>
+
+      <div class="rule-box">
+        <div class="rule-box-title"><i class="fas fa-code-branch"></i> Oraciones subordinadas: verbo al FINAL</div>
+        <p>Con conectores como <strong>weil, dass, wenn, obwohl, weil, während, bevor, nachdem</strong>, el verbo conjugado se desplaza al final.</p>
+        <p style="margin-top:10px">→ "Ich lerne Deutsch, <strong>weil</strong> ich in Deutschland wohne." (weil = porque)</p>
+        <p>→ "Er sagt, <strong>dass</strong> er müde ist." (dass = que)</p>
+        <p>→ "<strong>Wenn</strong> ich Zeit habe, gehe ich ins Kino." (wenn = cuando/si)</p>
+      </div>
+
+      <!-- QUIZ 4 -->
+      <div class="quiz-wrap" id="quiz-satzbau">
+        <div class="quiz-header">
+          <span class="quiz-title"><i class="fas fa-question-circle" style="color:var(--green);margin-right:6px"></i>Test: Satzbau</span>
+          <div class="quiz-meta">
+            <span class="quiz-counter" id="ctr-satzbau">Cargando…</span>
+            <span class="quiz-score-badge" id="score-satzbau">0/0</span>
+          </div>
+        </div>
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qbar-satzbau" style="width:0%"></div></div>
+        <div class="quiz-body">
+          <div class="quiz-question" id="q-satzbau">Cargando pregunta…</div>
+          <div class="quiz-tip" id="qtip-satzbau"></div>
+          <div class="options-grid" id="opts-satzbau"></div>
+          <div class="quiz-feedback" id="fb-satzbau"></div>
+          <div class="stats-row" id="stats-satzbau"></div>
+        </div>
+        <div class="quiz-footer">
+          <button class="btn-quiz btn-retry" onclick="retryWrong('satzbau')"><i class="fas fa-redo"></i> Repasar errores</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn-quiz btn-prev" id="prev-satzbau" onclick="navigate('satzbau',-1)" disabled>← Ant.</button>
+            <button class="btn-quiz btn-next" id="check-satzbau" onclick="checkAnswer('satzbau')">Comprobar</button>
+            <button class="btn-quiz btn-next" id="next-satzbau" onclick="navigate('satzbau',1)" disabled>Sig. →</button>
+          </div>
+        </div>
+        <div class="complete-banner" id="banner-satzbau">
+          <i class="fas fa-star"></i>
+          <div><strong>¡Tema completado!</strong><p>Estructura oracional dominada.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════
+         SECCIÓN 5 – PREPOSICIONES
+    ══════════════════════════ -->
+    <section class="grammar-section s-prep" id="prapositionen" data-topic="prapositionen">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon" style="background:var(--pur-dim);color:var(--purple)"><i class="fas fa-map-signs"></i></div>
+          <div><h2>Preposiciones con Caso Fijo</h2><div class="sub">Dativ · Akkusativ · Genitiv</div></div>
+        </div>
+        <span class="done-badge" id="badge-prapositionen" style="display:none"><i class="fas fa-check"></i> Completado</span>
+      </div>
+
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700;margin:0 0 12px;color:var(--dat)">+ DATIV siempre</h3>
+      <div class="prep-grid">
+        <div class="prep-card dat"><span class="badge dat">Dativ</span><div class="prep-word">🤝 MIT</div><div class="prep-meaning">con</div><div class="prep-example">mit dem Auto<br><small style="color:var(--muted)">con el coche</small></div></div>
+        <div class="prep-card dat"><span class="badge dat">Dativ</span><div class="prep-word">✈️ NACH</div><div class="prep-meaning">a/hacia (geo.)</div><div class="prep-example">nach Berlin<br><small style="color:var(--muted)">a Berlín</small></div></div>
+        <div class="prep-card dat"><span class="badge dat">Dativ</span><div class="prep-word">👴 VON</div><div class="prep-meaning">de/desde</div><div class="prep-example">von der Oma<br><small style="color:var(--muted)">de la abuela</small></div></div>
+        <div class="prep-card dat"><span class="badge dat">Dativ</span><div class="prep-word">🏥 ZU</div><div class="prep-meaning">a/hacia</div><div class="prep-example">zum Arzt<br><small style="color:var(--muted)">al médico</small></div></div>
+        <div class="prep-card dat"><span class="badge dat">Dativ</span><div class="prep-word">🌍 AUS</div><div class="prep-meaning">de (origen)</div><div class="prep-example">aus Spanien<br><small style="color:var(--muted)">de España</small></div></div>
+        <div class="prep-card dat"><span class="badge dat">Dativ</span><div class="prep-word">🏡 BEI</div><div class="prep-meaning">en casa de</div><div class="prep-example">bei mir<br><small style="color:var(--muted)">en mi casa</small></div></div>
+        <div class="prep-card dat"><span class="badge dat">Dativ</span><div class="prep-word">⏰ SEIT</div><div class="prep-meaning">desde (tiempo)</div><div class="prep-example">seit einem Jahr<br><small style="color:var(--muted)">desde hace un año</small></div></div>
+        <div class="prep-card dat"><span class="badge dat">Dativ</span><div class="prep-word">🚫 AUSSER</div><div class="prep-meaning">excepto</div><div class="prep-example">außer mir<br><small style="color:var(--muted)">excepto yo</small></div></div>
+        <div class="prep-card dat"><span class="badge dat">Dativ</span><div class="prep-word">🏢 GEGENÜBER</div><div class="prep-meaning">enfrente de</div><div class="prep-example">gegenüber dem Bahnhof<br><small style="color:var(--muted)">enfrente de la estación</small></div></div>
+      </div>
+
+      <div class="mnemonic-box">
+        <div class="mn-title"><i class="fas fa-brain"></i> Truco para las 9 preposiciones de Dativ</div>
+        <p><strong>"Mit Nach Von Zu, Aus Bei Seit, Außer Gegenüber"</strong></p>
+        <p>Canta las primeras 4 como una canción de 4 sílabas: <em>Mit-Nach-Von-Zu</em>. Luego: <em>Aus-Bei-Seit</em>. Y por último las difíciles: <em>Außer-Gegenüber</em>.</p>
+      </div>
+
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700;margin:18px 0 12px;color:var(--akk)">+ AKKUSATIV siempre</h3>
+      <div class="prep-grid">
+        <div class="prep-card akk"><span class="badge akk">Akk.</span><div class="prep-word">🌳 DURCH</div><div class="prep-meaning">por/a través</div><div class="prep-example">durch den Park<br><small style="color:var(--muted)">por el parque</small></div></div>
+        <div class="prep-card akk"><span class="badge akk">Akk.</span><div class="prep-word">🎁 FÜR</div><div class="prep-meaning">para/por</div><div class="prep-example">für dich<br><small style="color:var(--muted)">para ti</small></div></div>
+        <div class="prep-card akk"><span class="badge akk">Akk.</span><div class="prep-word">⚔️ GEGEN</div><div class="prep-meaning">contra</div><div class="prep-example">gegen den Krebs<br><small style="color:var(--muted)">contra el cáncer</small></div></div>
+        <div class="prep-card akk"><span class="badge akk">Akk.</span><div class="prep-word">🚷 OHNE</div><div class="prep-meaning">sin</div><div class="prep-example">ohne dich<br><small style="color:var(--muted)">sin ti</small></div></div>
+        <div class="prep-card akk"><span class="badge akk">Akk.</span><div class="prep-word">⭕ UM</div><div class="prep-meaning">alrededor</div><div class="prep-example">um den Tisch<br><small style="color:var(--muted)">alrededor de la mesa</small></div></div>
+        <div class="prep-card akk"><span class="badge akk">Akk.</span><div class="prep-word">➡️ BIS</div><div class="prep-meaning">hasta</div><div class="prep-example">bis nächste Woche<br><small style="color:var(--muted)">hasta la próxima semana</small></div></div>
+      </div>
+
+      <div class="mnemonic-box">
+        <div class="mn-title"><i class="fas fa-brain"></i> Truco Akkusativ: "Du-Fe-GO-Oh-Um-Bis"</div>
+        <p><strong>Durch · Für · Gegen · Ohne · Um · Bis</strong></p>
+        <p>Pronuncia rápido: <em>"du-fe-geh-oh-um-bis"</em> — suena casi como una palabra. 30 segundos de repetición y no lo olvidarás.</p>
+      </div>
+
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700;margin:18px 0 12px;color:var(--gen)">+ GENITIV (nivel B1+)</h3>
+      <div class="prep-grid">
+        <div class="prep-card gen"><span class="badge gen">Gen.</span><div class="prep-word">🌧️ WEGEN</div><div class="prep-meaning">debido a</div><div class="prep-example">wegen des Regens<br><small style="color:var(--muted)">debido a la lluvia</small></div></div>
+        <div class="prep-card gen"><span class="badge gen">Gen.</span><div class="prep-word">🌤️ TROTZ</div><div class="prep-meaning">a pesar de</div><div class="prep-example">trotz des Wetters<br><small style="color:var(--muted)">a pesar del tiempo</small></div></div>
+        <div class="prep-card gen"><span class="badge gen">Gen.</span><div class="prep-word">🏖️ WÄHREND</div><div class="prep-meaning">durante</div><div class="prep-example">während des Sommers<br><small style="color:var(--muted)">durante el verano</small></div></div>
+      </div>
+
+      <!-- QUIZ 5 -->
+      <div class="quiz-wrap" id="quiz-prapositionen">
+        <div class="quiz-header">
+          <span class="quiz-title"><i class="fas fa-question-circle" style="color:var(--purple);margin-right:6px"></i>Test: Preposiciones</span>
+          <div class="quiz-meta">
+            <span class="quiz-counter" id="ctr-prapositionen">Cargando…</span>
+            <span class="quiz-score-badge" id="score-prapositionen">0/0</span>
+          </div>
+        </div>
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qbar-prapositionen" style="width:0%"></div></div>
+        <div class="quiz-body">
+          <div class="quiz-question" id="q-prapositionen">Cargando pregunta…</div>
+          <div class="quiz-tip" id="qtip-prapositionen"></div>
+          <div class="options-grid" id="opts-prapositionen"></div>
+          <div class="quiz-feedback" id="fb-prapositionen"></div>
+          <div class="stats-row" id="stats-prapositionen"></div>
+        </div>
+        <div class="quiz-footer">
+          <button class="btn-quiz btn-retry" onclick="retryWrong('prapositionen')"><i class="fas fa-redo"></i> Repasar errores</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn-quiz btn-prev" id="prev-prapositionen" onclick="navigate('prapositionen',-1)" disabled>← Ant.</button>
+            <button class="btn-quiz btn-next" id="check-prapositionen" onclick="checkAnswer('prapositionen')">Comprobar</button>
+            <button class="btn-quiz btn-next" id="next-prapositionen" onclick="navigate('prapositionen',1)" disabled>Sig. →</button>
+          </div>
+        </div>
+        <div class="complete-banner" id="banner-prapositionen">
+          <i class="fas fa-star"></i>
+          <div><strong>¡Tema completado!</strong><p>Preposiciones dominadas.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════
+         SECCIÓN 6 – WECHSEL
+    ══════════════════════════ -->
+    <section class="grammar-section s-wechsel" id="wechsel" data-topic="wechsel">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon" style="background:var(--yel-dim);color:var(--yellow)"><i class="fas fa-exchange-alt"></i></div>
+          <div><h2>Wechselpräpositionen</h2><div class="sub">WO? (Dativ) vs WOHIN? (Akkusativ)</div></div>
+        </div>
+        <span class="done-badge" id="badge-wechsel" style="display:none"><i class="fas fa-check"></i> Completado</span>
+      </div>
+
+      <div class="rule-box">
+        <div class="rule-box-title"><i class="fas fa-sync-alt"></i> La pregunta clave</div>
+        <p><strong>🎯 WO? (¿dónde?)</strong> → <span class="hl-dat">DATIV</span> — Ubicación estática, el objeto NO se mueve.</p>
+        <p><strong>🚀 WOHIN? (¿a dónde?)</strong> → <span class="hl-akk">AKKUSATIV</span> — Dirección o movimiento hacia un lugar.</p>
+        <p style="margin-top:8px">Ejemplo: <em>Das Buch liegt <span class="hl-dat">auf dem Tisch</span>.</em> (WO? — está ahí quieto)</p>
+        <p>Ejemplo: <em>Ich lege das Buch <span class="hl-akk">auf den Tisch</span>.</em> (WOHIN? — lo muevo hacia allí)</p>
+      </div>
+
+      <div class="prep-grid">
+        <div class="prep-card wechsel"><span class="badge wechsel">Wechsel</span><div class="prep-word">🧱 AN</div><div class="prep-meaning">en/a</div><div class="prep-example"><span style="color:var(--dat)">🎯 an der Wand</span> (dat.)<br><span style="color:var(--akk)">🚀 an die Wand</span> (akk.)</div></div>
+        <div class="prep-card wechsel"><span class="badge wechsel">Wechsel</span><div class="prep-word">🛋️ AUF</div><div class="prep-meaning">sobre/en</div><div class="prep-example"><span style="color:var(--dat)">🎯 auf dem Tisch</span> (dat.)<br><span style="color:var(--akk)">🚀 auf den Tisch</span> (akk.)</div></div>
+        <div class="prep-card wechsel"><span class="badge wechsel">Wechsel</span><div class="prep-word">🏠 HINTER</div><div class="prep-meaning">detrás de</div><div class="prep-example"><span style="color:var(--dat)">🎯 hinter dem Haus</span><br><span style="color:var(--akk)">🚀 hinter das Haus</span></div></div>
+        <div class="prep-card wechsel"><span class="badge wechsel">Wechsel</span><div class="prep-word">🏙️ IN</div><div class="prep-meaning">en/dentro</div><div class="prep-example"><span style="color:var(--dat)">🎯 in der Stadt</span> (dat.)<br><span style="color:var(--akk)">🚀 in die Stadt</span> (akk.)</div></div>
+        <div class="prep-card wechsel"><span class="badge wechsel">Wechsel</span><div class="prep-word">🏘️ NEBEN</div><div class="prep-meaning">al lado de</div><div class="prep-example"><span style="color:var(--dat)">🎯 neben dem Haus</span><br><span style="color:var(--akk)">🚀 neben das Haus</span></div></div>
+        <div class="prep-card wechsel"><span class="badge wechsel">Wechsel</span><div class="prep-word">🪑 ÜBER</div><div class="prep-meaning">sobre/encima</div><div class="prep-example"><span style="color:var(--dat)">🎯 über dem Tisch</span><br><span style="color:var(--akk)">🚀 über den Tisch</span></div></div>
+        <div class="prep-card wechsel"><span class="badge wechsel">Wechsel</span><div class="prep-word">📦 UNTER</div><div class="prep-meaning">bajo/debajo</div><div class="prep-example"><span style="color:var(--dat)">🎯 unter dem Tisch</span><br><span style="color:var(--akk)">🚀 unter den Tisch</span></div></div>
+        <div class="prep-card wechsel"><span class="badge wechsel">Wechsel</span><div class="prep-word">🚪 VOR</div><div class="prep-meaning">delante de</div><div class="prep-example"><span style="color:var(--dat)">🎯 vor dem Haus</span><br><span style="color:var(--akk)">🚀 vor das Haus</span></div></div>
+        <div class="prep-card wechsel"><span class="badge wechsel">Wechsel</span><div class="prep-word">🏢 ZWISCHEN</div><div class="prep-meaning">entre</div><div class="prep-example"><span style="color:var(--dat)">🎯 zwischen den Häusern</span><br><span style="color:var(--akk)">🚀 zwischen die Häuser</span></div></div>
+      </div>
+
+      <div class="mnemonic-box">
+        <div class="mn-title"><i class="fas fa-brain"></i> Las 9 Wechselpräpositionen en orden</div>
+        <p><strong>AN · AUF · HINTER · IN · NEBEN · ÜBER · UNTER · VOR · ZWISCHEN</strong></p>
+        <p>Imagen mental: "Me apoyo <em>en la pared</em>, pongo algo <em>sobre la mesa</em>, me escondo <em>detrás de la casa</em>, vivo <em>en la ciudad</em>, estoy <em>al lado</em>, vuelo <em>sobre</em>, gateo <em>debajo</em>, espero <em>delante</em>, me siento <em>entre</em> ellos."</p>
+      </div>
+
+      <!-- QUIZ 6 -->
+      <div class="quiz-wrap" id="quiz-wechsel">
+        <div class="quiz-header">
+          <span class="quiz-title"><i class="fas fa-question-circle" style="color:var(--yellow);margin-right:6px"></i>Test: Wechselpräpositionen</span>
+          <div class="quiz-meta">
+            <span class="quiz-counter" id="ctr-wechsel">Cargando…</span>
+            <span class="quiz-score-badge" id="score-wechsel">0/0</span>
+          </div>
+        </div>
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qbar-wechsel" style="width:0%"></div></div>
+        <div class="quiz-body">
+          <div class="quiz-question" id="q-wechsel">Cargando pregunta…</div>
+          <div class="quiz-tip" id="qtip-wechsel"></div>
+          <div class="options-grid" id="opts-wechsel"></div>
+          <div class="quiz-feedback" id="fb-wechsel"></div>
+          <div class="stats-row" id="stats-wechsel"></div>
+        </div>
+        <div class="quiz-footer">
+          <button class="btn-quiz btn-retry" onclick="retryWrong('wechsel')"><i class="fas fa-redo"></i> Repasar errores</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn-quiz btn-prev" id="prev-wechsel" onclick="navigate('wechsel',-1)" disabled>← Ant.</button>
+            <button class="btn-quiz btn-next" id="check-wechsel" onclick="checkAnswer('wechsel')">Comprobar</button>
+            <button class="btn-quiz btn-next" id="next-wechsel" onclick="navigate('wechsel',1)" disabled>Sig. →</button>
+          </div>
+        </div>
+        <div class="complete-banner" id="banner-wechsel">
+          <i class="fas fa-star"></i>
+          <div><strong>¡Tema completado!</strong><p>Wechselpräpositionen dominadas.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════
+         SECCIÓN 7 – TRUCOS
+    ══════════════════════════ -->
+    <section class="grammar-section s-trucos" id="trucos" data-topic="trucos">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon" style="background:var(--red-dim);color:var(--red)"><i class="fas fa-lightbulb"></i></div>
+          <div><h2>Trucos para Hispanohablantes</h2><div class="sub">Errores frecuentes y verbos con caso fijo A2-B1</div></div>
+        </div>
+        <span class="done-badge" id="badge-trucos" style="display:none"><i class="fas fa-check"></i> Completado</span>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-card-title"><i class="fas fa-thumbs-up"></i> Verbos + DATIV (memorizar)</div>
+          <p><strong>helfen</strong> — ayudar a alguien</p>
+          <p><strong>danken</strong> — agradecer a alguien</p>
+          <p><strong>gehören</strong> — pertenecer a alguien</p>
+          <p><strong>gefallen</strong> — gustar a alguien</p>
+          <p><strong>antworten</strong> — responder a alguien</p>
+          <p><strong>gratulieren</strong> — felicitar a alguien</p>
+          <p><strong>folgen</strong> — seguir a alguien</p>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-title"><i class="fas fa-bullseye"></i> Verbos + AKKUSATIV</div>
+          <p><strong>sehen</strong> — ver a alguien/algo</p>
+          <p><strong>haben</strong> — tener algo</p>
+          <p><strong>lieben</strong> — amar a alguien</p>
+          <p><strong>kaufen</strong> — comprar algo</p>
+          <p><strong>suchen</strong> — buscar algo</p>
+          <p><strong>brauchen</strong> — necesitar algo</p>
+          <p><strong>verstehen</strong> — entender algo</p>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-title"><i class="fas fa-times-circle" style="color:var(--red)"></i> Errores clásicos</div>
+          <p>❌ "Ich helfe <strong>das</strong> Kind"</p>
+          <p>✅ "Ich helfe <span class="hl-dat">dem</span> Kind"</p>
+          <p>❌ "Ich gebe <strong>die</strong> Frau das Buch"</p>
+          <p>✅ "Ich gebe <span class="hl-dat">der</span> Frau das Buch"</p>
+          <p>❌ "Weil ich <strong>lerne</strong> Deutsch"</p>
+          <p>✅ "Weil ich Deutsch <span class="hl-nom">lerne</span>"</p>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-title"><i class="fas fa-calendar-check"></i> Plan semanal B1</div>
+          <p><strong>Sem. 1-2:</strong> Dativ + preposiciones fijas</p>
+          <p><strong>Sem. 3-4:</strong> Akkusativ + preposiciones</p>
+          <p><strong>Sem. 5-6:</strong> Pronombres personales</p>
+          <p><strong>Sem. 7-8:</strong> Satzbau (posición verbo)</p>
+          <p><strong>Sem. 9-10:</strong> Wechselpräpositionen</p>
+          <p><strong>Sem. 11-12:</strong> Oraciones subordinadas</p>
+        </div>
+      </div>
+
+      <!-- QUIZ 7 -->
+      <div class="quiz-wrap" id="quiz-trucos">
+        <div class="quiz-header">
+          <span class="quiz-title"><i class="fas fa-question-circle" style="color:var(--red);margin-right:6px"></i>Test: Trucos y errores frecuentes</span>
+          <div class="quiz-meta">
+            <span class="quiz-counter" id="ctr-trucos">Cargando…</span>
+            <span class="quiz-score-badge" id="score-trucos">0/0</span>
+          </div>
+        </div>
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qbar-trucos" style="width:0%"></div></div>
+        <div class="quiz-body">
+          <div class="quiz-question" id="q-trucos">Cargando pregunta…</div>
+          <div class="quiz-tip" id="qtip-trucos"></div>
+          <div class="options-grid" id="opts-trucos"></div>
+          <div class="quiz-feedback" id="fb-trucos"></div>
+          <div class="stats-row" id="stats-trucos"></div>
+        </div>
+        <div class="quiz-footer">
+          <button class="btn-quiz btn-retry" onclick="retryWrong('trucos')"><i class="fas fa-redo"></i> Repasar errores</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn-quiz btn-prev" id="prev-trucos" onclick="navigate('trucos',-1)" disabled>← Ant.</button>
+            <button class="btn-quiz btn-next" id="check-trucos" onclick="checkAnswer('trucos')">Comprobar</button>
+            <button class="btn-quiz btn-next" id="next-trucos" onclick="navigate('trucos',1)" disabled>Sig. →</button>
+          </div>
+        </div>
+        <div class="complete-banner" id="banner-trucos">
+          <i class="fas fa-star"></i>
+          <div><strong>¡Tema completado!</strong><p>Trucos para hispanohablantes dominados.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════
+         SECCIÓN 8 – RESUMEN B1
+    ══════════════════════════ -->
+    <section class="grammar-section s-resumen" id="resumen" data-topic="resumen">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon" style="background:var(--green-dim);color:var(--green)"><i class="fas fa-clipboard-list"></i></div>
+          <div><h2>Resumen Completo — Nivel B1</h2><div class="sub">Las 10 prioridades absolutas</div></div>
+        </div>
+        <span class="done-badge" id="badge-resumen" style="display:none"><i class="fas fa-check"></i> Completado</span>
+      </div>
+
+      <div class="rule-box">
+        <div class="rule-box-title"><i class="fas fa-list-ol"></i> Las 10 prioridades para alcanzar B1</div>
+        <p>1. <strong>Verbo conjugado siempre en posición 2</strong> (oración principal)</p>
+        <p>2. <strong>DATIV con verbos</strong>: helfen, geben, sagen, danken, gefallen…</p>
+        <p>3. <strong>Preposiciones DATIV fijas</strong>: mit, nach, von, zu, aus, bei, seit…</p>
+        <p>4. <strong>Preposiciones AKKUSATIV</strong>: durch, für, gegen, ohne, um, bis</p>
+        <p>5. <strong>WO? → Dativ | WOHIN? → Akkusativ</strong> (Wechselpräp.)</p>
+        <p>6. <strong>Posesivos declinan como "ein"</strong></p>
+        <p>7. <strong>Reflexivos 3ª persona</strong> = siempre "sich"</p>
+        <p>8. <strong>Oraciones subordinadas</strong>: verbo conjugado al FINAL</p>
+        <p>9. <strong>Verbos separables</strong>: prefijo separable va al FINAL</p>
+        <p>10. <strong>20 minutos diarios</strong> &gt; 2 horas semanales sin rutina</p>
+      </div>
+
+      <div class="mnemonic-box">
+        <div class="mn-title"><i class="fas fa-gem"></i> Las 3 Reglas de Oro</div>
+        <p><strong>1. Sin declinación, no hay comunicación clara.</strong> La declinación es el "pegamento" que muestra las relaciones entre palabras.</p>
+        <p><strong>2. El verbo conjugado ES la columna vertebral.</strong> Si está en posición 2, el resto de la oración se ordena solo.</p>
+        <p><strong>3. La práctica consciente crea automatismos.</strong> 20 minutos diarios de práctica enfocada son más efectivos que horas sin foco.</p>
+      </div>
+
+      <!-- QUIZ 8 -->
+      <div class="quiz-wrap" id="quiz-resumen">
+        <div class="quiz-header">
+          <span class="quiz-title"><i class="fas fa-question-circle" style="color:var(--green);margin-right:6px"></i>Test Final: Resumen B1</span>
+          <div class="quiz-meta">
+            <span class="quiz-counter" id="ctr-resumen">Cargando…</span>
+            <span class="quiz-score-badge" id="score-resumen">0/0</span>
+          </div>
+        </div>
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qbar-resumen" style="width:0%"></div></div>
+        <div class="quiz-body">
+          <div class="quiz-question" id="q-resumen">Cargando pregunta…</div>
+          <div class="quiz-tip" id="qtip-resumen"></div>
+          <div class="options-grid" id="opts-resumen"></div>
+          <div class="quiz-feedback" id="fb-resumen"></div>
+          <div class="stats-row" id="stats-resumen"></div>
+        </div>
+        <div class="quiz-footer">
+          <button class="btn-quiz btn-retry" onclick="retryWrong('resumen')"><i class="fas fa-redo"></i> Repasar errores</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn-quiz btn-prev" id="prev-resumen" onclick="navigate('resumen',-1)" disabled>← Ant.</button>
+            <button class="btn-quiz btn-next" id="check-resumen" onclick="checkAnswer('resumen')">Comprobar</button>
+            <button class="btn-quiz btn-next" id="next-resumen" onclick="navigate('resumen',1)" disabled>Sig. →</button>
+          </div>
+        </div>
+        <div class="complete-banner" id="banner-resumen">
+          <i class="fas fa-star"></i>
+          <div><strong>¡Módulo completado!</strong><p>Has terminado Grundlagentheorie. ¡Excelente trabajo!</p></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div><!-- /layout -->
+
+<!-- FOOTER -->
+<footer class="page-footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">DEULCHALEX</div>
+      <div class="footer-copy">© 2024 · Centro de Aprendizaje de Alemán para hispanohablantes</div>
+    </div>
+    <div class="footer-links">
+      <a href="index.html"><i class="fas fa-home"></i> Inicio</a>
+      <a href="#"><i class="fas fa-question-circle"></i> FAQ</a>
+      <a href="#"><i class="fas fa-envelope"></i> Contacto</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════
+     JAVASCRIPT — ENGINE
+══════════════════════════════ -->
+<script>
+/* ── CONFIG ── */
+const SUPA_URL = 'https://kcfiacdwufadnuknkfkp.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZmlhY2R3dWZhZG51a25rZmtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxOTA5MTksImV4cCI6MjA4Nzc2NjkxOX0.bmz4K7E-a2PCM5CObDYz9ritbTKLi_OpwyiNBMOH5fU';
+const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+const TOPICS = ['declinacion','casos','pronomen','satzbau','prapositionen','wechsel','trucos','resumen'];
+let USER_ID = null;
+
+/* ── STATE PER TOPIC ── */
+// questions[topic]  = array of question objects
+// idx[topic]        = current question index
+// answered[topic]   = { qId: 'a'|'b'|'c'|'d' }  (selected but not checked)
+// results[topic]    = { qId: true|false }         (checked results)
+// wrongQueue[topic] = [qId, ...] for spaced repetition
+const questions = {}, idx = {}, answered = {}, results = {}, wrongQueue = {};
+TOPICS.forEach(t => { questions[t]=[]; idx[t]=0; answered[t]={}; results[t]={}; wrongQueue[t]=[]; });
+
+/* ── FALLBACK QUESTIONS (if Supabase has none) ── */
+const FALLBACK = {
+  declinacion: [
+    {id:'d1',question:'¿Cuál es el artículo masculino en Nominativ?',option_a:'den',option_b:'der',option_c:'dem',option_d:'des',correct_answer:'b',explanation:'En Nominativ masculino el artículo es "der". Den = Akk., dem = Dat., des = Gen.'},
+    {id:'d2',question:'¿Cuál es el artículo masculino en Akkusativ?',option_a:'der',option_b:'dem',option_c:'den',option_d:'des',correct_answer:'c',explanation:'"Den" es el cambio clave: der (Nom.) → den (Akk.) para masculino.'},
+    {id:'d3',question:'"Das Buch" — ¿en qué caso está "das"?',option_a:'Akkusativ',option_b:'Dativ',option_c:'Genitiv',option_d:'Nominativ o Akkusativ',correct_answer:'d',explanation:'Para neutro, Nominativ y Akkusativ son iguales: "das". Por contexto determines el caso.'},
+    {id:'d4',question:'En Dativ plural, ¿qué artículo se usa?',option_a:'die',option_b:'des',option_c:'den',option_d:'der',correct_answer:'c',explanation:'Dativ plural = "den" y además los sustantivos añaden -n al final. Ej: mit den Kindern.'},
+    {id:'d5',question:'El artículo indeterminado masculino en Akkusativ es:',option_a:'ein',option_b:'einem',option_c:'einer',option_d:'einen',correct_answer:'d',explanation:'"Einen" es el artículo indeterminado masculino en Akkusativ. Sigue el mismo patrón que "den".'},
+  ],
+  casos: [
+    {id:'c1',question:'¿Qué pregunta responde el Nominativ?',option_a:'Wem?',option_b:'Wen/Was?',option_c:'Wer/Was?',option_d:'Wessen?',correct_answer:'c',explanation:'Nominativ = Wer? (¿Quién?) o Was? para cosas. Es el sujeto de la oración.'},
+    {id:'c2',question:'"Ich gebe dem Kind einen Apfel." — ¿En qué caso está "Kind"?',option_a:'Nominativ',option_b:'Akkusativ',option_c:'Dativ',option_d:'Genitiv',correct_answer:'c',explanation:'"Dem Kind" está en Dativ. "Geben" tiene dos objetos: Dativ (¿a quién?) + Akkusativ (¿qué?).'},
+    {id:'c3',question:'"Der Hund des Mannes ist groß." — ¿Qué indica "des Mannes"?',option_a:'Objecto directo',option_b:'Posesión (Genitiv)',option_c:'Sujeto',option_d:'Objeto indirecto',correct_answer:'b',explanation:'"Des Mannes" es Genitiv: indica que el perro PERTENECE al hombre. Equivale a "del hombre".'},
+    {id:'c4',question:'¿Qué caso usa el verbo "helfen"?',option_a:'Nominativ',option_b:'Genitiv',option_c:'Akkusativ',option_d:'Dativ',correct_answer:'d',explanation:'"Helfen" es uno de los verbos que rige Dativ. "Ich helfe dem Kind" (no "das Kind").'},
+    {id:'c5',question:'"Ich sehe den Mann." — ¿Qué caso es "den Mann"?',option_a:'Dativ',option_b:'Nominativ',option_c:'Genitiv',option_d:'Akkusativ',correct_answer:'d',explanation:'"Sehen" rige Akkusativ. Masculino Akk. = "den". Pregunta: ¿A quién veo? → Akkusativ.'},
+  ],
+  pronomen: [
+    {id:'p1',question:'El pronombre "ich" en Akkusativ es:',option_a:'mir',option_b:'mich',option_c:'ich',option_d:'meiner',correct_answer:'b',explanation:'"Mich" es la forma Akkusativ de "ich". Regla: ich→mich, du→dich, er→ihn, sie→sie.'},
+    {id:'p2',question:'"Er gibt ___ das Buch." (yo, Dativ)',option_a:'mich',option_b:'ich',option_c:'mir',option_d:'meinem',correct_answer:'c',explanation:'Dativ de "ich" = "mir". "Er gibt mir das Buch" = Él me da el libro.'},
+    {id:'p3',question:'"Ich sehe ___." (él, Akkusativ)',option_a:'er',option_b:'ihm',option_c:'ihn',option_d:'sein',correct_answer:'c',explanation:'Akkusativ de "er" = "ihn". Er→ihn es el único pronombre masculino que cambia en Akk.'},
+    {id:'p4',question:'Los pronombres posesivos se declinan como:',option_a:'"der/die/das"',option_b:'"ein/eine/ein"',option_c:'"wer/wen/wem"',option_d:'No se declinan',correct_answer:'b',explanation:'Todos los posesivos (mein, dein, sein, ihr...) siguen el patrón de "ein". Si sabes "einen/einem/einer" para "ein", sabes "meinen/meinem/meiner" para "mein".'},
+    {id:'p5',question:'"Ich helfe ___." (ella, Dativ)',option_a:'ihr',option_b:'sie',option_c:'ihren',option_d:'ihre',correct_answer:'a',explanation:'Dativ de "sie" (ella) = "ihr". "Ich helfe ihr" = Le ayudo a ella.'},
+  ],
+  satzbau: [
+    {id:'s1',question:'¿En qué posición va siempre el verbo conjugado en oración principal?',option_a:'Primera',option_b:'Segunda',option_c:'Al final',option_d:'Tercera',correct_answer:'b',explanation:'Regla de oro: verbo conjugado SIEMPRE en posición 2, sin excepciones en oración principal.'},
+    {id:'s2',question:'"Heute ___ ich nach Berlin." ¿Qué verbo va aquí?',option_a:'ich fahre',option_b:'fahre',option_c:'fahren',option_d:'gefahren',correct_answer:'b',explanation:'Con "Heute" en posición 1, el verbo "fahre" ocupa posición 2, y el sujeto "ich" va a posición 3.'},
+    {id:'s3',question:'¿Qué conector manda el verbo al final de la oración?',option_a:'und',option_b:'aber',option_c:'weil',option_d:'oder',correct_answer:'c',explanation:'"Weil" (porque) es un conector subordinante. "Ich lerne Deutsch, weil es interessant IST." El verbo va al final.'},
+    {id:'s4',question:'"Ich will ins Kino ___." Con modal, el infinitivo va:',option_a:'en posición 2',option_b:'al principio',option_c:'al final',option_d:'en posición 3',correct_answer:'c',explanation:'Con verbos modales (können, wollen, müssen...), el infinitivo del verbo principal va al final: "Ich will ins Kino gehen."'},
+    {id:'s5',question:'¿Cuál es correcta?',option_a:'Ich heute lerne Deutsch.',option_b:'Heute ich lerne Deutsch.',option_c:'Heute lerne ich Deutsch.',option_d:'Heute Deutsch ich lerne.',correct_answer:'c',explanation:'"Heute" (hoy) está en posición 1, por eso el verbo "lerne" ocupa posición 2, y el sujeto "ich" queda en posición 3.'},
+  ],
+  prapositionen: [
+    {id:'pr1',question:'"Ich fahre ___ Berlin." ¿Qué preposición + caso?',option_a:'nach (Dativ)',option_b:'zu (Akkusativ)',option_c:'in (Akkusativ)',option_d:'von (Dativ)',correct_answer:'a',explanation:'"Nach" se usa para ciudades y países sin artículo. Siempre con Dativ. "Ich fahre nach Berlin."'},
+    {id:'pr2',question:'"Das Geschenk ist ___ dich." ¿Qué preposición?',option_a:'mit',option_b:'für',option_c:'von',option_d:'bei',correct_answer:'b',explanation:'"Für" + Akkusativ = "para". "Das Geschenk ist für dich" = El regalo es para ti.'},
+    {id:'pr3',question:'"___ einem Jahr lebe ich in Deutschland." ¿Qué prep. de tiempo?',option_a:'Von',option_b:'Für',option_c:'Seit',option_d:'Bis',correct_answer:'c',explanation:'"Seit" + Dativ = "desde hace" (acción continua). "Seit einem Jahr" = desde hace un año.'},
+    {id:'pr4',question:'"Wegen ___ Regens bleibe ich zu Hause." ¿Qué caso?',option_a:'Nominativ',option_b:'Akkusativ',option_c:'Dativ',option_d:'Genitiv',correct_answer:'d',explanation:'"Wegen" rige Genitiv. "Wegen des Regens" = debido a la lluvia.'},
+    {id:'pr5',question:'"Er geht ___ den Park." ¿Qué preposición (atravesar)?',option_a:'in',option_b:'durch',option_c:'über',option_d:'an',correct_answer:'b',explanation:'"Durch" + Akkusativ = "por/a través de". "Er geht durch den Park" = Él camina por el parque.'},
+  ],
+  wechsel: [
+    {id:'w1',question:'"Das Buch liegt ___ Tisch." ¿Auf + qué caso? (estático)',option_a:'den',option_b:'dem',option_c:'des',option_d:'der',correct_answer:'b',explanation:'WO? (¿dónde?) → Dativ. "Auf dem Tisch" = sobre la mesa (el libro está ahí quieto). Masculino Dat. = dem.'},
+    {id:'w2',question:'"Ich lege das Buch ___ Tisch." ¿Auf + qué caso? (movimiento)',option_a:'dem',option_b:'des',option_c:'den',option_d:'der',correct_answer:'c',explanation:'WOHIN? (¿a dónde?) → Akkusativ. "Auf den Tisch" = pongo el libro hacia la mesa. Masculino Akk. = den.'},
+    {id:'w3',question:'"Sie wohnt ___ der Stadt." ¿Qué preposición + caso?',option_a:'in + Akkusativ',option_b:'in + Dativ',option_c:'an + Akkusativ',option_d:'nach + Dativ',correct_answer:'b',explanation:'WO? (¿dónde vive?) → Dativ. "Sie wohnt in der Stadt" = Ella vive en la ciudad. Femenino Dat. = der.'},
+    {id:'w4',question:'"Er geht ___ die Stadt." ¿Movimiento hacia? Prep. correcta:',option_a:'in (Akk.)',option_b:'in (Dat.)',option_c:'aus (Dat.)',option_d:'von (Dat.)',correct_answer:'a',explanation:'WOHIN? → Akkusativ. "Er geht in die Stadt" = Él va hacia la ciudad. Femenino Akk. = die.'},
+    {id:'w5',question:'¿Cuántas Wechselpräpositionen hay?',option_a:'6',option_b:'7',option_c:'8',option_d:'9',correct_answer:'d',explanation:'Hay 9: AN, AUF, HINTER, IN, NEBEN, ÜBER, UNTER, VOR, ZWISCHEN. Todas pueden usar Dativ o Akkusativ.'},
+  ],
+  trucos: [
+    {id:'t1',question:'"Ich helfe ___ Kind." ¿Qué artículo?',option_a:'das',option_b:'den',option_c:'dem',option_d:'des',correct_answer:'c',explanation:'"Helfen" siempre rige Dativ. Neutro Dativ = "dem". "Ich helfe dem Kind."'},
+    {id:'t2',question:'"Das Buch gehört ___." ¿Pronombre correcto para "ella"?',option_a:'sie',option_b:'ihr',option_c:'ihre',option_d:'ihrem',correct_answer:'b',explanation:'"Gehören" rige Dativ. Dativ de "sie" (ella) = "ihr". "Das Buch gehört ihr."'},
+    {id:'t3',question:'¿Cuál es correcta con "weil"?',option_a:'Ich lerne, weil Deutsch interessant ist.',option_b:'Ich lerne, weil ist Deutsch interessant.',option_c:'Ich lerne, weil interessant ist Deutsch.',option_d:'Ich lerne, weil Deutsch ist interessant.',correct_answer:'a',explanation:'Con "weil", el verbo conjugado va al FINAL. "…weil Deutsch interessant IST."'},
+    {id:'t4',question:'"Ich danke ___." ¿Pronombre correcto para "tú"?',option_a:'dich',option_b:'du',option_c:'dein',option_d:'dir',correct_answer:'d',explanation:'"Danken" rige Dativ. Dativ de "du" = "dir". "Ich danke dir" = Te agradezco a ti.'},
+    {id:'t5',question:'¿Qué verbo NO rige Dativ?',option_a:'helfen',option_b:'sehen',option_c:'gefallen',option_d:'danken',correct_answer:'b',explanation:'"Sehen" rige Akkusativ: "Ich sehe ihn/sie/es." Los demás (helfen, gefallen, danken) rigen Dativ.'},
+  ],
+  resumen: [
+    {id:'r1',question:'¿Qué frase tiene la estructura correcta del B1?',option_a:'Ich gehe morgen ins Kino weil ich Zeit habe.',option_b:'Ich gehe morgen ins Kino, weil ich Zeit habe.',option_c:'Ich gehe morgen ins Kino, weil ich habe Zeit.',option_d:'Ich morgen gehe ins Kino, weil ich Zeit habe.',correct_answer:'b',explanation:'Correcta: verbo en pos. 2 en principal ("gehe"), y verbo al final en subordinada ("habe"). La coma antes de "weil" es obligatoria.'},
+    {id:'r2',question:'"Trotz ___ Wetters bin ich draußen." ¿Qué caso?',option_a:'Dativ',option_b:'Akkusativ',option_c:'Nominativ',option_d:'Genitiv',correct_answer:'d',explanation:'"Trotz" rige Genitiv. "Trotz des Wetters" = a pesar del tiempo.'},
+    {id:'r3',question:'¿Cuál es la forma reflexiva de 3ª persona siempre?',option_a:'ihn',option_b:'ihm',option_c:'sich',option_d:'er',correct_answer:'c',explanation:'Los verbos reflexivos en 3ª persona (er/sie/es/sie pl./Sie) siempre usan "sich". Ej: "Er wäscht sich."'},
+    {id:'r4',question:'"Ich ___ heute Abend ausgehen." Con modal, ¿qué es correcto?',option_a:'will ausgehen',option_b:'ausgehen will',option_c:'will gehen aus',option_d:'wille ausgehen',correct_answer:'a',explanation:'"Will" (querer, modal) en pos. 2, infinitivo "ausgehen" al final. "Ich will heute Abend ausgehen."'},
+    {id:'r5',question:'Completa: "Sie gibt ___ Mann ___ Buch." (dat + akk)',option_a:'der / das',option_b:'dem / das',option_c:'den / das',option_d:'dem / den',correct_answer:'b',explanation:'"Mann" = Dativ (objeto indirecto, ¿a quién?) → dem Mann. "Buch" = Akkusativ (objeto directo, ¿qué?) → das Buch.'},
+  ]
+};
+
+/* ── QUIZ RENDER ── */
+const LETTERS = ['a','b','c','d'];
+
+function renderQuiz(topic) {
+  const qs = questions[topic];
+  const i  = idx[topic];
+  if (!qs || qs.length === 0) {
+    document.getElementById(`q-${topic}`).textContent = 'No hay preguntas disponibles.';
+    return;
+  }
+  const q = qs[i];
+  const total = qs.length;
+
+  // Question
+  document.getElementById(`q-${topic}`).innerHTML = `<span style="color:var(--muted);font-size:.8rem">${i+1} / ${total}</span><br>${q.question}`;
+
+  // Progress bar
+  document.getElementById(`qbar-${topic}`).style.width = `${Math.round(((i+1)/total)*100)}%`;
+
+  // Counter
+  document.getElementById(`ctr-${topic}`).textContent = `${i+1} / ${total}`;
+
+  // Options
+  const optsEl = document.getElementById(`opts-${topic}`);
+  optsEl.innerHTML = '';
+  const opts = ['option_a','option_b','option_c','option_d'].filter(o => q[o]);
+  opts.forEach((opt, li) => {
+    const letter = LETTERS[li];
+    const isChecked = results[topic][q.id] !== undefined;
+    const userAns = answered[topic][q.id];
+    const isCorrect = letter === q.correct_answer;
+    const isSelected = letter === userAns;
+
+    let cls = 'opt';
+    if (isChecked) {
+      if (isCorrect) cls += ' correct';
+      else if (isSelected && !isCorrect) cls += ' wrong';
+    } else if (isSelected) cls += ' selected';
+
+    const btn = document.createElement('button');
+    btn.className = cls;
+    btn.disabled = isChecked;
+    btn.innerHTML = `<span class="opt-letter">${letter.toUpperCase()}</span> ${q[opt]}`;
+    btn.onclick = () => selectOption(topic, q.id, letter);
+    optsEl.appendChild(btn);
+  });
+
+  // Feedback
+  const fb = document.getElementById(`fb-${topic}`);
+  if (results[topic][q.id] !== undefined) {
+    const correct = results[topic][q.id];
+    fb.className = 'quiz-feedback ' + (correct ? 'correct' : 'wrong');
+    fb.innerHTML = correct
+      ? `<strong>✅ ¡Correcto!</strong> <div class="fb-explanation">${q.explanation || ''}</div>`
+      : `<strong>❌ Incorrecto.</strong> La respuesta correcta es <strong>${q.correct_answer.toUpperCase()}) ${q['option_'+q.correct_answer]}</strong><div class="fb-explanation">${q.explanation || ''}</div>`;
+  } else {
+    fb.className = 'quiz-feedback';
+  }
+
+  // Nav buttons
+  document.getElementById(`prev-${topic}`).disabled = i === 0;
+  document.getElementById(`next-${topic}`).disabled = i === total-1;
+
+  const checkBtn = document.getElementById(`check-${topic}`);
+  checkBtn.disabled = answered[topic][q.id] === undefined && results[topic][q.id] === undefined;
+  if (results[topic][q.id] !== undefined) {
+    checkBtn.textContent = 'Ver teoría ↑';
+    checkBtn.disabled = true;
+  } else {
+    checkBtn.textContent = 'Comprobar';
+    checkBtn.disabled = !answered[topic][q.id];
+  }
+
+  // Stats
+  updateStats(topic);
+}
+
+function selectOption(topic, qId, letter) {
+  if (results[topic][qId] !== undefined) return; // already answered
+  answered[topic][qId] = letter;
+  document.getElementById(`check-${topic}`).disabled = false;
+  renderQuiz(topic);
+}
+
+function checkAnswer(topic) {
+  const qs = questions[topic];
+  const q = qs[idx[topic]];
+  if (!q) return;
+  const userAns = answered[topic][q.id];
+  if (!userAns) return;
+  const isCorrect = userAns === q.correct_answer;
+  results[topic][q.id] = isCorrect;
+
+  if (!isCorrect) {
+    // add to wrong queue for spaced repetition
+    if (!wrongQueue[topic].includes(q.id)) wrongQueue[topic].push(q.id);
+  }
+
+  renderQuiz(topic);
+
+  // Check if all answered
+  const allAnswered = qs.every(q => results[topic][q.id] !== undefined);
+  const allCorrect  = qs.every(q => results[topic][q.id] === true);
+  if (allAnswered) {
+    updateStats(topic);
+    if (allCorrect) markTopicComplete(topic);
+  }
+}
+
+function navigate(topic, delta) {
+  idx[topic] = Math.max(0, Math.min(questions[topic].length-1, idx[topic]+delta));
+  renderQuiz(topic);
+}
+
+function retryWrong(topic) {
+  // Spaced repetition: show only wrong questions
+  const wrong = wrongQueue[topic];
+  if (wrong.length === 0) {
+    // Nothing wrong, or full retry
+    TOPICS.forEach(t => { if(t !== topic) return; });
+    Object.keys(results[topic]).forEach(k => { delete results[topic][k]; delete answered[topic][k]; });
+    idx[topic] = 0;
+    renderQuiz(topic);
+    return;
+  }
+  // Filter questions to only wrong ones
+  const allQ = questions[topic];
+  const wrongQ = allQ.filter(q => wrong.includes(q.id));
+  // Reset only those
+  wrong.forEach(id => { delete results[topic][id]; delete answered[topic][id]; });
+  wrongQueue[topic] = [];
+  // Put wrong questions first
+  questions[topic] = [...wrongQ, ...allQ.filter(q => !wrong.includes(q.id))];
+  idx[topic] = 0;
+  renderQuiz(topic);
+}
+
+function updateStats(topic) {
+  const answered_count = Object.keys(results[topic]).length;
+  const correct_count  = Object.values(results[topic]).filter(v => v === true).length;
+  const pct = answered_count > 0 ? Math.round((correct_count/answered_count)*100) : 0;
+
+  document.getElementById(`score-${topic}`).textContent = `${correct_count}/${answered_count}`;
+
+  const statsEl = document.getElementById(`stats-${topic}`);
+  if (answered_count > 0) {
+    statsEl.innerHTML = `
+      <span class="stat-pill correct-stat"><i class="fas fa-check"></i> ${correct_count} correctas</span>
+      <span class="stat-pill wrong-stat"><i class="fas fa-times"></i> ${answered_count - correct_count} errores</span>
+      <span class="stat-pill pct-stat"><i class="fas fa-percent"></i> ${pct}%</span>
+    `;
+  }
+}
+
+/* ── SUPABASE ── */
+async function loadProgress() {
+  if (!USER_ID) return;
+  try {
+    const { data } = await sb.from('user_grammar_topics')
+      .select('topic_id, completed')
+      .eq('user_id', USER_ID);
+
+    let done = 0;
+    (data || []).forEach(row => {
+      if (row.completed) {
+        done++;
+        showCompletedBadge(row.topic_id);
+        markNavDone(row.topic_id);
+      }
+    });
+    updateNavProgress(done);
+  } catch(e) { console.warn('loadProgress:', e); }
+}
+
+async function markTopicComplete(topic) {
+  document.getElementById(`banner-${topic}`).classList.add('show');
+  showCompletedBadge(topic);
+  markNavDone(topic);
+  if (!USER_ID) return;
+  try {
+    await sb.from('user_grammar_topics').upsert(
+      { user_id: USER_ID, topic_id: topic, completed: true, updated_at: new Date() },
+      { onConflict: 'user_id, topic_id' }
+    );
+    const { count } = await sb.from('user_grammar_topics')
+      .select('id', { count:'exact', head:true })
+      .eq('user_id', USER_ID).eq('completed', true);
+    updateNavProgress(count || 0);
+  } catch(e) { console.warn('markTopicComplete:', e); }
+}
+
+function showCompletedBadge(topic) {
+  const el = document.getElementById(`badge-${topic}`);
+  if (el) el.style.display = 'inline-flex';
+}
+function markNavDone(topic) {
+  const navItem = document.querySelector(`[data-nav="${topic}"]`);
+  if (navItem) navItem.classList.add('done');
+}
+function updateNavProgress(done) {
+  const total = TOPICS.length;
+  const pct = Math.round((done/total)*100);
+  document.getElementById('navBar').style.width = pct + '%';
+  document.getElementById('navPct').textContent  = pct + '%';
+  document.getElementById('statDone').textContent = done;
+  document.getElementById('statTotal').textContent = total;
+
+  // Global score
+  let totalC = 0, totalA = 0;
+  TOPICS.forEach(t => {
+    totalC += Object.values(results[t]).filter(v=>v===true).length;
+    totalA += Object.keys(results[t]).length;
+  });
+  document.getElementById('statScore').textContent = totalA > 0
+    ? Math.round((totalC/totalA)*100)+'%' : '–';
+}
+
+async function loadQuestionsFromSupabase(topic) {
+  try {
+    const { data, error } = await sb.from('grammar_tests')
+      .select('*').eq('topic', topic);
+    if (!error && data && data.length > 0) return data;
+  } catch(e) {}
+  return FALLBACK[topic] || [];
+}
+
+/* ── NAV SCROLL ── */
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) window.scrollTo({ top: el.offsetTop - 70, behavior: 'smooth' });
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector(`[data-nav="${id}"]`)?.classList.add('active');
+}
+
+/* ── THEME ── */
+const themeBtn = document.getElementById('themeBtn');
+if (localStorage.getItem('dlaTheme') === 'light') {
+  document.body.classList.add('light');
+  themeBtn.querySelector('i').className = 'fas fa-sun';
+}
+themeBtn.addEventListener('click', () => {
+  document.body.classList.toggle('light');
+  const isLight = document.body.classList.contains('light');
+  localStorage.setItem('dlaTheme', isLight ? 'light' : 'dark');
+  themeBtn.querySelector('i').className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+});
+
+/* ── INTERSECTION OBSERVER for sidenav active state ── */
+const sectionObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.getAttribute('data-topic');
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.querySelector(`[data-nav="${id}"]`)?.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', async () => {
+  // Get session
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    USER_ID = session.user.id;
+    const name = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || '?';
+    document.getElementById('uName').textContent   = name;
+    document.getElementById('uAvatar').textContent = name.charAt(0).toUpperCase();
+  }
+
+  // Load questions for each topic
+  for (const topic of TOPICS) {
+    const qs = await loadQuestionsFromSupabase(topic);
+    questions[topic] = qs;
+    renderQuiz(topic);
+    // Observe section
+    const sec = document.getElementById(topic);
+    if (sec) sectionObserver.observe(sec);
+  }
+
+  // Load Supabase progress
+  await loadProgress();
+});
+</script>
+</body>
+</html>
