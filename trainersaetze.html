@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEULCHALEX – Trainersätze</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* ── TOKENS ── */
+    :root{
+      --bg:#0b0f1a; --surface:#131929; --s2:#1a2236; --s3:#202b42;
+      --border:rgba(255,255,255,0.07); --b2:rgba(255,255,255,0.13);
+      --blue:#4f8ef7; --bdim:rgba(79,142,247,.13); --bmid:rgba(79,142,247,.22);
+      --green:#22d3a5; --gdim:rgba(34,211,165,.13);
+      --red:#f75f5f;   --rdim:rgba(247,95,95,.13);
+      --yellow:#fbbf24; --ydim:rgba(251,191,36,.13);
+      --purple:#a78bfa; --pdim:rgba(167,139,250,.13);
+      --orange:#fb923c; --odim:rgba(251,146,60,.13);
+      --teal:#2dd4bf;  --tdim:rgba(45,212,191,.13);
+      --pink:#f472b6;  --pinkdim:rgba(244,114,182,.13);
+      --text:#e2e8f0;  --muted:#64748b;
+      --radius:14px; --r20:20px;
+    }
+    .light{
+      --bg:#f0f4f8; --surface:#fff; --s2:#e8edf4; --s3:#dde5f0;
+      --border:rgba(0,0,0,.08); --b2:rgba(0,0,0,.15);
+      --text:#1e293b; --muted:#64748b;
+      --bdim:rgba(79,142,247,.09); --gdim:rgba(34,211,165,.09);
+      --rdim:rgba(247,95,95,.09);  --ydim:rgba(251,191,36,.09);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);
+      min-height:100vh;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased}
+
+    /* ── TOPBAR ── */
+    .topbar{display:flex;align-items:center;justify-content:space-between;
+      padding:11px 20px;background:var(--surface);border-bottom:1px solid var(--border);
+      position:sticky;top:0;z-index:300;backdrop-filter:blur(12px)}
+    .topbar-l{display:flex;align-items:center;gap:12px}
+    .back-link{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;
+      font-weight:600;color:var(--muted);text-decoration:none;padding:6px 12px;
+      border:1px solid var(--border);border-radius:10px;transition:all .2s}
+    .back-link:hover{color:var(--purple);border-color:var(--pdim)}
+    .page-ttl{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700}
+    .topbar-r{display:flex;align-items:center;gap:8px}
+    .ib{width:34px;height:34px;border-radius:9px;background:var(--s2);border:1px solid var(--border);
+      color:var(--muted);display:flex;align-items:center;justify-content:center;
+      font-size:.85rem;cursor:pointer;transition:all .2s}
+    .ib:hover{background:var(--pdim);color:var(--purple);border-color:var(--pdim)}
+    .uchip{display:flex;align-items:center;gap:6px;background:var(--s2);
+      border:1px solid var(--border);border-radius:30px;padding:4px 11px 4px 4px;font-size:.8rem}
+    .uav{width:24px;height:24px;border-radius:50%;
+      background:linear-gradient(135deg,var(--purple),var(--pink));
+      display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:#fff}
+
+    /* ── LAYOUT ── */
+    .layout{display:grid;grid-template-columns:220px 1fr;gap:0;
+      max-width:1300px;margin:0 auto;min-height:calc(100vh - 57px)}
+
+    /* ── SIDENAV ── */
+    .sidenav{position:sticky;top:57px;height:calc(100vh - 57px);overflow-y:auto;
+      padding:16px 10px;border-right:1px solid var(--border);scrollbar-width:thin}
+    .sidenav::-webkit-scrollbar{width:4px}
+    .sidenav::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+    .nav-prog{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);
+      padding:12px;margin-bottom:12px}
+    .np-hdr{display:flex;justify-content:space-between;font-size:.73rem;font-weight:600;margin-bottom:6px}
+    .np-pct{color:var(--purple);font-family:'Space Grotesk',sans-serif}
+    .bar-t{height:5px;background:var(--border);border-radius:20px;overflow:hidden}
+    .bar-f{height:100%;background:linear-gradient(90deg,var(--purple),var(--pink));
+      border-radius:20px;width:0%;transition:width .8s cubic-bezier(.23,1,.32,1)}
+    .np-sts{display:flex;gap:5px;margin-top:7px}
+    .np-st{flex:1;text-align:center;background:var(--surface);border:1px solid var(--border);
+      border-radius:7px;padding:5px 2px}
+    .np-st-v{font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;
+      color:var(--purple);display:block}
+    .np-st-l{font-size:.55rem;color:var(--muted)}
+    .nav-lbl{font-size:.65rem;font-weight:700;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.08em;padding:0 6px;margin:10px 0 4px}
+    .nav-item{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:9px;
+      font-size:.77rem;font-weight:500;color:var(--muted);cursor:pointer;
+      transition:all .15s;border:none;background:none;width:100%;text-align:left}
+    .nav-item:hover{background:var(--s2);color:var(--text)}
+    .nav-item.active{background:var(--pdim);color:var(--purple);font-weight:600}
+    .nav-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0}
+    .nav-item.active .nav-dot{background:var(--purple)}
+    .nav-ck{margin-left:auto;font-size:.6rem;color:var(--green);opacity:0}
+    .nav-item.done .nav-ck{opacity:1}
+    .nav-item.done .nav-dot{background:var(--green)}
+
+    /* ── MAIN ── */
+    main{padding:24px 28px 60px;min-width:0}
+
+    /* ── HERO ── */
+    .hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--r20);
+      padding:22px 26px;margin-bottom:18px;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,var(--purple),var(--pink),var(--blue))}
+    .hero-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .hero-lbl{font-size:.7rem;font-weight:700;color:var(--purple);
+      text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+    .hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.2rem,2.5vw,1.7rem);
+      font-weight:700;margin-bottom:4px}
+    .hero p{font-size:.82rem;color:var(--muted);line-height:1.6}
+    .hstats{display:flex;gap:9px;flex-wrap:wrap;flex-shrink:0}
+    .hst{text-align:center;background:var(--s2);border:1px solid var(--border);
+      border-radius:var(--radius);padding:8px 14px;min-width:66px}
+    .hst-v{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;
+      color:var(--purple);display:block;line-height:1}
+    .hst-l{font-size:.6rem;color:var(--muted)}
+
+    /* ── GLOBAL PROGRESS ── */
+    .gpbar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+      padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .gp-lbl{font-size:.78rem;font-weight:600;white-space:nowrap}
+    .gp-track{flex:1;height:6px;background:var(--s2);border-radius:20px;overflow:hidden;min-width:60px}
+    .gp-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--pink));
+      border-radius:20px;width:0%;transition:width .9s cubic-bezier(.23,1,.32,1)}
+    .gp-pct{font-family:'Space Grotesk',sans-serif;font-size:.86rem;font-weight:700;color:var(--purple)}
+    .gp-chip{font-size:.68rem;padding:2px 8px;border-radius:20px;font-weight:600;
+      background:var(--pdim);color:var(--purple);border:1px solid rgba(167,139,250,.2)}
+
+    /* ── REVIEW BANNER ── */
+    .rv-banner{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(244,114,182,.06));
+      border:1px solid rgba(167,139,250,.2);border-radius:var(--radius);
+      padding:12px 16px;margin-bottom:16px;display:none;align-items:center;
+      justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .rv-banner.show{display:flex}
+    .rv-banner-l{display:flex;align-items:center;gap:9px}
+    .rv-banner-l i{color:var(--yellow);font-size:1rem}
+    .rv-banner-l strong{font-size:.86rem;color:var(--yellow)}
+    .rv-banner-l p{font-size:.76rem;color:var(--muted)}
+    .btn-rv{padding:7px 14px;border-radius:8px;background:var(--yellow);color:#000;
+      border:none;font-weight:700;font-size:.78rem;cursor:pointer;transition:all .2s}
+    .btn-rv:hover{background:#e6aa10;transform:translateY(-1px)}
+
+    /* ── SECTION LABEL ── */
+    .slbl{font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;
+      letter-spacing:.08em;margin-bottom:9px;display:flex;align-items:center;gap:7px}
+    .slbl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+    /* ── CATEGORY GRID ── */
+    .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+      gap:8px;margin-bottom:16px}
+    .cat-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);
+      padding:12px 8px;cursor:pointer;transition:all .2s;text-align:center;position:relative}
+    .cat-card:hover{border-color:var(--c,var(--purple));transform:translateY(-2px)}
+    .cat-card.active{border-color:var(--c,var(--purple));
+      background:color-mix(in srgb,var(--c,var(--purple)) 8%,var(--surface))}
+    .cat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+      border-radius:var(--radius) var(--radius) 0 0;background:var(--c,var(--purple));
+      transform:scaleX(0);transition:transform .2s}
+    .cat-card.active::after,.cat-card:hover::after{transform:scaleX(1)}
+    .cat-emoji{font-size:1.4rem;margin-bottom:4px;display:block}
+    .cat-name{font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;margin-bottom:3px}
+    .cat-meta{font-size:.6rem;color:var(--muted)}
+    .cat-bar{height:3px;background:var(--s2);border-radius:20px;overflow:hidden;margin-top:6px}
+    .cat-bar-fill{height:100%;border-radius:20px;transition:width .5s;
+      background:var(--c,var(--purple))}
+    .cat-done{position:absolute;top:4px;right:4px;width:14px;height:14px;border-radius:50%;
+      background:var(--green);display:none;align-items:center;justify-content:center;
+      font-size:.5rem;color:#fff}
+    .cat-card.all-done .cat-done{display:flex}
+
+    /* ── MODE TABS ── */
+    .mtabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+    .mtab{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:9px;
+      font-size:.76rem;font-weight:600;cursor:pointer;transition:all .2s;
+      background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+    .mtab:hover{border-color:var(--purple);color:var(--purple)}
+    .mtab.active{background:var(--purple);color:#fff;border-color:var(--purple);
+      box-shadow:0 4px 14px rgba(167,139,250,.3)}
+    .mtab i{font-size:.78rem}
+
+    /* ── PANELS ── */
+    .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r20);
+      padding:22px;display:none;min-height:260px}
+    .panel.active{display:block}
+    .ph{display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:16px;padding-bottom:13px;border-bottom:1px solid var(--border);
+      gap:9px;flex-wrap:wrap}
+    .ph-title{font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:700}
+    .no-msg{text-align:center;padding:36px 16px;color:var(--muted)}
+    .no-msg i{font-size:1.6rem;margin-bottom:9px;display:block;color:var(--border)}
+
+    /* ── EXERCISE ENGINE shared ── */
+    .ex-prog-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+    .ex-track{flex:1;height:5px;background:var(--s2);border-radius:20px;overflow:hidden}
+    .ex-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--pink));
+      border-radius:20px;transition:width .4s}
+    .ex-ctr{font-size:.73rem;color:var(--muted);white-space:nowrap}
+    .ex-score{font-size:.73rem;font-weight:700;padding:3px 9px;border-radius:20px;
+      background:var(--pdim);color:var(--purple);border:1px solid rgba(167,139,250,.2)}
+    .ex-type-badge{font-size:.66rem;font-weight:700;padding:2px 8px;border-radius:20px;
+      background:var(--s2);color:var(--muted);border:1px solid var(--border)}
+
+    /* Sentence display */
+    .ex-question{font-size:.88rem;font-weight:600;color:var(--muted);
+      margin-bottom:10px;display:flex;align-items:center;gap:6px}
+    .ex-sentence{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;
+      text-align:center;padding:18px;background:var(--s2);border-radius:var(--radius);
+      margin-bottom:14px;line-height:1.4;color:var(--text)}
+    .ex-hint{font-size:.8rem;color:var(--muted);font-style:italic;
+      text-align:center;margin-bottom:10px}
+    .speak-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:none;
+      color:var(--blue);font-size:.75rem;cursor:pointer;padding:4px 8px;border-radius:7px;
+      transition:all .15s}
+    .speak-btn:hover{background:var(--bdim)}
+
+    /* Feedback box */
+    .ex-fb{padding:11px 15px;border-radius:10px;font-size:.82rem;display:none;
+      margin:10px 0;line-height:1.55}
+    .ex-fb.ok{background:var(--gdim);color:var(--green);border:1px solid rgba(34,211,165,.22);display:block}
+    .ex-fb.err{background:var(--rdim);color:var(--red);border:1px solid rgba(247,95,95,.22);display:block}
+    .ex-fb .exp{color:var(--text);margin-top:4px;font-size:.78rem}
+    .ex-next{padding:10px 20px;border-radius:10px;background:var(--purple);color:#fff;
+      border:none;font-weight:700;cursor:pointer;font-size:.86rem;transition:all .2s;
+      display:none;margin-top:10px}
+    .ex-next.show{display:inline-block}
+    .ex-next:hover{background:#9370f0}
+
+    /* ── 1. TRADUCCIÓN ── */
+    .tr-card{background:var(--s2);border:1px solid var(--b2);border-radius:var(--r20);
+      padding:24px;text-align:center;margin-bottom:14px}
+    .tr-prompt{font-size:.7rem;font-weight:700;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+    .tr-sentence{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;margin-bottom:6px}
+    .tr-hint{font-size:.78rem;color:var(--muted);font-style:italic}
+    .tr-kb{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin:10px auto;
+      max-width:520px}
+    .kb{padding:4px 9px;border-radius:7px;border:1px solid var(--b2);background:var(--s2);
+      color:var(--text);font-size:.79rem;font-weight:600;cursor:pointer;transition:all .15s}
+    .kb:hover{background:rgba(167,139,250,.2);border-color:var(--purple)}
+    .tr-row{display:flex;gap:8px;max-width:520px;margin:0 auto 10px}
+    .tr-input{flex:1;padding:10px 14px;border-radius:10px;border:1px solid var(--border);
+      background:var(--surface);color:var(--text);font-size:.92rem;
+      font-family:'Space Grotesk',sans-serif;outline:none;transition:all .2s}
+    .tr-input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(167,139,250,.12)}
+    .tr-input.ok{border-color:var(--green);background:var(--gdim)}
+    .tr-input.err{border-color:var(--red);background:var(--rdim)}
+    .mic-row{display:flex;gap:7px;justify-content:center;margin-bottom:10px}
+    .mic-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;
+      border-radius:20px;border:1px solid var(--border);background:var(--s2);
+      color:var(--muted);font-size:.75rem;cursor:pointer;transition:all .2s}
+    .mic-btn:hover{background:var(--pdim);color:var(--purple);border-color:var(--purple)}
+    .mic-btn.recording{background:var(--rdim);color:var(--red);border-color:var(--red);
+      animation:blink .8s infinite alternate}
+    @keyframes blink{from{opacity:1}to{opacity:.5}}
+    .tr-chk{padding:10px 18px;border-radius:10px;background:var(--purple);color:#fff;
+      border:none;font-weight:700;cursor:pointer;font-size:.86rem;transition:all .2s}
+    .tr-chk:hover{background:#9370f0}
+
+    /* ── 2. COMPLETAR ── */
+    .gap-sent{font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:700;
+      text-align:center;padding:18px;background:var(--s2);border-radius:var(--radius);
+      margin-bottom:14px;line-height:1.5}
+    .gap{display:inline-block;min-width:80px;border-bottom:2px solid var(--purple);
+      padding:0 4px;color:var(--purple);font-weight:700}
+    .opt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+      gap:8px;margin-bottom:12px}
+    .opt{padding:10px 14px;border-radius:10px;border:1px solid var(--border);
+      background:var(--s2);cursor:pointer;transition:all .15s;font-size:.84rem;
+      font-weight:500;color:var(--text);text-align:center}
+    .opt:hover:not(:disabled){border-color:var(--purple);background:var(--pdim)}
+    .opt.sel{border-color:var(--purple);background:var(--bmid)}
+    .opt.correct{border-color:var(--green);background:var(--gdim);color:var(--green)}
+    .opt.wrong{border-color:var(--red);background:var(--rdim);color:var(--red)}
+    .opt:disabled{cursor:not-allowed}
+
+    /* ── 3. ORDENAR ── */
+    .word-bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+      margin-bottom:12px;min-height:50px}
+    .word-tile{background:var(--purple);color:#fff;padding:8px 14px;border-radius:8px;
+      cursor:pointer;transition:all .18s;font-weight:600;font-size:.84rem;
+      box-shadow:0 3px 0 #7c3aed;user-select:none}
+    .word-tile:hover{transform:translateY(-2px);box-shadow:0 5px 0 #7c3aed}
+    .word-tile.used{opacity:.35;pointer-events:none;transform:none}
+    .sentence-builder{min-height:54px;background:var(--s2);border:2px dashed var(--border);
+      border-radius:10px;padding:12px;display:flex;flex-wrap:wrap;gap:7px;
+      align-items:center;margin-bottom:12px;cursor:pointer}
+    .built-word{background:var(--surface);border:1px solid var(--border);
+      border-radius:6px;padding:6px 12px;font-size:.84rem;font-weight:500;cursor:pointer;
+      transition:all .15s}
+    .built-word:hover{border-color:var(--red);color:var(--red)}
+
+    /* ── 4. MULTIPLE ── */
+    .mc-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+    .mc-opt{padding:11px 14px;border-radius:10px;border:1px solid var(--border);
+      background:var(--s2);cursor:pointer;transition:all .15s;font-size:.82rem;
+      font-weight:500;color:var(--text);text-align:left;display:flex;align-items:center;gap:7px}
+    .mc-opt:hover:not(:disabled){border-color:var(--purple);background:var(--pdim)}
+    .mc-opt.correct{border-color:var(--green);background:var(--gdim);color:var(--green)}
+    .mc-opt.wrong{border-color:var(--red);background:var(--rdim);color:var(--red)}
+    .mc-opt:disabled{cursor:not-allowed}
+    .mc-lett{width:20px;height:20px;border-radius:5px;flex-shrink:0;background:var(--surface);
+      display:flex;align-items:center;justify-content:center;font-size:.63rem;
+      font-weight:700;color:var(--muted)}
+    .mc-opt.correct .mc-lett{background:var(--green);color:#fff}
+    .mc-opt.wrong .mc-lett{background:var(--red);color:#fff}
+
+    /* ── 5. ESCRITURA LIBRE ── */
+    .free-prompt{background:var(--s2);border:1px solid var(--b2);border-radius:var(--radius);
+      padding:16px;margin-bottom:12px;font-size:.84rem;line-height:1.6}
+    .free-prompt .fq{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;
+      color:var(--purple);margin-bottom:6px}
+    .free-textarea{width:100%;min-height:100px;padding:12px 14px;border-radius:10px;
+      border:1px solid var(--border);background:var(--surface);color:var(--text);
+      font-size:.88rem;font-family:'Inter',sans-serif;outline:none;resize:vertical;
+      transition:all .2s}
+    .free-textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(167,139,250,.12)}
+    .free-result{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);
+      padding:14px;font-size:.82rem;line-height:1.65;white-space:pre-wrap;display:none;margin-top:10px}
+    .free-result.show{display:block}
+    .ai-loading{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:.8rem}
+    .spin-sm{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--purple);
+      border-radius:50%;animation:_sp .7s linear infinite;display:inline-block}
+    @keyframes _sp{to{transform:rotate(360deg)}}
+
+    /* ── AI CHAT ── */
+    .chat-wrap{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);
+      overflow:hidden}
+    .chat-msgs{max-height:280px;overflow-y:auto;padding:14px;
+      display:flex;flex-direction:column;gap:10px;scrollbar-width:thin}
+    .chat-msgs::-webkit-scrollbar{width:4px}
+    .cmsg{max-width:82%;padding:9px 13px;border-radius:12px;font-size:.82rem;line-height:1.55}
+    .cmsg.user{background:var(--purple);color:#fff;align-self:flex-end;border-radius:12px 12px 3px 12px}
+    .cmsg.bot{background:var(--surface);border:1px solid var(--border);align-self:flex-start;
+      border-radius:12px 12px 12px 3px}
+    .cmsg.bot .speak{display:inline-flex;align-items:center;gap:3px;background:none;border:none;
+      color:var(--blue);font-size:.7rem;cursor:pointer;margin-top:4px;padding:2px 5px;
+      border-radius:5px;transition:all .15s}
+    .cmsg.bot .speak:hover{background:var(--bdim)}
+    .chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border)}
+    .chat-inp{flex:1;padding:9px 13px;border-radius:9px;border:1px solid var(--border);
+      background:var(--surface);color:var(--text);font-size:.82rem;outline:none;transition:all .2s}
+    .chat-inp:focus{border-color:var(--purple)}
+    .chat-send{padding:9px 16px;border-radius:9px;background:var(--purple);color:#fff;
+      border:none;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .2s}
+    .chat-send:hover{background:#9370f0}
+
+    /* ── SESSION RESULT ── */
+    .result-card{text-align:center;padding:28px}
+    .result-card h3{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:7px}
+    .rg{display:flex;gap:10px;justify-content:center;margin:14px 0;flex-wrap:wrap}
+    .rb{text-align:center;background:var(--s2);border:1px solid var(--border);
+      border-radius:var(--radius);padding:10px 16px}
+    .rb-v{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;display:block}
+    .rb-l{font-size:.62rem;color:var(--muted)}
+
+    /* ── BUTTONS ── */
+    .btn{padding:8px 15px;border-radius:9px;font-size:.78rem;font-weight:600;
+      cursor:pointer;transition:all .2s;border:1px solid var(--border);
+      background:var(--s2);color:var(--text);font-family:'Inter',sans-serif;
+      display:inline-flex;align-items:center;gap:6px}
+    .btn:hover{background:var(--pdim);border-color:rgba(167,139,250,.3);color:var(--purple)}
+    .btn-p{background:var(--purple);color:#fff;border-color:var(--purple)}
+    .btn-p:hover{background:#9370f0;color:#fff}
+    .btn-g{background:var(--green);color:#fff;border-color:var(--green)}
+    .btn-g:hover{background:#1ab893;color:#fff}
+
+    /* ── FOOTER ── */
+    .pfoot{background:var(--surface);border-top:1px solid var(--border);padding:16px 20px}
+    .pfoot-in{max-width:1300px;margin:0 auto;display:flex;align-items:center;
+      justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .pfoot-brand{font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700}
+    .pfoot-copy{font-size:.72rem;color:var(--muted)}
+    .pfoot-links{display:flex;gap:13px}
+    .pfoot-links a{font-size:.72rem;color:var(--muted);text-decoration:none;transition:color .2s}
+    .pfoot-links a:hover{color:var(--purple)}
+
+    /* TOAST */
+    #toast{position:fixed;bottom:18px;right:18px;background:var(--surface);
+      border:1px solid var(--border);border-radius:12px;padding:10px 15px;font-size:.8rem;
+      box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:9999;
+      transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.23,1,.32,1);max-width:270px}
+    #toast.show{transform:translateY(0);opacity:1}
+
+    /* RESPONSIVE */
+    @media(max-width:900px){.layout{grid-template-columns:1fr}.sidenav{display:none}
+      main{padding:16px 12px 50px}}
+    @media(max-width:600px){.mc-opts{grid-template-columns:1fr}
+      .cat-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+      .hstats{gap:6px}.hst{padding:6px 10px}}
+    @media(max-width:420px){.mtabs{gap:4px}.mtab{padding:6px 10px;font-size:.7rem}}
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-l">
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Inicio</a>
+    <span class="page-ttl">Trainersätze · Módulo 04</span>
+  </div>
+  <div class="topbar-r">
+    <div class="uchip">
+      <div class="uav" id="uAv">?</div>
+      <span id="uNm" style="font-size:.79rem">—</span>
+    </div>
+    <button class="ib" id="themeBtn"><i class="fas fa-moon"></i></button>
+  </div>
+</nav>
+
+<!-- AUDIO (games folder sounds) -->
+<audio id="sndCorrect"  src="games/correct.mp3"   preload="auto"></audio>
+<audio id="sndWrong"    src="games/incorrect.mp3"  preload="auto"></audio>
+<audio id="sndClick"    src="games/clip.mp3"        preload="auto"></audio>
+
+<div class="layout">
+
+<!-- ── SIDENAV ── -->
+<aside class="sidenav">
+  <div class="nav-prog">
+    <div class="np-hdr"><span>Progreso</span><span class="np-pct" id="navPct">0%</span></div>
+    <div class="bar-t"><div class="bar-f" id="navBar"></div></div>
+    <div class="np-sts">
+      <div class="np-st"><span class="np-st-v" id="sDone">0</span><span class="np-st-l">Dominadas</span></div>
+      <div class="np-st"><span class="np-st-v" id="sTotal">—</span><span class="np-st-l">Total</span></div>
+      <div class="np-st"><span class="np-st-v" id="sStreak">0</span><span class="np-st-l">Racha</span></div>
+    </div>
+  </div>
+
+  <div class="nav-lbl">Modos</div>
+  <button class="nav-item active" data-nav="traduccion" onclick="switchMode('traduccion')">
+    <span class="nav-dot"></span> Traducción
+  </button>
+  <button class="nav-item" data-nav="completar" onclick="switchMode('completar')">
+    <span class="nav-dot"></span> Completar
+  </button>
+  <button class="nav-item" data-nav="ordenar" onclick="switchMode('ordenar')">
+    <span class="nav-dot"></span> Ordenar
+  </button>
+  <button class="nav-item" data-nav="multiple" onclick="switchMode('multiple')">
+    <span class="nav-dot"></span> Opción múltiple
+  </button>
+  <button class="nav-item" data-nav="escritura" onclick="switchMode('escritura')">
+    <span class="nav-dot"></span> Escritura libre
+  </button>
+  <button class="nav-item" data-nav="chat" onclick="switchMode('chat')">
+    <span class="nav-dot"></span> Chat IA
+  </button>
+
+  <div class="nav-lbl" style="margin-top:14px">Categorías</div>
+  <div id="navCats"></div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-row">
+      <div>
+        <div class="hero-lbl">Módulo 04 · Frases</div>
+        <h1>Trainersätze</h1>
+        <p>5 modos de ejercicio · Repaso espaciado SM-2 · Voz + IA · Frases reales A2-B1.</p>
+      </div>
+      <div class="hstats">
+        <div class="hst"><span class="hst-v" id="hTotal">—</span><span class="hst-l">Frases</span></div>
+        <div class="hst"><span class="hst-v" id="hMastered">0</span><span class="hst-l">Dominadas</span></div>
+        <div class="hst"><span class="hst-v" id="hPoints">0</span><span class="hst-l">Puntos</span></div>
+        <div class="hst"><span class="hst-v" id="hStreak">0</span><span class="hst-l">Racha 🔥</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOBAL PROGRESS -->
+  <div class="gpbar">
+    <span class="gp-lbl">Progreso global</span>
+    <div class="gp-track"><div class="gp-fill" id="gpFill"></div></div>
+    <span class="gp-pct" id="gpPct">0%</span>
+    <span class="gp-chip" id="gpChip">Selecciona una categoría</span>
+  </div>
+
+  <!-- REVIEW BANNER -->
+  <div class="rv-banner" id="rvBanner">
+    <div class="rv-banner-l">
+      <i class="fas fa-fire"></i>
+      <div>
+        <strong id="rvTitle">Frases para repasar hoy</strong>
+        <p id="rvSub">Repaso espaciado SM-2 pendiente.</p>
+      </div>
+    </div>
+    <button class="btn-rv" onclick="startReview()"><i class="fas fa-play"></i> Repasar</button>
+  </div>
+
+  <!-- CATEGORIES -->
+  <p class="slbl"><i class="fas fa-tags"></i> Categorías temáticas</p>
+  <div class="cat-grid" id="catGrid"></div>
+
+  <!-- MODE TABS -->
+  <div class="mtabs">
+    <button class="mtab active" data-mode="traduccion" onclick="switchMode('traduccion')">
+      <i class="fas fa-language"></i><span>Traducción</span>
+    </button>
+    <button class="mtab" data-mode="completar" onclick="switchMode('completar')">
+      <i class="fas fa-fill-drip"></i><span>Completar</span>
+    </button>
+    <button class="mtab" data-mode="ordenar" onclick="switchMode('ordenar')">
+      <i class="fas fa-sort"></i><span>Ordenar</span>
+    </button>
+    <button class="mtab" data-mode="multiple" onclick="switchMode('multiple')">
+      <i class="fas fa-list-ol"></i><span>Múltiple</span>
+    </button>
+    <button class="mtab" data-mode="escritura" onclick="switchMode('escritura')">
+      <i class="fas fa-pen"></i><span>Escritura</span>
+    </button>
+    <button class="mtab" data-mode="chat" onclick="switchMode('chat')">
+      <i class="fas fa-robot"></i><span>Chat IA</span>
+    </button>
+  </div>
+
+  <!-- ══ PANEL 1: TRADUCCIÓN ══ -->
+  <div class="panel active" id="panel-traduccion">
+    <div class="ph">
+      <span class="ph-title"><i class="fas fa-language" style="color:var(--purple);margin-right:6px"></i>Traducción — Escribe la frase en alemán</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="ex-score" id="trScore">0/0</span>
+        <button class="btn" onclick="initMode('traduccion')"><i class="fas fa-redo"></i> Nueva sesión</button>
+      </div>
+    </div>
+    <div id="trBody">
+      <div class="no-msg"><i class="fas fa-hand-point-up"></i><p>Selecciona una categoría arriba para comenzar.</p></div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL 2: COMPLETAR ══ -->
+  <div class="panel" id="panel-completar">
+    <div class="ph">
+      <span class="ph-title"><i class="fas fa-fill-drip" style="color:var(--blue);margin-right:6px"></i>Completar — Elige la palabra que falta</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="ex-score" id="cpScore">0/0</span>
+        <button class="btn" onclick="initMode('completar')"><i class="fas fa-redo"></i> Nueva sesión</button>
+      </div>
+    </div>
+    <div id="cpBody">
+      <div class="no-msg"><i class="fas fa-hand-point-up"></i><p>Selecciona una categoría para comenzar.</p></div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL 3: ORDENAR ══ -->
+  <div class="panel" id="panel-ordenar">
+    <div class="ph">
+      <span class="ph-title"><i class="fas fa-sort" style="color:var(--orange);margin-right:6px"></i>Ordenar — Forma la oración correcta</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="ex-score" id="orScore">0/0</span>
+        <button class="btn" onclick="initMode('ordenar')"><i class="fas fa-redo"></i> Nueva sesión</button>
+      </div>
+    </div>
+    <div id="orBody">
+      <div class="no-msg"><i class="fas fa-hand-point-up"></i><p>Selecciona una categoría para comenzar.</p></div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL 4: MULTIPLE ══ -->
+  <div class="panel" id="panel-multiple">
+    <div class="ph">
+      <span class="ph-title"><i class="fas fa-list-ol" style="color:var(--teal);margin-right:6px"></i>Opción múltiple — Elige la traducción correcta</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div style="display:flex;align-items:center;gap:5px;font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;color:var(--yellow)">
+          <i class="fas fa-clock"></i><span id="mcTimer">15</span>
+        </div>
+        <span class="ex-score" id="mcScore">0/0</span>
+        <button class="btn" onclick="initMode('multiple')"><i class="fas fa-redo"></i> Nueva sesión</button>
+      </div>
+    </div>
+    <div id="mcBody">
+      <div class="no-msg"><i class="fas fa-hand-point-up"></i><p>Selecciona una categoría para comenzar.</p></div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL 5: ESCRITURA LIBRE ══ -->
+  <div class="panel" id="panel-escritura">
+    <div class="ph">
+      <span class="ph-title"><i class="fas fa-pen" style="color:var(--pink);margin-right:6px"></i>Escritura libre — IA corrige tu alemán</span>
+      <div style="font-size:.72rem;color:var(--muted)">Powered by Mistral AI</div>
+    </div>
+    <div id="wrBody">
+      <div class="no-msg"><i class="fas fa-hand-point-up"></i><p>Selecciona una categoría para ver el prompt.</p></div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL 6: CHAT IA ══ -->
+  <div class="panel" id="panel-chat">
+    <div class="ph">
+      <span class="ph-title"><i class="fas fa-robot" style="color:var(--teal);margin-right:6px"></i>Chat IA — Practica alemán conversacional</span>
+      <button class="btn" onclick="clearChat()"><i class="fas fa-trash"></i> Limpiar</button>
+    </div>
+    <div class="chat-wrap">
+      <div class="chat-msgs" id="chatMsgs">
+        <div class="cmsg bot">
+          Hallo! Ich bin dein KI-Gesprächspartner. Schreib mir auf Deutsch! 😊
+          <br><button class="speak" onclick="speakDE('Hallo! Ich bin dein KI-Gesprächspartner.')">
+            <i class="fas fa-volume-up"></i> Anhören
+          </button>
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <button class="mic-btn" onclick="voiceToChat()" id="chatMicBtn"><i class="fas fa-microphone"></i></button>
+        <input class="chat-inp" id="chatInp" placeholder="Schreibe auf Deutsch…"
+          onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="chat-send" onclick="sendChat()"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:.72rem;color:var(--muted);text-align:center">
+      <i class="fas fa-info-circle"></i> El asistente responde en alemán + traducción al español
+    </div>
+  </div>
+
+</main>
+</div><!-- /layout -->
+
+<footer class="pfoot">
+  <div class="pfoot-in">
+    <div>
+      <div class="pfoot-brand">DEULCHALEX</div>
+      <div class="pfoot-copy">© 2024 · Centro de Aprendizaje de Alemán para hispanohablantes</div>
+    </div>
+    <div class="pfoot-links">
+      <a href="index.html"><i class="fas fa-home"></i> Inicio</a>
+      <a href="Grundlagentheorie.html"><i class="fas fa-graduation-cap"></i> Gramática</a>
+      <a href="voca.html"><i class="fas fa-book"></i> Vocabulario</a>
+    </div>
+  </div>
+</footer>
+
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════ -->
+<script>
+/* ── SUPABASE ── */
+const SB_URL = 'https://kcfiacdwufadnuknkfkp.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZmlhY2R3dWZhZG51a25rZmtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxOTA5MTksImV4cCI6MjA4Nzc2NjkxOX0.bmz4K7E-a2PCM5CObDYz9ritbTKLi_OpwyiNBMOH5fU';
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+let USER_ID = null;
+
+/* ── MISTRAL ── */
+const MISTRAL_KEY   = '9wZvZCUPPu16npLpjleEClkYCdXzterP';
+const MISTRAL_MODEL = 'mistral-tiny';
+
+/* ── AUDIO ── */
+function playSound(id) {
+  try { const a = document.getElementById(id); if(a){a.currentTime=0;a.play().catch(()=>{});} } catch(e) {}
+}
+const sndOK  = () => playSound('sndCorrect');
+const sndBad = () => playSound('sndWrong');
+const sndClk = () => playSound('sndClick');
+
+/* ── CATEGORIES ── */
+const CATEGORIES = [
+  {id:'vida_diaria', name:'Alltag',        emoji:'🏠', color:'#4f8ef7'},
+  {id:'compras',     name:'Einkaufen',     emoji:'🛒', color:'#22d3a5'},
+  {id:'viajes',      name:'Reisen',        emoji:'✈️', color:'#fb923c'},
+  {id:'restaurante', name:'Restaurant',    emoji:'🍽️', color:'#f75f5f'},
+  {id:'trabajo',     name:'Arbeit',        emoji:'💼', color:'#a78bfa'},
+  {id:'salud',       name:'Gesundheit',    emoji:'🏥', color:'#2dd4bf'},
+  {id:'familia',     name:'Familie',       emoji:'👨‍👩‍👧', color:'#f472b6'},
+  {id:'tiempo',      name:'Wetter',        emoji:'☀️', color:'#fbbf24'},
+  {id:'escuela',     name:'Schule',        emoji:'🎒', color:'#34d399'},
+  {id:'ocio',        name:'Freizeit',      emoji:'🎨', color:'#60a5fa'},
+];
+
+/* ── DEFAULT PHRASES ── */
+const DEFAULT_PHRASES = [
+  // vida_diaria
+  {id:1,category:'vida_diaria',german:'Ich stehe um 7 Uhr auf.',translation:'Me levanto a las 7.',level:'A1',words:['Ich','stehe','um','7','Uhr','auf.'],tip:'aufstehen = trennbares Verb → auf ans Ende'},
+  {id:2,category:'vida_diaria',german:'Ich frühstücke mit meiner Familie.',translation:'Desayuno con mi familia.',level:'A1',words:['Ich','frühstücke','mit','meiner','Familie.'],tip:'mit + Dativ: meiner (fem.)'},
+  {id:3,category:'vida_diaria',german:'Ich dusche mich jeden Morgen.',translation:'Me ducho cada mañana.',level:'A1',words:['Ich','dusche','mich','jeden','Morgen.'],tip:'sich duschen = verbo reflexivo'},
+  {id:4,category:'vida_diaria',german:'Ich fahre mit dem Bus zur Arbeit.',translation:'Voy al trabajo en autobús.',level:'A2',words:['Ich','fahre','mit','dem','Bus','zur','Arbeit.'],tip:'mit + Dativ: dem Bus'},
+  {id:5,category:'vida_diaria',german:'Abends lese ich ein Buch.',translation:'Por las tardes leo un libro.',level:'A2',words:['Abends','lese','ich','ein','Buch.'],tip:'Verbo en posición 2, aunque "Abends" esté primero'},
+  {id:6,category:'vida_diaria',german:'Ich gehe um 23 Uhr ins Bett.',translation:'Me voy a la cama a las 11.',level:'A1',words:['Ich','gehe','um','23','Uhr','ins','Bett.'],tip:'ins Bett gehen = irse a la cama'},
+  {id:7,category:'vida_diaria',german:'Heute habe ich viel zu tun.',translation:'Hoy tengo mucho que hacer.',level:'A2',words:['Heute','habe','ich','viel','zu','tun.'],tip:'viel zu tun haben = tener mucho que hacer'},
+  // compras
+  {id:8,category:'compras',german:'Ich kaufe im Supermarkt ein.',translation:'Compro en el supermercado.',level:'A1',words:['Ich','kaufe','im','Supermarkt','ein.'],tip:'einkaufen = separable: ein ans Ende'},
+  {id:9,category:'compras',german:'Wie viel kostet das?',translation:'¿Cuánto cuesta esto?',level:'A1',words:['Wie','viel','kostet','das?'],tip:'Pregunta directa: W-Wort + Verb + Subjekt'},
+  {id:10,category:'compras',german:'Ich hätte gern ein Kilo Äpfel.',translation:'Quisiera un kilo de manzanas.',level:'A2',words:['Ich','hätte','gern','ein','Kilo','Äpfel.'],tip:'hätte gern = forma cortés de querer'},
+  {id:11,category:'compras',german:'Haben Sie das auch in Größe M?',translation:'¿Lo tiene también en talla M?',level:'A2',words:['Haben','Sie','das','auch','in','Größe','M?'],tip:'Formal: Sie + Verb invertido'},
+  {id:12,category:'compras',german:'Ich zahle mit Kreditkarte.',translation:'Pago con tarjeta de crédito.',level:'A2',words:['Ich','zahle','mit','Kreditkarte.'],tip:'mit + Dativ (sin artículo)'},
+  {id:13,category:'compras',german:'Kann ich das umtauschen?',translation:'¿Puedo cambiarlo?',level:'B1',words:['Kann','ich','das','umtauschen?'],tip:'Modalverb kann → Infinitiv am Ende'},
+  // viajes
+  {id:14,category:'viajes',german:'Ich fahre mit dem Zug nach Berlin.',translation:'Voy en tren a Berlín.',level:'A1',words:['Ich','fahre','mit','dem','Zug','nach','Berlin.'],tip:'nach + Städte/Länder (ohne Artikel)'},
+  {id:15,category:'viajes',german:'Wann fährt der nächste Zug ab?',translation:'¿Cuándo sale el próximo tren?',level:'A2',words:['Wann','fährt','der','nächste','Zug','ab?'],tip:'abfahren = trennbar: ab ans Ende'},
+  {id:16,category:'viajes',german:'Ich möchte einen Fensterplatz reservieren.',translation:'Quiero reservar un asiento junto a la ventana.',level:'B1',words:['Ich','möchte','einen','Fensterplatz','reservieren.'],tip:'Modalverb möchte + Infinitiv am Ende'},
+  {id:17,category:'viajes',german:'Der Flug hat eine Stunde Verspätung.',translation:'El vuelo lleva una hora de retraso.',level:'A2',words:['Der','Flug','hat','eine','Stunde','Verspätung.'],tip:'Verspätung haben = tener retraso'},
+  {id:18,category:'viajes',german:'Wo ist die nächste U-Bahn-Station?',translation:'¿Dónde está la estación de metro más cercana?',level:'A2',words:['Wo','ist','die','nächste','U-Bahn-Station?'],tip:'Wo + sein (Verb 2) + Subjekt'},
+  // restaurante
+  {id:19,category:'restaurante',german:'Ich möchte einen Tisch für zwei reservieren.',translation:'Quiero reservar una mesa para dos.',level:'A2',words:['Ich','möchte','einen','Tisch','für','zwei','reservieren.'],tip:'für + Akkusativ: einen Tisch'},
+  {id:20,category:'restaurante',german:'Die Speisekarte, bitte.',translation:'La carta, por favor.',level:'A1',words:['Die','Speisekarte,','bitte.'],tip:'Kurzantwort – keine Verbform nötig'},
+  {id:21,category:'restaurante',german:'Ich bin Vegetarier. Haben Sie vegetarische Gerichte?',translation:'Soy vegetariano. ¿Tienen platos vegetarianos?',level:'B1',words:['Ich','bin','Vegetarier.','Haben','Sie','vegetarische','Gerichte?'],tip:'Formelle Frage: Haben Sie...?'},
+  {id:22,category:'restaurante',german:'Zahlen bitte, zusammen.',translation:'La cuenta, por favor. Todo junto.',level:'A2',words:['Zahlen','bitte,','zusammen.'],tip:'Imperativform ohne Subjekt (Kurzform)'},
+  {id:23,category:'restaurante',german:'Das Essen war ausgezeichnet!',translation:'¡La comida estaba excelente!',level:'A2',words:['Das','Essen','war','ausgezeichnet!'],tip:'war = Präteritum von sein'},
+  // trabajo
+  {id:24,category:'trabajo',german:'Ich habe heute eine wichtige Besprechung.',translation:'Hoy tengo una reunión importante.',level:'A2',words:['Ich','habe','heute','eine','wichtige','Besprechung.'],tip:'heute kommt oft nach dem Verb'},
+  {id:25,category:'trabajo',german:'Ich bewerbe mich um die Stelle als Ingenieur.',translation:'Solicito el puesto de ingeniero.',level:'B1',words:['Ich','bewerbe','mich','um','die','Stelle','als','Ingenieur.'],tip:'sich bewerben um + Akkusativ'},
+  {id:26,category:'trabajo',german:'Können Sie mir bitte Ihren Lebenslauf schicken?',translation:'¿Puede enviarme su currículum?',level:'B1',words:['Können','Sie','mir','bitte','Ihren','Lebenslauf','schicken?'],tip:'Dativ mir + Akkusativ Lebenslauf'},
+  {id:27,category:'trabajo',german:'Das Gehalt beträgt 2500 Euro brutto.',translation:'El salario es de 2500 euros brutos.',level:'B1',words:['Das','Gehalt','beträgt','2500','Euro','brutto.'],tip:'betragen = ascender a (salario)'},
+  // salud
+  {id:28,category:'salud',german:'Ich fühle mich nicht gut.',translation:'No me siento bien.',level:'A1',words:['Ich','fühle','mich','nicht','gut.'],tip:'sich fühlen = verbo reflexivo'},
+  {id:29,category:'salud',german:'Ich habe starke Kopfschmerzen.',translation:'Tengo un fuerte dolor de cabeza.',level:'A2',words:['Ich','habe','starke','Kopfschmerzen.'],tip:'Kopfschmerzen = compuesto (Kopf + Schmerzen)'},
+  {id:30,category:'salud',german:'Wann haben Sie den nächsten freien Termin?',translation:'¿Cuándo tiene la próxima cita disponible?',level:'B1',words:['Wann','haben','Sie','den','nächsten','freien','Termin?'],tip:'freien (Akk. mask.) = declinación del adjetivo'},
+  {id:31,category:'salud',german:'Ich bin gegen Penicillin allergisch.',translation:'Soy alérgico a la penicilina.',level:'B1',words:['Ich','bin','gegen','Penicillin','allergisch.'],tip:'gegen + Akkusativ (preposición fija)'},
+  // familia
+  {id:32,category:'familia',german:'Meine Mutter wohnt in Madrid.',translation:'Mi madre vive en Madrid.',level:'A1',words:['Meine','Mutter','wohnt','in','Madrid.'],tip:'in + Städte für Wohnort'},
+  {id:33,category:'familia',german:'Ich habe eine ältere Schwester und einen jüngeren Bruder.',translation:'Tengo una hermana mayor y un hermano menor.',level:'A2',words:['Ich','habe','eine','ältere','Schwester','und','einen','jüngeren','Bruder.'],tip:'Adjektivdeklination: eine ältere (Nom.fem.), einen jüngeren (Akk.mask.)'},
+  {id:34,category:'familia',german:'Wir besuchen jedes Jahr meine Großeltern.',translation:'Visitamos a mis abuelos cada año.',level:'A2',words:['Wir','besuchen','jedes','Jahr','meine','Großeltern.'],tip:'jedes Jahr + Akkusativ (Zeitangabe)'},
+  // tiempo
+  {id:35,category:'tiempo',german:'Heute ist es bewölkt und kalt.',translation:'Hoy está nublado y hace frío.',level:'A1',words:['Heute','ist','es','bewölkt','und','kalt.'],tip:'es ist + Adjektiv = hace (tiempo)'},
+  {id:36,category:'tiempo',german:'Es regnet seit drei Tagen.',translation:'Lleva tres días lloviendo.',level:'A2',words:['Es','regnet','seit','drei','Tagen.'],tip:'seit + Dativ (Zeitangabe)'},
+  {id:37,category:'tiempo',german:'Der Wetterbericht sagt Schnee voraus.',translation:'La previsión meteorológica anuncia nieve.',level:'B1',words:['Der','Wetterbericht','sagt','Schnee','voraus.'],tip:'voraussagen = trennbar: voraus ans Ende'},
+  // escuela
+  {id:38,category:'escuela',german:'Ich lerne seit zwei Jahren Deutsch.',translation:'Llevo dos años aprendiendo alemán.',level:'A2',words:['Ich','lerne','seit','zwei','Jahren','Deutsch.'],tip:'seit + Dativ: Jahren (plural)'},
+  {id:39,category:'escuela',german:'Die Prüfung war schwieriger als erwartet.',translation:'El examen fue más difícil de lo esperado.',level:'B1',words:['Die','Prüfung','war','schwieriger','als','erwartet.'],tip:'Komparativ + als'},
+  {id:40,category:'escuela',german:'Kannst du mir bei den Hausaufgaben helfen?',translation:'¿Me puedes ayudar con los deberes?',level:'A2',words:['Kannst','du','mir','bei','den','Hausaufgaben','helfen?'],tip:'helfen + Dativ: mir'},
+  // ocio
+  {id:41,category:'ocio',german:'Am Wochenende gehe ich gern wandern.',translation:'Los fines de semana me gusta hacer senderismo.',level:'A2',words:['Am','Wochenende','gehe','ich','gern','wandern.'],tip:'Am + Dativ: Wochenende'},
+  {id:42,category:'ocio',german:'Ich interessiere mich für Musik und Kino.',translation:'Me intereso por la música y el cine.',level:'A2',words:['Ich','interessiere','mich','für','Musik','und','Kino.'],tip:'sich interessieren für + Akkusativ'},
+  {id:43,category:'ocio',german:'Treffen wir uns um 19 Uhr vor dem Kino.',translation:'Quedamos a las 7 delante del cine.',level:'B1',words:['Treffen','wir','uns','um','19','Uhr','vor','dem','Kino.'],tip:'vor + Dativ: dem Kino'},
+];
+
+/* ── STATE ── */
+let allPhrases  = [];
+let userProg    = {}; // { phrase_id: { mastered, repetitions, next_review, mistakes, interval_days, id } }
+let stats       = { points:0, correct:0, streak:0 };
+let selCat      = null;
+let sessionPhrases = [];
+let currentMode = 'traduccion';
+
+// Mode-specific state
+let modeIdx = {tr:0, cp:0, or:0, mc:0, wr:0};
+let modeOk  = {tr:0, cp:0, or:0, mc:0};
+let modeErr = {tr:0, cp:0, or:0, mc:0};
+let mcTimer = null, mcTimerVal = 15;
+let builtWords = [], usedTiles = [];
+
+/* ── UTILS ── */
+const $ = id => document.getElementById(id);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a;}
+function today(){return new Date().toISOString().split('T')[0];}
+function addDays(d,n){const dt=new Date(d);dt.setDate(dt.getDate()+n);return dt.toISOString().split('T')[0];}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function phraseProg(id){return userProg[id]||{};}
+function isMastered(id){return !!phraseProg(id).mastered;}
+
+/* ── SPEAK ── */
+function speakDE(text){
+  if(!window.speechSynthesis)return;
+  const parts=text.split('Significado:');
+  const utter=new SpeechSynthesisUtterance(parts[0].trim());
+  utter.lang='de-DE'; utter.rate=0.9;
+  window.speechSynthesis.speak(utter);
+}
+
+/* ── VOICE ── */
+let recognition = null;
+function startVoice(targetId, callback) {
+  const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!Rec){toast('Reconocimiento de voz no disponible en este navegador.');return;}
+  if(recognition){recognition.stop();}
+  recognition = new Rec();
+  recognition.lang = 'de-DE';
+  recognition.interimResults = false;
+  recognition.onresult = e => {
+    const t = e.results[0][0].transcript;
+    if(targetId){const el=$(targetId);if(el)el.value=t;}
+    if(callback) callback(t);
+  };
+  recognition.onerror = e => { console.warn('voice error:', e.error); recognition=null; };
+  recognition.start();
+}
+
+function voiceToChat(){
+  const btn=$('chatMicBtn');
+  if(!btn)return;
+  sndClk();
+  btn.classList.add('recording');
+  startVoice('chatInp', () => { btn.classList.remove('recording'); });
+}
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', async () => {
+  // Theme
+  if(localStorage.getItem('dlaTheme')==='light'){
+    document.body.classList.add('light');
+    $('themeBtn').querySelector('i').className='fas fa-sun';
+  }
+  $('themeBtn').addEventListener('click',()=>{
+    document.body.classList.toggle('light');
+    const il=document.body.classList.contains('light');
+    localStorage.setItem('dlaTheme',il?'light':'dark');
+    $('themeBtn').querySelector('i').className=il?'fas fa-sun':'fas fa-moon';
+  });
+
+  // Stats from localStorage
+  stats = JSON.parse(localStorage.getItem('ts_stats'))||{points:0,correct:0,streak:0};
+  updateHeroStats();
+
+  // Session
+  const {data:{session}} = await sb.auth.getSession();
+  if(session?.user){
+    USER_ID = session.user.id;
+    const name=session.user.user_metadata?.full_name||session.user.email?.split('@')[0]||'?';
+    $('uNm').textContent=name;
+    $('uAv').textContent=name.charAt(0).toUpperCase();
+  }
+
+  await loadPhrases();
+  await loadUserProgress();
+  buildCatGrid();
+  buildNavCats();
+  updateGlobalStats();
+  buildReviewBanner();
+});
+
+/* ── LOAD PHRASES ── */
+async function loadPhrases(){
+  const {data,error} = await sb.from('phrase_exercises').select('*');
+  if(error||!data||data.length===0){
+    allPhrases = DEFAULT_PHRASES;
+  } else {
+    allPhrases = data;
+  }
+  $('hTotal').textContent = allPhrases.length;
+  $('sTotal').textContent = allPhrases.length;
+}
+
+/* ── LOAD USER PROGRESS ── */
+async function loadUserProgress(){
+  if(!USER_ID) return;
+  const {data} = await sb.from('user_phrase_progress').select('*').eq('user_id',USER_ID);
+  userProg = {};
+  (data||[]).forEach(r => { userProg[r.phrase_id] = r; });
+}
+
+/* ── SAVE PROGRESS (SM-2) ── */
+async function saveProgress(phraseId, correct){
+  const p = phraseProg(phraseId);
+  const h = today();
+  const newReps  = (p.repetitions||0) + (correct?1:0);
+  const newFails = (p.mistakes||0)   + (correct?0:1);
+  const newInt   = correct ? Math.min((p.interval_days||1)*2, 64) : 1;
+  const nextRev  = addDays(h, newInt);
+  const mastered = p.mastered || (newReps>=5 || newInt>30);
+
+  const updates = {
+    user_id: USER_ID||'anon', phrase_id: phraseId,
+    repetitions: newReps, interval_days: newInt, next_review: nextRev,
+    mistakes: newFails, mastered, last_reviewed: h
+  };
+
+  // Update stats
+  if(correct){ stats.correct++; stats.points+=10; stats.streak++; }
+  else        { stats.streak=0; }
+  localStorage.setItem('ts_stats', JSON.stringify(stats));
+  updateHeroStats();
+  $('sStreak').textContent = stats.streak;
+
+  if(!USER_ID){ userProg[phraseId]=updates; updateGlobalStats(); return; }
+  try{
+    if(p.id){
+      await sb.from('user_phrase_progress').update(updates).eq('id',p.id);
+    } else {
+      const {data} = await sb.from('user_phrase_progress').insert([updates]).select();
+      if(data?.[0]) updates.id=data[0].id;
+    }
+    userProg[phraseId]=updates;
+    updateGlobalStats();
+    buildCatGrid();
+    if(mastered&&!p.mastered) toast('🏆 ¡Frase dominada!');
+  } catch(e){ console.warn(e); userProg[phraseId]=updates; }
+}
+
+/* ── STATS ── */
+function updateHeroStats(){
+  $('hPoints').textContent  = stats.points;
+  $('hStreak').textContent  = stats.streak;
+}
+
+function updateGlobalStats(){
+  const mastered = Object.values(userProg).filter(p=>p.mastered).length;
+  const pct = allPhrases.length>0 ? Math.round((mastered/allPhrases.length)*100) : 0;
+  $('hMastered').textContent = mastered;
+  $('sDone').textContent     = mastered;
+  $('gpFill').style.width    = pct+'%';
+  $('gpPct').textContent     = pct+'%';
+  $('navBar').style.width    = pct+'%';
+  $('navPct').textContent    = pct+'%';
+  if(selCat){
+    const arr=allPhrases.filter(p=>p.category===selCat);
+    const done=arr.filter(p=>isMastered(p.id)).length;
+    $('gpChip').textContent=`${CATEGORIES.find(c=>c.id===selCat)?.emoji} ${selCat} — ${done}/${arr.length} dominadas`;
+  }
+}
+
+/* ── REVIEW BANNER ── */
+function buildReviewBanner(){
+  const h=today();
+  const due=Object.values(userProg).filter(p=>p.next_review&&p.next_review<=h&&!p.mastered);
+  if(due.length>0){
+    $('rvTitle').textContent=`🔥 ${due.length} frases para repasar hoy`;
+    $('rvSub').textContent='El repaso espaciado consolida la memoria a largo plazo.';
+    $('rvBanner').classList.add('show');
+  }
+}
+
+function startReview(){
+  const h=today();
+  const dueIds=Object.entries(userProg)
+    .filter(([,p])=>p.next_review&&p.next_review<=h&&!p.mastered)
+    .map(([id])=>parseInt(id));
+  const duePhrases=allPhrases.filter(p=>dueIds.includes(p.id));
+  if(duePhrases.length===0){toast('¡No hay frases pendientes hoy! 🎉');return;}
+  sessionPhrases=shuffle([...duePhrases]);
+  modeIdx.tr=0;modeOk.tr=0;modeErr.tr=0;
+  switchMode('traduccion');
+  renderTR();
+}
+
+/* ── CATEGORY GRID ── */
+function buildCatGrid(){
+  const grid=$('catGrid');
+  grid.innerHTML='';
+  CATEGORIES.forEach(cat=>{
+    const phrases=allPhrases.filter(p=>p.category===cat.id);
+    const done=phrases.filter(p=>isMastered(p.id)).length;
+    const pct=phrases.length>0?Math.round((done/phrases.length)*100):0;
+    const card=document.createElement('div');
+    card.className='cat-card'+(pct===100?' all-done':'')+(selCat===cat.id?' active':'');
+    card.style.setProperty('--c',cat.color);
+    card.onclick=()=>selectCat(cat.id);
+    card.innerHTML=`
+      <div class="cat-done"><i class="fas fa-check"></i></div>
+      <span class="cat-emoji">${cat.emoji}</span>
+      <div class="cat-name">${cat.name}</div>
+      <div class="cat-meta">${phrases.length} frases · ${done} dom.</div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:${pct}%;background:${cat.color}"></div></div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function buildNavCats(){
+  const nav=$('navCats');
+  nav.innerHTML='';
+  CATEGORIES.forEach(cat=>{
+    const btn=document.createElement('button');
+    btn.className='nav-item';
+    btn.innerHTML=`<span class="nav-dot"></span>${cat.emoji} ${cat.name}<i class="fas fa-check nav-ck"></i>`;
+    btn.onclick=()=>selectCat(cat.id);
+    nav.appendChild(btn);
+  });
+}
+
+function selectCat(id){
+  selCat=id;sndClk();
+  document.querySelectorAll('.cat-card').forEach((c,i)=>c.classList.toggle('active',CATEGORIES[i].id===id));
+  const arr=allPhrases.filter(p=>p.category===id);
+  // Prioritize non-mastered, then shuffle
+  const h=today();
+  const due=arr.filter(p=>{const pr=phraseProg(p.id);return !pr.mastered&&(!pr.next_review||pr.next_review<=h);});
+  const rest=arr.filter(p=>!due.find(d=>d.id===p.id));
+  sessionPhrases=[...shuffle(due),...shuffle(rest)].slice(0,12);
+  resetModeState();
+  updateGlobalStats();
+  refreshMode();
+}
+
+function resetModeState(){
+  modeIdx={tr:0,cp:0,or:0,mc:0,wr:0};
+  modeOk={tr:0,cp:0,or:0,mc:0};
+  modeErr={tr:0,cp:0,or:0,mc:0};
+  clearInterval(mcTimer);
+}
+
+/* ── MODE SWITCH ── */
+function switchMode(mode){
+  currentMode=mode;sndClk();
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.toggle('active',t.dataset.mode===mode));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+mode));
+  document.querySelectorAll('.nav-item[data-nav]').forEach(n=>n.classList.toggle('active',n.dataset.nav===mode));
+  if(sessionPhrases.length>0) refreshMode(mode);
+}
+function refreshMode(mode){
+  const m=mode||currentMode;
+  if(m==='traduccion') renderTR();
+  if(m==='completar')  renderCP();
+  if(m==='ordenar')    renderOR();
+  if(m==='multiple')   renderMC();
+  if(m==='escritura')  renderWR();
+}
+function initMode(mode){ resetModeState(); switchMode(mode); }
+
+/* ── SHARED RESULT SCREEN ── */
+function showResult(ok,err,body,reinitFn){
+  const pct=Math.round((ok/(ok+err||1))*100);
+  body.innerHTML=`
+    <div class="result-card">
+      <div style="font-size:2.5rem;margin-bottom:10px">${pct>=80?'🏆':pct>=50?'💪':'📚'}</div>
+      <h3>${pct>=80?'¡Excelente!':pct>=50?'¡Buen trabajo!':'Sigue practicando'}</h3>
+      <div class="rg">
+        <div class="rb"><span class="rb-v" style="color:var(--green)">${ok}</span><span class="rb-l">Correctas</span></div>
+        <div class="rb"><span class="rb-v" style="color:var(--red)">${err}</span><span class="rb-l">Errores</span></div>
+        <div class="rb"><span class="rb-v" style="color:var(--purple)">${pct}%</span><span class="rb-l">Acierto</span></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-p" onclick="(${reinitFn})()"><i class="fas fa-redo"></i> Repetir</button>
+        <button class="btn" onclick="switchMode('multiple')"><i class="fas fa-list-ol"></i> Múltiple</button>
+      </div>
+    </div>`;
+}
+
+function noSessionMsg(body){
+  body.innerHTML='<div class="no-msg"><i class="fas fa-hand-point-up"></i><p>Selecciona una categoría arriba para comenzar.</p></div>';
+}
+
+/* ═══════════════════════════════
+   1. TRADUCCIÓN
+═══════════════════════════════ */
+function renderTR(){
+  const body=$('trBody');
+  if(sessionPhrases.length===0){noSessionMsg(body);return;}
+  const idx=modeIdx.tr;
+  if(idx>=sessionPhrases.length){showResult(modeOk.tr,modeErr.tr,body,'()=>initMode("traduccion")');return;}
+  const ph=sessionPhrases[idx];
+  const pct=Math.round((idx/sessionPhrases.length)*100);
+  $('trScore').textContent=`${modeOk.tr}/${idx}`;
+  body.innerHTML=`
+    <div class="ex-prog-row">
+      <div class="ex-track"><div class="ex-fill" style="width:${pct}%"></div></div>
+      <span class="ex-ctr">${idx+1}/${sessionPhrases.length}</span>
+      <span class="ex-type-badge">ES → DE</span>
+    </div>
+    <div class="tr-card">
+      <div class="tr-prompt">Traduce al alemán</div>
+      <div class="tr-sentence">${ph.translation}</div>
+      ${ph.level?`<div class="tr-hint">Nivel ${ph.level}</div>`:''}
+    </div>
+    <div class="tr-kb">
+      ${['ä','ö','ü','Ä','Ö','Ü','ß'].map(c=>`<button class="kb" onclick="insertCh('trInp','${c}')">${c}</button>`).join('')}
+    </div>
+    <div class="mic-row">
+      <button class="mic-btn" onclick="startVoice('trInp',null)"><i class="fas fa-microphone"></i> Hablar</button>
+      <button class="speak-btn" onclick="speakDE('${ph.german.replace(/'/g,"\\'")}')"><i class="fas fa-volume-up"></i> Escuchar</button>
+    </div>
+    <div class="tr-row">
+      <input class="tr-input" id="trInp" placeholder="Escribe la frase en alemán…" autocomplete="off"
+        onkeydown="if(event.key==='Enter')checkTR()">
+      <button class="tr-chk" onclick="checkTR()"><i class="fas fa-check"></i> Comprobar</button>
+    </div>
+    <div class="ex-fb" id="trFb"></div>
+    <button class="ex-next" id="trNext" onclick="nextTR()">Siguiente <i class="fas fa-arrow-right"></i></button>
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:8px;flex-wrap:wrap">
+      <button class="btn" onclick="showTRHint()"><i class="fas fa-lightbulb"></i> Pista</button>
+      <button class="btn" onclick="nextTR()"><i class="fas fa-forward"></i> Saltar</button>
+    </div>
+    <div id="trHint" style="display:none;margin-top:8px;background:var(--ydim);border:1px solid rgba(251,191,36,.2);border-radius:10px;padding:10px 14px;font-size:.8rem;color:var(--muted)"></div>
+  `;
+  setTimeout(()=>$('trInp')?.focus(),60);
+}
+
+function showTRHint(){
+  const ph=sessionPhrases[modeIdx.tr];
+  const h=$('trHint');
+  if(!h||!ph)return;
+  h.style.display='block';
+  h.innerHTML=`<i class="fas fa-lightbulb" style="color:var(--yellow)"></i> <strong>Pista:</strong> La frase empieza con "<strong>${ph.german.split(' ')[0]}</strong>"${ph.tip?` · ${ph.tip}`:''}`;
+}
+
+function insertCh(id,c){
+  const inp=$(id);if(!inp)return;
+  const pos=inp.selectionStart;
+  inp.value=inp.value.slice(0,pos)+c+inp.value.slice(inp.selectionEnd);
+  inp.selectionStart=inp.selectionEnd=pos+1;inp.focus();
+}
+
+function checkTR(){
+  const ph=sessionPhrases[modeIdx.tr];
+  const inp=$('trInp');if(!inp||!ph)return;
+  const user=inp.value.trim().toLowerCase().replace(/[.,!?]/g,'');
+  const correct=ph.german.toLowerCase().replace(/[.,!?]/g,'');
+  const ok=user===correct;
+  inp.disabled=true;
+  inp.classList.add(ok?'ok':'err');
+  const fb=$('trFb');
+  if(fb){
+    fb.className='ex-fb '+(ok?'ok':'err');
+    fb.innerHTML=ok
+      ?`<strong>✅ ¡Richtig!</strong> <button class="speak-btn" onclick="speakDE('${ph.german.replace(/'/g,"\\'")}')"><i class="fas fa-volume-up"></i></button><div class="exp">"${ph.german}"</div>`
+      :`<strong>❌ Falsch.</strong> La respuesta correcta es: <strong>${ph.german}</strong>${ph.tip?`<div class="exp">💡 ${ph.tip}</div>`:''}`;
+  }
+  const nxt=$('trNext');if(nxt)nxt.classList.add('show');
+  ok?sndOK():sndBad();
+  if(ok){modeOk.tr++;}else{modeErr.tr++;}
+  saveProgress(ph.id,ok);
+  $('trScore').textContent=`${modeOk.tr}/${modeIdx.tr+1}`;
+}
+
+function nextTR(){ modeIdx.tr++; renderTR(); }
+
+/* ═══════════════════════════════
+   2. COMPLETAR
+═══════════════════════════════ */
+function renderCP(){
+  const body=$('cpBody');
+  if(sessionPhrases.length===0){noSessionMsg(body);return;}
+  const idx=modeIdx.cp;
+  if(idx>=sessionPhrases.length){showResult(modeOk.cp,modeErr.cp,body,'()=>initMode("completar")');return;}
+  const ph=sessionPhrases[idx];
+  $('cpScore').textContent=`${modeOk.cp}/${idx}`;
+
+  // Pick a word to remove (avoid first/last for difficulty)
+  const words=ph.words||(ph.german.split(' '));
+  const pickIdx=Math.max(1,Math.floor(Math.random()*(words.length-1)));
+  const missing=words[pickIdx].replace(/[.,!?]/g,'');
+  const display=words.map((w,i)=>i===pickIdx?`<span class="gap">${'_'.repeat(Math.max(missing.length,4))}</span>`:w).join(' ');
+
+  // Build options: correct + 3 wrong from other phrases
+  const wrongs=shuffle(allPhrases.filter(p=>p.id!==ph.id))
+    .slice(0,6)
+    .map(p=>(p.words||(p.german.split(' ')))[1]?.replace(/[.,!?]/g,'')||'')
+    .filter(w=>w&&w!==missing&&w.length>1);
+  const opts=shuffle([missing,...wrongs.slice(0,3)]);
+  const pct=Math.round((idx/sessionPhrases.length)*100);
+
+  body.innerHTML=`
+    <div class="ex-prog-row">
+      <div class="ex-track"><div class="ex-fill" style="width:${pct}%"></div></div>
+      <span class="ex-ctr">${idx+1}/${sessionPhrases.length}</span>
+      <span class="ex-type-badge">Lückentext</span>
+    </div>
+    <div class="ex-question"><i class="fas fa-fill-drip" style="color:var(--blue)"></i> Completa la oración:</div>
+    <div class="gap-sent">${display}</div>
+    <div class="ex-hint">${ph.translation}</div>
+    <button class="speak-btn" style="margin:0 auto 14px;display:flex" onclick="speakDE('${ph.german.replace(/'/g,"\\'")}')"><i class="fas fa-volume-up"></i> Escuchar la frase completa</button>
+    <div class="opt-grid" id="cpOpts">
+      ${opts.map((o,i)=>`
+        <button class="opt" data-val="${o}" onclick="selectCP(this,'${o}','${missing}','${ph.id}','${ph.german.replace(/'/g,"\\'")}','${ph.tip||''}')">
+          ${o}
+        </button>`).join('')}
+    </div>
+    <div class="ex-fb" id="cpFb"></div>
+    <button class="ex-next" id="cpNext" onclick="nextCP()">Siguiente <i class="fas fa-arrow-right"></i></button>
+  `;
+}
+
+function selectCP(btn,val,correct,phraseId,german,tip){
+  document.querySelectorAll('#cpOpts .opt').forEach(b=>b.disabled=true);
+  const ok=val.toLowerCase()===correct.toLowerCase();
+  btn.classList.add(ok?'correct':'wrong');
+  if(!ok) document.querySelectorAll('#cpOpts .opt').forEach(b=>{if(b.dataset.val===correct)b.classList.add('correct');});
+  const fb=$('cpFb');
+  if(fb){
+    fb.className='ex-fb '+(ok?'ok':'err');
+    fb.innerHTML=ok
+      ?`<strong>✅ ¡Richtig!</strong> <button class="speak-btn" onclick="speakDE('${german.replace(/'/g,"\\'")}')"><i class="fas fa-volume-up"></i></button><div class="exp">"${german}"</div>`
+      :`<strong>❌ Falsch.</strong> La palabra correcta era: <strong>${correct}</strong>${tip?`<div class="exp">💡 ${tip}</div>`:''}`;
+  }
+  if(ok){modeOk.cp++;sndOK();}else{modeErr.cp++;sndBad();}
+  saveProgress(parseInt(phraseId),ok);
+  $('cpScore').textContent=`${modeOk.cp}/${modeIdx.cp+1}`;
+  const nxt=$('cpNext');if(nxt)nxt.classList.add('show');
+}
+function nextCP(){ modeIdx.cp++; renderCP(); }
+
+/* ═══════════════════════════════
+   3. ORDENAR
+═══════════════════════════════ */
+function renderOR(){
+  const body=$('orBody');
+  if(sessionPhrases.length===0){noSessionMsg(body);return;}
+  const idx=modeIdx.or;
+  if(idx>=sessionPhrases.length){showResult(modeOk.or,modeErr.or,body,'()=>initMode("ordenar")');return;}
+  const ph=sessionPhrases[idx];
+  $('orScore').textContent=`${modeOk.or}/${idx}`;
+  const words=ph.words||(ph.german.split(' '));
+  const shuffled=shuffle([...words]);
+  builtWords=[];usedTiles=new Array(shuffled.length).fill(false);
+  const pct=Math.round((idx/sessionPhrases.length)*100);
+  body.innerHTML=`
+    <div class="ex-prog-row">
+      <div class="ex-track"><div class="ex-fill" style="width:${pct}%"></div></div>
+      <span class="ex-ctr">${idx+1}/${sessionPhrases.length}</span>
+      <span class="ex-type-badge">Sortieren</span>
+    </div>
+    <div class="ex-question"><i class="fas fa-sort" style="color:var(--orange)"></i> Ordena las palabras para formar la oración:</div>
+    <div class="ex-hint">${ph.translation}</div>
+    <div class="word-bank" id="orBank">
+      ${shuffled.map((w,i)=>`<div class="word-tile" id="tile${i}" data-idx="${i}" data-word="${w}" onclick="pickTile(this)">${w}</div>`).join('')}
+    </div>
+    <div class="sentence-builder" id="orBuilder" onclick="undoLastWord()" title="Haz clic para deshacer última palabra"></div>
+    <div style="font-size:.72rem;color:var(--muted);text-align:center;margin-bottom:10px">Haz clic en el constructor para deshacer · Toca las palabras para añadirlas</div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn btn-p" onclick="checkOR('${ph.german.replace(/'/g,"\\'")}','${ph.id}','${ph.tip||''}')"><i class="fas fa-check"></i> Comprobar</button>
+      <button class="btn" onclick="clearOR()"><i class="fas fa-undo"></i> Limpiar</button>
+      <button class="speak-btn" onclick="speakDE('${ph.german.replace(/'/g,"\\'")}')"><i class="fas fa-volume-up"></i> Escuchar</button>
+    </div>
+    <div class="ex-fb" id="orFb"></div>
+    <button class="ex-next" id="orNext" onclick="nextOR()">Siguiente <i class="fas fa-arrow-right"></i></button>
+  `;
+}
+
+function pickTile(tile){
+  if(tile.classList.contains('used'))return;
+  sndClk();
+  tile.classList.add('used');
+  builtWords.push({word:tile.dataset.word,idx:tile.dataset.idx});
+  const builder=$('orBuilder');
+  const span=document.createElement('span');
+  span.className='built-word';
+  span.textContent=tile.dataset.word;
+  builder.appendChild(span);
+}
+
+function undoLastWord(){
+  if(builtWords.length===0)return;
+  const last=builtWords.pop();
+  const tile=$('tile'+last.idx);
+  if(tile)tile.classList.remove('used');
+  const builder=$('orBuilder');
+  if(builder.lastChild)builder.removeChild(builder.lastChild);
+}
+
+function clearOR(){
+  builtWords=[];
+  document.querySelectorAll('.word-tile').forEach(t=>t.classList.remove('used'));
+  const b=$('orBuilder');if(b)b.innerHTML='';
+}
+
+function checkOR(german,phraseId,tip){
+  const user=builtWords.map(w=>w.word).join(' ');
+  const correct=german.trim();
+  const ok=user.trim()===correct;
+  const fb=$('orFb');
+  if(fb){
+    fb.className='ex-fb '+(ok?'ok':'err');
+    fb.innerHTML=ok
+      ?`<strong>✅ ¡Richtig!</strong><div class="exp">"${correct}"</div>`
+      :`<strong>❌ Falsch.</strong> La oración correcta es: <strong>${correct}</strong>${tip?`<div class="exp">💡 ${tip}</div>`:''}`;
+  }
+  if(ok){modeOk.or++;sndOK();}else{modeErr.or++;sndBad();}
+  saveProgress(parseInt(phraseId),ok);
+  $('orScore').textContent=`${modeOk.or}/${modeIdx.or+1}`;
+  const nxt=$('orNext');if(nxt)nxt.classList.add('show');
+  document.querySelectorAll('.word-tile').forEach(t=>t.classList.add('used'));
+}
+
+function nextOR(){ modeIdx.or++; renderOR(); }
+
+/* ═══════════════════════════════
+   4. MULTIPLE CHOICE
+═══════════════════════════════ */
+function renderMC(){
+  clearInterval(mcTimer);
+  const body=$('mcBody');
+  if(sessionPhrases.length===0){noSessionMsg(body);return;}
+  const idx=modeIdx.mc;
+  if(idx>=sessionPhrases.length){showResult(modeOk.mc,modeErr.mc,body,'()=>initMode("multiple")');return;}
+  const ph=sessionPhrases[idx];
+  $('mcScore').textContent=`${modeOk.mc}/${idx}`;
+
+  // Build 4 options
+  const wrongs=shuffle(allPhrases.filter(p=>p.id!==ph.id)).slice(0,3);
+  const opts=shuffle([
+    {text:ph.german,ok:true},
+    ...wrongs.map(w=>({text:w.german,ok:false}))
+  ]);
+  const pct=Math.round((idx/sessionPhrases.length)*100);
+
+  // Random question type: DE→ES or ES→DE
+  const deToEs=Math.random()>0.5;
+  const qText=deToEs?'Traduce al español:':'Selecciona la frase alemana correcta:';
+  const display=deToEs?ph.german:ph.translation;
+  const optsDisplay=deToEs
+    ?opts.map(o=>({text:o.ok?ph.translation:wrongs.find(w=>w.german===o.text)?.translation||o.text.slice(0,40)+'…',ok:o.ok}))
+    :opts;
+
+  body.innerHTML=`
+    <div class="ex-prog-row">
+      <div class="ex-track"><div class="ex-fill" style="width:${pct}%"></div></div>
+      <span class="ex-ctr">${idx+1}/${sessionPhrases.length}</span>
+      <span class="ex-type-badge">${deToEs?'DE → ES':'ES → DE'}</span>
+    </div>
+    <div class="ex-question"><i class="fas fa-list-ol" style="color:var(--teal)"></i> ${qText}</div>
+    <div class="ex-sentence">${display}</div>
+    ${deToEs?`<button class="speak-btn" style="margin:0 auto 12px;display:flex" onclick="speakDE('${ph.german.replace(/'/g,"\\'")}')"><i class="fas fa-volume-up"></i> Escuchar</button>`:''}
+    <div class="mc-opts">
+      ${optsDisplay.map((o,i)=>`
+        <button class="mc-opt" onclick="answerMC(this,${o.ok},'${ph.german.replace(/'/g,"\\'")}','${ph.id}','${ph.tip||''}')">
+          <span class="mc-lett">${'ABCD'[i]}</span>${o.text}
+        </button>`).join('')}
+    </div>
+    <div class="ex-fb" id="mcFb"></div>
+    <button class="ex-next" id="mcNext" onclick="nextMC()">Siguiente <i class="fas fa-arrow-right"></i></button>
+  `;
+
+  // Timer
+  mcTimerVal=15;
+  $('mcTimer').textContent=mcTimerVal;
+  $('mcTimer').parentElement.style.color='var(--yellow)';
+  mcTimer=setInterval(()=>{
+    mcTimerVal--;
+    const tv=$('mcTimer');if(tv)tv.textContent=mcTimerVal;
+    if(mcTimerVal<=5&&tv)tv.parentElement.style.color='var(--red)';
+    if(mcTimerVal<=0){clearInterval(mcTimer);autoWrongMC(ph.german,ph.id,ph.tip||'');}
+  },1000);
+}
+
+function answerMC(btn,ok,german,phraseId,tip){
+  clearInterval(mcTimer);
+  document.querySelectorAll('.mc-opt').forEach(b=>b.disabled=true);
+  btn.classList.add(ok?'correct':'wrong');
+  if(!ok) document.querySelectorAll('.mc-opt').forEach(b=>{if(b.textContent.trim().includes(german.slice(0,20)))b.classList.add('correct');});
+  const fb=$('mcFb');
+  if(fb){
+    fb.className='ex-fb '+(ok?'ok':'err');
+    fb.innerHTML=ok
+      ?`<strong>✅ ¡Richtig!</strong> <button class="speak-btn" onclick="speakDE('${german.replace(/'/g,"\\'")}')"><i class="fas fa-volume-up"></i></button><div class="exp">"${german}"</div>`
+      :`<strong>❌ Falsch.</strong> La correcta: <strong>${german}</strong>${tip?`<div class="exp">💡 ${tip}</div>`:''}`;
+  }
+  if(ok){modeOk.mc++;sndOK();}else{modeErr.mc++;sndBad();}
+  saveProgress(parseInt(phraseId),ok);
+  $('mcScore').textContent=`${modeOk.mc}/${modeIdx.mc+1}`;
+  const nxt=$('mcNext');if(nxt)nxt.classList.add('show');
+}
+
+function autoWrongMC(german,phraseId,tip){
+  document.querySelectorAll('.mc-opt').forEach(b=>b.disabled=true);
+  const fb=$('mcFb');
+  if(fb){fb.className='ex-fb err';fb.innerHTML=`<strong>⏱ Tiempo agotado.</strong> La correcta: <strong>${german}</strong>${tip?`<div class="exp">💡 ${tip}</div>`:''}`;sndBad();}
+  modeErr.mc++;
+  saveProgress(parseInt(phraseId),false);
+  $('mcScore').textContent=`${modeOk.mc}/${modeIdx.mc+1}`;
+  const nxt=$('mcNext');if(nxt)nxt.classList.add('show');
+}
+
+function nextMC(){ modeIdx.mc++; renderMC(); }
+
+/* ═══════════════════════════════
+   5. ESCRITURA LIBRE + IA
+═══════════════════════════════ */
+const WR_PROMPTS = [
+  {q:'Beschreibe deinen typischen Tagesablauf auf Deutsch (5 Sätze).',hint:'Mi día empieza cuando…'},
+  {q:'Schreib eine E-Mail an deinen Chef: Du möchtest nächste Woche Urlaub nehmen.',hint:'Sehr geehrte/r …'},
+  {q:'Erzähle, warum du Deutsch lernst und was dein Ziel ist.',hint:'Ich lerne Deutsch, weil…'},
+  {q:'Beschreibe deinen Traumjob auf Deutsch.',hint:'Mein Traumjob ist…'},
+  {q:'Schreib 5 Sätze über deine Familie.',hint:'Meine Familie besteht aus…'},
+  {q:'Erkläre auf Deutsch, was du am Wochenende gerne machst.',hint:'Am Wochenende…'},
+  {q:'Schreib eine kurze Entschuldigung für eine verpasste Besprechung.',hint:'Sehr geehrte/r … Ich entschuldige mich…'},
+];
+
+function renderWR(){
+  const body=$('wrBody');
+  if(!selCat&&sessionPhrases.length===0){noSessionMsg(body);return;}
+  const prompt=WR_PROMPTS[Math.floor(Math.random()*WR_PROMPTS.length)];
+  body.innerHTML=`
+    <div class="free-prompt">
+      <div class="fq"><i class="fas fa-pen" style="margin-right:7px"></i>${prompt.q}</div>
+      <div style="font-size:.78rem;color:var(--muted)">Pista: <em>${prompt.hint}</em></div>
+    </div>
+    <div class="mic-row">
+      <button class="mic-btn" onclick="startVoice('wrTA',null)"><i class="fas fa-microphone"></i> Dictar</button>
+    </div>
+    <textarea class="free-textarea" id="wrTA" placeholder="Schreibe hier auf Deutsch…"></textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+      <button class="btn btn-p" onclick="aiCorrect()"><i class="fas fa-spell-check"></i> Corregir con IA</button>
+      <button class="btn" onclick="aiEvaluate()"><i class="fas fa-star"></i> Evaluar nivel</button>
+      <button class="btn" onclick="speakDE(document.getElementById('wrTA')?.value||'')"><i class="fas fa-volume-up"></i> Escuchar</button>
+      <button class="btn" onclick="renderWR()"><i class="fas fa-random"></i> Nuevo prompt</button>
+    </div>
+    <div class="free-result" id="wrResult"></div>
+  `;
+}
+
+async function callMistral(prompt){
+  const resp=await fetch('https://api.mistral.ai/v1/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${MISTRAL_KEY}`},
+    body:JSON.stringify({model:MISTRAL_MODEL,messages:[{role:'user',content:prompt}],temperature:.7,max_tokens:350})
+  });
+  const data=await resp.json();
+  if(!resp.ok)throw new Error(data.error?.message||'Error Mistral');
+  return data.choices[0].message.content;
+}
+
+async function aiCorrect(){
+  const text=$('wrTA')?.value.trim();
+  const res=$('wrResult');
+  if(!text||!res){toast('Escribe algo primero.');return;}
+  res.className='free-result show';
+  res.innerHTML='<div class="ai-loading"><div class="spin-sm"></div> Corrigiendo con IA…</div>';
+  try{
+    const r=await callMistral(`Eres un profesor de alemán B1. Corrige este texto brevemente. Muestra la versión corregida y máximo 3 errores clave en alemán (1 frase cada uno). Luego en español: "Querías decir: [resumen corregido]". Texto:\n"${text}"`);
+    res.textContent=r;
+    speakDE(r);
+  }catch(e){res.textContent='Error: '+e.message;}
+}
+
+async function aiEvaluate(){
+  const text=$('wrTA')?.value.trim();
+  const res=$('wrResult');
+  if(!text||!res){toast('Escribe algo primero.');return;}
+  res.className='free-result show';
+  res.innerHTML='<div class="ai-loading"><div class="spin-sm"></div> Evaluando…</div>';
+  try{
+    const r=await callMistral(`Eres profesor de alemán. Evalúa este texto en escala A1-B2. Da: nivel estimado, 1 punto fuerte y 1 mejora (en alemán, max 2 frases). Luego en español: "Nivel: [nivel] — [breve explicación]". Texto:\n"${text}"`);
+    res.textContent=r;
+  }catch(e){res.textContent='Error: '+e.message;}
+}
+
+/* ═══════════════════════════════
+   6. CHAT IA
+═══════════════════════════════ */
+const chatHistory = [];
+function clearChat(){
+  chatHistory.length=0;
+  const msgs=$('chatMsgs');
+  if(msgs)msgs.innerHTML=`
+    <div class="cmsg bot">Hallo! Ich bin dein KI-Gesprächspartner. Schreib mir auf Deutsch! 😊
+      <br><button class="speak" onclick="speakDE('Hallo! Ich bin dein KI-Gesprächspartner.')">
+        <i class="fas fa-volume-up"></i> Anhören</button>
+    </div>`;
+}
+
+async function sendChat(){
+  const inp=$('chatInp');
+  const msg=inp?.value.trim();
+  if(!msg)return;
+  sndClk();
+  inp.value='';
+  const msgs=$('chatMsgs');
+  if(!msgs)return;
+
+  // User bubble
+  const userDiv=document.createElement('div');
+  userDiv.className='cmsg user';
+  userDiv.textContent=msg;
+  msgs.appendChild(userDiv);
+  msgs.scrollTop=msgs.scrollHeight;
+  chatHistory.push({role:'user',content:msg});
+
+  // Thinking bubble
+  const thinkDiv=document.createElement('div');
+  thinkDiv.className='cmsg bot';
+  thinkDiv.innerHTML='<div class="ai-loading"><div class="spin-sm"></div> Antwort wird generiert…</div>';
+  msgs.appendChild(thinkDiv);
+  msgs.scrollTop=msgs.scrollHeight;
+
+  const systemPrompt=`Antworte als freundlicher Deutschlehrer für B1-Lerner. Maximal 2 Sätze auf Deutsch. Dann eine neue Zeile: "Significado: [traducción al español de tu respuesta]". Nachricht: "${msg}"`;
+  try{
+    const r=await callMistral(systemPrompt);
+    chatHistory.push({role:'assistant',content:r});
+    const parts=r.split('Significado:');
+    const german=parts[0].trim();
+    const esp=parts[1]?.trim()||'';
+    thinkDiv.innerHTML=`${german}${esp?`<br><span style="font-size:.72rem;color:var(--muted)">🇪🇸 ${esp}</span>`:''}
+      <br><button class="speak" onclick="speakDE('${german.replace(/'/g,"\\'")}')">
+        <i class="fas fa-volume-up"></i> Anhören</button>`;
+    speakDE(german);
+  }catch(e){
+    thinkDiv.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;
+  }
+  msgs.scrollTop=msgs.scrollHeight;
+}
+</script>
+</body>
+</html>
