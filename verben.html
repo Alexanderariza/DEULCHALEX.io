@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEULCHALEX – Verbotrainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* ── TOKENS ── */
+    :root{
+      --bg:#0b0f1a; --surface:#131929; --s2:#1a2236; --s3:#202b42;
+      --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+      --blue:#4f8ef7; --bdim:rgba(79,142,247,.13); --bmid:rgba(79,142,247,.22);
+      --green:#22d3a5; --gdim:rgba(34,211,165,.13);
+      --red:#f75f5f; --rdim:rgba(247,95,95,.13);
+      --yellow:#fbbf24; --ydim:rgba(251,191,36,.13);
+      --purple:#a78bfa; --pdim:rgba(167,139,250,.13);
+      --orange:#fb923c; --odim:rgba(251,146,60,.13);
+      --teal:#2dd4bf; --tdim:rgba(45,212,191,.13);
+      --text:#e2e8f0; --muted:#64748b;
+      --radius:14px; --r20:20px;
+      /* Time color codes */
+      --pras:#4f8ef7; --prat:#f75f5f; --perf:#22d3a5; --fut:#fbbf24;
+    }
+    .light{
+      --bg:#f0f4f8; --surface:#fff; --s2:#e8edf4; --s3:#dde5f0;
+      --border:rgba(0,0,0,0.08); --border2:rgba(0,0,0,0.15);
+      --text:#1e293b; --muted:#64748b;
+      --bdim:rgba(79,142,247,.09); --gdim:rgba(34,211,165,.09);
+      --rdim:rgba(247,95,95,.09); --ydim:rgba(251,191,36,.09);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);
+      min-height:100vh;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased}
+
+    /* ── TOPBAR ── */
+    .topbar{display:flex;align-items:center;justify-content:space-between;
+      padding:11px 20px;background:var(--surface);border-bottom:1px solid var(--border);
+      position:sticky;top:0;z-index:300;backdrop-filter:blur(12px)}
+    .topbar-l{display:flex;align-items:center;gap:12px}
+    .back-link{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;
+      font-weight:600;color:var(--muted);text-decoration:none;padding:6px 12px;
+      border:1px solid var(--border);border-radius:10px;transition:all .2s}
+    .back-link:hover{color:var(--blue);border-color:var(--bdim)}
+    .page-ttl{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700}
+    .topbar-r{display:flex;align-items:center;gap:8px}
+    .ib{width:34px;height:34px;border-radius:9px;background:var(--s2);border:1px solid var(--border);
+      color:var(--muted);display:flex;align-items:center;justify-content:center;
+      font-size:.85rem;cursor:pointer;transition:all .2s}
+    .ib:hover{background:var(--bdim);color:var(--blue);border-color:var(--bdim)}
+    .uchip{display:flex;align-items:center;gap:6px;background:var(--s2);
+      border:1px solid var(--border);border-radius:30px;padding:4px 11px 4px 4px;font-size:.8rem}
+    .uav{width:24px;height:24px;border-radius:50%;
+      background:linear-gradient(135deg,var(--blue),var(--purple));
+      display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:#fff}
+
+    /* ── LAYOUT ── */
+    .layout{display:grid;grid-template-columns:230px 1fr;gap:0;
+      max-width:1300px;margin:0 auto;min-height:calc(100vh - 57px)}
+
+    /* ── SIDENAV ── */
+    .sidenav{position:sticky;top:57px;height:calc(100vh - 57px);overflow-y:auto;
+      padding:18px 10px;border-right:1px solid var(--border);scrollbar-width:thin}
+    .sidenav::-webkit-scrollbar{width:4px}
+    .sidenav::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+    /* Progress card in sidenav */
+    .nav-prog{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);
+      padding:13px;margin-bottom:14px}
+    .np-hdr{display:flex;justify-content:space-between;align-items:center;
+      font-size:.75rem;font-weight:600;margin-bottom:7px}
+    .np-pct{color:var(--blue);font-family:'Space Grotesk',sans-serif}
+    .bar-track{height:5px;background:var(--border);border-radius:20px;overflow:hidden}
+    .bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));
+      border-radius:20px;width:0%;transition:width .8s cubic-bezier(.23,1,.32,1)}
+    .np-stats{display:flex;gap:6px;margin-top:8px}
+    .np-stat{flex:1;text-align:center;background:var(--surface);border:1px solid var(--border);
+      border-radius:7px;padding:6px 3px}
+    .np-stat-v{font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:700;
+      color:var(--blue);display:block}
+    .np-stat-l{font-size:.58rem;color:var(--muted)}
+
+    /* Nav sections */
+    .nav-sec-lbl{font-size:.66rem;font-weight:700;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.08em;padding:0 6px;margin:12px 0 5px}
+    .nav-item{display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:9px;
+      font-size:.79rem;font-weight:500;color:var(--muted);text-decoration:none;
+      cursor:pointer;transition:all .15s;border:none;background:none;width:100%;text-align:left}
+    .nav-item:hover{background:var(--s2);color:var(--text)}
+    .nav-item.active{background:var(--bdim);color:var(--blue);font-weight:600}
+    .nav-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);
+      flex-shrink:0;transition:background .2s}
+    .nav-item.done .nav-dot{background:var(--green)}
+    .nav-item.active .nav-dot{background:var(--blue)}
+    .nav-ck{margin-left:auto;font-size:.62rem;color:var(--green);opacity:0;transition:opacity .2s}
+    .nav-item.done .nav-ck{opacity:1}
+
+    /* ── MAIN ── */
+    main{padding:26px 30px 60px;min-width:0}
+
+    /* ── HERO ── */
+    .page-hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--r20);
+      padding:24px 28px;margin-bottom:20px;position:relative;overflow:hidden}
+    .page-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,var(--orange),var(--red),var(--purple))}
+    .hero-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .hero-lbl{font-size:.7rem;font-weight:700;color:var(--orange);
+      text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+    .page-hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.3rem,2.5vw,1.8rem);
+      font-weight:700;margin-bottom:5px}
+    .page-hero p{font-size:.83rem;color:var(--muted);line-height:1.6}
+    .hstats{display:flex;gap:10px;flex-wrap:wrap;flex-shrink:0}
+    .hstat{text-align:center;background:var(--s2);border:1px solid var(--border);
+      border-radius:var(--radius);padding:9px 16px;min-width:72px}
+    .hstat-v{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;
+      color:var(--orange);display:block;line-height:1}
+    .hstat-l{font-size:.63rem;color:var(--muted)}
+
+    /* ── GLOBAL PROGRESS ── */
+    .gpbar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+      padding:13px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .gp-lbl{font-size:.8rem;font-weight:600;white-space:nowrap}
+    .gp-track{flex:1;height:7px;background:var(--s2);border-radius:20px;overflow:hidden;min-width:60px}
+    .gp-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--red));
+      border-radius:20px;width:0%;transition:width .9s cubic-bezier(.23,1,.32,1)}
+    .gp-pct{font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700;color:var(--orange)}
+    .gp-chip{font-size:.7rem;padding:3px 9px;border-radius:20px;font-weight:600;
+      background:var(--odim);color:var(--orange);border:1px solid rgba(251,146,60,.2)}
+
+    /* ── SECTION LABEL ── */
+    .slbl{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;
+      letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+    .slbl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+    /* ── MODE TABS ── */
+    .mtabs{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap}
+    .mtab{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;
+      font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;
+      background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+    .mtab:hover{border-color:var(--orange);color:var(--orange)}
+    .mtab.active{background:var(--orange);color:#fff;border-color:var(--orange);
+      box-shadow:0 4px 14px rgba(251,146,60,.3)}
+    .mtab i{font-size:.8rem}
+
+    /* ── PANELS ── */
+    .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r20);
+      padding:24px;display:none;min-height:280px}
+    .panel.active{display:block}
+    .ph{display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border);
+      gap:10px;flex-wrap:wrap}
+    .ph-title{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700}
+    .no-msg{text-align:center;padding:40px 20px;color:var(--muted)}
+    .no-msg i{font-size:1.8rem;margin-bottom:10px;display:block;color:var(--border2)}
+
+    /* ── THEORY BOXES ── */
+    .theory-section{scroll-margin-top:75px;margin-bottom:20px}
+    .theory-card{background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--r20);padding:24px}
+    .tc-header{display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+    .tc-title-wrap{display:flex;align-items:center;gap:12px}
+    .tc-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;
+      justify-content:center;font-size:1.05rem;flex-shrink:0}
+    .tc-card h2{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700}
+    .tc-sub{font-size:.78rem;color:var(--muted);margin-top:2px}
+    .done-badge{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;font-weight:600;
+      color:var(--green);background:var(--gdim);border:1px solid rgba(34,211,165,.25);
+      padding:3px 9px;border-radius:20px}
+
+    /* theory content */
+    .rbox{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);
+      padding:16px 18px;margin:12px 0;font-size:.83rem;line-height:1.65}
+    .rbox strong{color:var(--text)}
+    .rbox p+p{margin-top:6px}
+    .rbox .rtitle{font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;
+      color:var(--orange);margin-bottom:7px;display:flex;align-items:center;gap:6px}
+    .tipbox{background:var(--gdim);border:1px solid rgba(34,211,165,.18);
+      border-radius:var(--radius);padding:14px 18px;margin:12px 0;font-size:.82rem;line-height:1.6}
+    .tipbox .tt{font-size:.78rem;font-weight:700;color:var(--green);
+      margin-bottom:6px;display:flex;align-items:center;gap:6px}
+    .mbox{background:var(--ydim);border:1px solid rgba(251,191,36,.18);
+      border-radius:var(--radius);padding:14px 18px;margin:12px 0;font-size:.82rem;line-height:1.6}
+    .mbox .mt{font-size:.78rem;font-weight:700;color:var(--yellow);
+      margin-bottom:6px;display:flex;align-items:center;gap:6px}
+    .hl-p{background:rgba(79,142,247,.22);color:#6fa8fc;border-radius:4px;padding:1px 5px;font-weight:700}
+    .hl-a{background:rgba(247,95,95,.22);color:#f87b7b;border-radius:4px;padding:1px 5px;font-weight:700}
+    .hl-g{background:rgba(34,211,165,.22);color:#34d3a5;border-radius:4px;padding:1px 5px;font-weight:700}
+    .hl-y{background:rgba(251,191,36,.22);color:#fbbf24;border-radius:4px;padding:1px 5px;font-weight:700}
+    ul.elist{list-style:none;padding:0}
+    ul.elist li{padding:7px 10px;margin-bottom:6px;background:var(--s3);border-radius:8px;
+      border-left:3px solid var(--orange);font-size:.82rem}
+
+    /* conjugation table */
+    .tw{overflow-x:auto;margin:12px 0;border-radius:var(--radius);border:1px solid var(--border)}
+    table{width:100%;border-collapse:collapse;font-size:.81rem}
+    thead th{background:var(--s2);font-family:'Space Grotesk',sans-serif;font-weight:700;
+      padding:10px 14px;text-align:center;border-bottom:1px solid var(--border);
+      font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+    tbody td{padding:9px 14px;text-align:center;border-bottom:1px solid var(--border);
+      font-weight:500;font-size:.83rem}
+    tbody tr:last-child td{border-bottom:none}
+    tbody tr:hover td{background:color-mix(in srgb,var(--blue) 4%,var(--s2))}
+    td.person{text-align:left;color:var(--muted);font-size:.76rem}
+    td.form{font-weight:700;font-family:'Space Grotesk',sans-serif}
+    td.end{color:var(--orange);font-weight:600;font-size:.76rem}
+
+    /* ── VERB EXPLORER ── */
+    .vex-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+    .vex-search{flex:1;min-width:140px;padding:7px 13px;border-radius:9px;
+      border:1px solid var(--border);background:var(--s2);color:var(--text);
+      font-size:.8rem;outline:none;transition:border-color .2s}
+    .vex-search:focus{border-color:var(--orange)}
+    .vex-search::placeholder{color:var(--muted)}
+    .fchip{padding:5px 11px;border-radius:20px;font-size:.7rem;font-weight:600;
+      cursor:pointer;border:1px solid var(--border);background:var(--s2);
+      color:var(--muted);transition:all .15s}
+    .fchip.on{background:var(--orange);color:#fff;border-color:var(--orange)}
+
+    .vg{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px}
+    .vc{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);
+      padding:15px;cursor:pointer;transition:all .2s;position:relative}
+    .vc:hover{border-color:var(--orange);transform:translateY(-2px);
+      box-shadow:0 6px 18px rgba(0,0,0,.2)}
+    .vc.mastered{border-color:rgba(34,211,165,.3)}
+    .vc-inf{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;
+      color:var(--orange);margin-bottom:3px}
+    .vc-trans{font-size:.78rem;color:var(--muted);margin-bottom:6px}
+    .vc-badges{display:flex;gap:5px;flex-wrap:wrap}
+    .badge{font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:20px}
+    .badge-lvl{background:var(--ydim);color:var(--yellow)}
+    .badge-reg{background:var(--gdim);color:var(--green)}
+    .badge-irr{background:var(--rdim);color:var(--red)}
+    .badge-sep{background:var(--bdim);color:var(--blue)}
+    .badge-mod{background:var(--pdim);color:var(--purple)}
+    .vc-star{position:absolute;top:9px;right:9px;color:var(--yellow);font-size:.9rem}
+    .vc-forms{font-size:.7rem;color:var(--muted);margin-top:7px;
+      display:flex;gap:6px;flex-wrap:wrap}
+    .vc-form-tag{background:var(--surface);border:1px solid var(--border);
+      border-radius:5px;padding:2px 6px}
+
+    /* ── VERB DETAIL PANEL ── */
+    .vd-panel{background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--r20);padding:24px;margin-bottom:16px;display:none}
+    .vd-panel.show{display:block}
+    .vd-header{display:flex;align-items:flex-start;justify-content:space-between;
+      margin-bottom:18px;gap:12px;flex-wrap:wrap}
+    .vd-title{font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700;
+      color:var(--orange)}
+    .vd-sub{font-size:.85rem;color:var(--muted);margin-top:3px}
+    .vd-acts{display:flex;gap:8px;flex-wrap:wrap}
+    .vd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+    .conj-block{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);
+      overflow:hidden}
+    .conj-block-hdr{padding:9px 14px;font-family:'Space Grotesk',sans-serif;
+      font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+      display:flex;align-items:center;gap:6px}
+    .hdr-pras{background:rgba(79,142,247,.12);color:var(--blue)}
+    .hdr-prat{background:rgba(247,95,95,.12);color:var(--red)}
+    .hdr-perf{background:rgba(34,211,165,.12);color:var(--green)}
+    .hdr-fut {background:rgba(251,191,36,.12);color:var(--yellow)}
+    .conj-block table{width:100%}
+    .conj-block tbody td{font-size:.8rem;padding:7px 12px}
+    .conj-ich{color:var(--orange);font-weight:700}
+    .perf-box{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);
+      padding:14px;margin-bottom:12px;font-size:.83rem}
+    .perf-box .pt{font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:700;
+      color:var(--green);margin-bottom:6px}
+    .bsp-box{background:var(--s3);border-radius:var(--radius);padding:12px 16px;
+      font-size:.83rem;font-style:italic;color:var(--muted);border-left:3px solid var(--orange)}
+
+    /* ── CONJUGATION TRAINER ── */
+    .ct-setup{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+    .ct-select{padding:8px 14px;border-radius:9px;border:1px solid var(--border);
+      background:var(--s2);color:var(--text);font-size:.82rem;outline:none;cursor:pointer}
+    .ct-select:focus{border-color:var(--orange)}
+    .ct-q{background:var(--s2);border:1px solid var(--border2);border-radius:var(--r20);
+      padding:26px;text-align:center;margin-bottom:16px;max-width:540px;margin-left:auto;margin-right:auto}
+    .ct-prompt{font-size:.72rem;font-weight:700;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+    .ct-verb-big{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:700;
+      color:var(--orange);margin-bottom:4px}
+    .ct-tense-tag{font-size:.72rem;font-weight:600;padding:3px 9px;border-radius:20px;
+      margin-bottom:8px;display:inline-block}
+    .ct-person{font-size:1.1rem;font-weight:600;color:var(--muted)}
+    .ct-prog{display:flex;align-items:center;gap:10px;max-width:540px;
+      margin:0 auto 18px;flex-wrap:wrap}
+    .ct-prog-track{flex:1;height:5px;background:var(--s2);border-radius:20px;overflow:hidden}
+    .ct-prog-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--red));
+      border-radius:20px;transition:width .4s}
+    .ct-ctr{font-size:.75rem;color:var(--muted);white-space:nowrap}
+    .ct-input-row{display:flex;gap:9px;max-width:540px;margin:0 auto 12px}
+    .ct-input{flex:1;padding:11px 15px;border-radius:10px;border:1px solid var(--border);
+      background:var(--surface);color:var(--text);font-size:.95rem;
+      font-family:'Space Grotesk',sans-serif;font-weight:500;outline:none;transition:all .2s}
+    .ct-input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(251,146,60,.12)}
+    .ct-input.ok{border-color:var(--green);background:var(--gdim)}
+    .ct-input.err{border-color:var(--red);background:var(--rdim)}
+    .ct-chk{padding:11px 18px;border-radius:10px;background:var(--orange);color:#fff;
+      border:none;font-weight:700;cursor:pointer;font-size:.88rem;transition:all .2s}
+    .ct-chk:hover{background:#e8720e}
+    .ct-kb{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;
+      margin-bottom:12px;max-width:540px;margin-left:auto;margin-right:auto}
+    .kb{padding:4px 9px;border-radius:7px;border:1px solid var(--border2);
+      background:var(--s2);color:var(--text);font-size:.79rem;font-weight:600;
+      cursor:pointer;transition:all .15s}
+    .kb:hover{background:rgba(251,146,60,.2);border-color:var(--orange)}
+    .ct-fb{padding:12px 16px;border-radius:10px;font-size:.83rem;display:none;
+      max-width:540px;margin:0 auto 12px;line-height:1.55}
+    .ct-fb.ok{background:var(--gdim);color:var(--green);border:1px solid rgba(34,211,165,.2);display:block}
+    .ct-fb.err{background:var(--rdim);color:var(--red);border:1px solid rgba(247,95,95,.2);display:block}
+    .ct-next{padding:10px 22px;border-radius:10px;background:var(--orange);color:#fff;
+      border:none;font-weight:700;cursor:pointer;font-size:.88rem;transition:all .2s;
+      display:none;margin:0 auto}
+    .ct-next.show{display:block}
+
+    /* ── QUIZ (MCQ) ── */
+    .qz-hdr{display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:14px;flex-wrap:wrap;gap:8px}
+    .qz-timer{display:flex;align-items:center;gap:6px;font-family:'Space Grotesk',sans-serif;
+      font-size:1.1rem;font-weight:700;color:var(--yellow)}
+    .qz-timer.danger{color:var(--red);animation:pulse .5s infinite alternate}
+    @keyframes pulse{from{opacity:1}to{opacity:.5}}
+    .qz-chip{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;
+      background:var(--odim);color:var(--orange);border:1px solid rgba(251,146,60,.2)}
+    .qz-bar-track{height:4px;background:var(--s2);border-radius:20px;overflow:hidden;margin-bottom:16px}
+    .qz-bar-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--red));transition:width .3s}
+    .qz-word{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:700;
+      text-align:center;padding:18px;background:var(--s2);border-radius:var(--radius);
+      margin-bottom:14px;color:var(--orange)}
+    .qz-q{font-size:.86rem;font-weight:600;margin-bottom:12px;color:var(--muted)}
+    .qz-opts{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+    .qz-opt{padding:11px 14px;border-radius:10px;border:1px solid var(--border);
+      background:var(--s2);cursor:pointer;transition:all .15s;font-size:.83rem;
+      font-weight:500;color:var(--text);text-align:left;display:flex;align-items:center;gap:8px}
+    .qz-opt:hover:not(:disabled){border-color:var(--orange);background:var(--odim)}
+    .qz-opt.correct{border-color:var(--green);background:var(--gdim);color:var(--green)}
+    .qz-opt.wrong{border-color:var(--red);background:var(--rdim);color:var(--red)}
+    .qz-opt:disabled{cursor:not-allowed}
+    .qz-lett{width:21px;height:21px;border-radius:5px;flex-shrink:0;background:var(--surface);
+      display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--muted)}
+    .qz-opt.correct .qz-lett{background:var(--green);color:#fff}
+    .qz-opt.wrong   .qz-lett{background:var(--red);color:#fff}
+    .qz-fb{padding:11px 15px;border-radius:10px;font-size:.81rem;display:none;
+      margin-bottom:11px;line-height:1.5}
+    .qz-fb.ok{background:var(--gdim);color:var(--green);border:1px solid rgba(34,211,165,.2);display:block}
+    .qz-fb.err{background:var(--rdim);color:var(--red);border:1px solid rgba(247,95,95,.2);display:block}
+    .qz-fb .exp{color:var(--text);margin-top:4px;font-size:.77rem}
+    .qz-next{width:100%;padding:11px;border-radius:10px;background:var(--orange);color:#fff;
+      border:none;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;display:none}
+    .qz-next:hover{background:#e8720e}
+
+    /* ── FLASHCARD (IRREGULAR) ── */
+    .fc-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}
+    .fc-prog-row{width:100%;max-width:480px;display:flex;align-items:center;gap:10px}
+    .fc-track{flex:1;height:5px;background:var(--s2);border-radius:20px;overflow:hidden}
+    .fc-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--red));
+      border-radius:20px;transition:width .4s}
+    .fc-ctr{font-size:.75rem;color:var(--muted);white-space:nowrap}
+    .fc-card{width:100%;max-width:480px;min-height:240px;perspective:1200px;cursor:pointer}
+    .fc-inner{width:100%;height:240px;position:relative;transform-style:preserve-3d;
+      transition:transform .55s cubic-bezier(.23,1,.32,1)}
+    .fc-card.revealed .fc-inner{transform:rotateY(180deg)}
+    .fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+      background:var(--s2);border:1px solid var(--border2);border-radius:var(--r20);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:24px;text-align:center}
+    .fc-back{transform:rotateY(180deg);background:var(--s3)}
+    .fc-lbl{font-size:.66rem;font-weight:700;color:var(--muted);text-transform:uppercase;
+      letter-spacing:.07em;margin-bottom:10px}
+    .fc-word{font-family:'Space Grotesk',sans-serif;font-size:1.7rem;font-weight:700;
+      color:var(--orange);margin:6px 0}
+    .fc-forms-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;width:100%}
+    .fc-fg-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+      padding:7px;text-align:center}
+    .fc-fg-lbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
+    .fc-fg-val{font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700}
+    .fc-tap{font-size:.68rem;color:var(--muted);margin-top:10px;display:flex;align-items:center;gap:4px}
+    .fc-btns{display:flex;gap:10px;width:100%;max-width:480px}
+    .fc-btn{flex:1;padding:11px;border-radius:12px;font-size:.83rem;font-weight:700;
+      cursor:pointer;transition:all .2s;border:none;font-family:'Inter',sans-serif;
+      display:flex;align-items:center;justify-content:center;gap:6px}
+    .fc-no{background:var(--rdim);color:var(--red);border:1px solid rgba(247,95,95,.25)}
+    .fc-no:hover{background:rgba(247,95,95,.22);transform:translateY(-2px)}
+    .fc-yes{background:var(--gdim);color:var(--green);border:1px solid rgba(34,211,165,.25)}
+    .fc-yes:hover{background:rgba(34,211,165,.22);transform:translateY(-2px)}
+    .fc-btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important}
+
+    /* ── MATCH ── */
+    .match-board{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:640px;margin:0 auto}
+    .match-col{display:flex;flex-direction:column;gap:7px}
+    .mi{padding:10px 13px;border-radius:10px;border:1px solid var(--border);
+      background:var(--s2);cursor:pointer;transition:all .15s;font-size:.81rem;
+      font-weight:500;text-align:center;min-height:40px;display:flex;
+      align-items:center;justify-content:center}
+    .mi:hover:not(.matched):not(.wfl){border-color:var(--orange);background:var(--odim)}
+    .mi.sel{border-color:var(--orange);background:rgba(251,146,60,.2);color:var(--orange);font-weight:700}
+    .mi.matched{border-color:var(--green);background:var(--gdim);color:var(--green);cursor:default}
+    .mi.wfl{border-color:var(--red);background:var(--rdim);animation:wfl .4s}
+    @keyframes wfl{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+    .match-timer-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+    .mtimer{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:var(--orange)}
+    .mpairs{font-size:.75rem;color:var(--muted)}
+
+    /* ── RESULT CARD ── */
+    .result-card{text-align:center;padding:28px}
+    .result-card h3{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:7px}
+    .rg{display:flex;gap:10px;justify-content:center;margin:14px 0;flex-wrap:wrap}
+    .rb{text-align:center;background:var(--s2);border:1px solid var(--border);
+      border-radius:var(--radius);padding:10px 16px}
+    .rb-v{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;display:block}
+    .rb-l{font-size:.62rem;color:var(--muted)}
+
+    /* ── SHARED BUTTONS ── */
+    .btn{padding:8px 16px;border-radius:9px;font-size:.79rem;font-weight:600;
+      cursor:pointer;transition:all .2s;border:1px solid var(--border);
+      background:var(--s2);color:var(--text);font-family:'Inter',sans-serif;
+      display:inline-flex;align-items:center;gap:6px}
+    .btn:hover{background:var(--odim);border-color:rgba(251,146,60,.3);color:var(--orange)}
+    .btn-p{background:var(--orange);color:#fff;border-color:var(--orange)}
+    .btn-p:hover{background:#e8720e;color:#fff}
+    .btn-g{background:var(--green);color:#fff;border-color:var(--green)}
+    .btn-g:hover{background:#1ab893;color:#fff}
+
+    /* ── FOOTER ── */
+    .pfoot{background:var(--surface);border-top:1px solid var(--border);padding:18px 20px}
+    .pfoot-in{max-width:1300px;margin:0 auto;display:flex;align-items:center;
+      justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .pfoot-brand{font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700}
+    .pfoot-copy{font-size:.72rem;color:var(--muted)}
+    .pfoot-links{display:flex;gap:13px}
+    .pfoot-links a{font-size:.72rem;color:var(--muted);text-decoration:none;transition:color .2s}
+    .pfoot-links a:hover{color:var(--orange)}
+
+    /* TOAST */
+    #toast{position:fixed;bottom:18px;right:18px;background:var(--surface);
+      border:1px solid var(--border);border-radius:12px;padding:11px 16px;font-size:.82rem;
+      box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:9999;
+      transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.23,1,.32,1);max-width:280px}
+    #toast.show{transform:translateY(0);opacity:1}
+    .spin{display:inline-block;width:16px;height:16px;
+      border:2px solid var(--border2);border-top-color:var(--orange);
+      border-radius:50%;animation:_sp .7s linear infinite}
+    @keyframes _sp{to{transform:rotate(360deg)}}
+
+    /* RESPONSIVE */
+    @media(max-width:900px){.layout{grid-template-columns:1fr}.sidenav{display:none}
+      main{padding:18px 14px 50px}}
+    @media(max-width:600px){.qz-opts{grid-template-columns:1fr}
+      .vg{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+      .fc-forms-grid{grid-template-columns:1fr 1fr}
+      .hstats{gap:7px}.hstat{padding:7px 12px}}
+    @media(max-width:420px){.mtabs{gap:4px}.mtab{padding:6px 10px;font-size:.72rem}}
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-l">
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Inicio</a>
+    <span class="page-ttl">Verbotrainer · Módulo 03</span>
+  </div>
+  <div class="topbar-r">
+    <div class="uchip">
+      <div class="uav" id="uAv">?</div>
+      <span id="uNm" style="font-size:.79rem">—</span>
+    </div>
+    <button class="ib" id="themeBtn"><i class="fas fa-moon"></i></button>
+  </div>
+</nav>
+
+<div class="layout">
+
+<!-- ── SIDENAV ── -->
+<aside class="sidenav">
+  <div class="nav-prog">
+    <div class="np-hdr">
+      <span>Progreso</span>
+      <span class="np-pct" id="navPct">0%</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill" id="navBar"></div></div>
+    <div class="np-stats">
+      <div class="np-stat"><span class="np-stat-v" id="sDone">0</span><span class="np-stat-l">Dominados</span></div>
+      <div class="np-stat"><span class="np-stat-v" id="sTotal">—</span><span class="np-stat-l">Total</span></div>
+      <div class="np-stat"><span class="np-stat-v" id="sScore">—</span><span class="np-stat-l">Acierto</span></div>
+    </div>
+  </div>
+
+  <div class="nav-sec-lbl">Modos</div>
+  <button class="nav-item active" data-nav="explorer" onclick="switchMode('explorer')">
+    <span class="nav-dot"></span> Explorador
+  </button>
+  <button class="nav-item" data-nav="trainer" onclick="switchMode('trainer')">
+    <span class="nav-dot"></span> Conjugador
+  </button>
+  <button class="nav-item" data-nav="quiz" onclick="switchMode('quiz')">
+    <span class="nav-dot"></span> Quiz MCQ
+  </button>
+  <button class="nav-item" data-nav="flashcard" onclick="switchMode('flashcard')">
+    <span class="nav-dot"></span> Flashcards
+  </button>
+  <button class="nav-item" data-nav="match" onclick="switchMode('match')">
+    <span class="nav-dot"></span> Emparejar
+  </button>
+
+  <div class="nav-sec-lbl" style="margin-top:18px">Teoría</div>
+  <button class="nav-item" onclick="scrollSec('t-grundregel')"><span class="nav-dot"></span> Grundregel</button>
+  <button class="nav-item" onclick="scrollSec('t-prasens')"><span class="nav-dot"></span> Präsens</button>
+  <button class="nav-item" onclick="scrollSec('t-perfekt')"><span class="nav-dot"></span> Perfekt</button>
+  <button class="nav-item" onclick="scrollSec('t-praeteritum')"><span class="nav-dot"></span> Präteritum</button>
+  <button class="nav-item" onclick="scrollSec('t-futur')"><span class="nav-dot"></span> Futur I</button>
+  <button class="nav-item" onclick="scrollSec('t-habensein')"><span class="nav-dot"></span> haben / sein</button>
+  <button class="nav-item" onclick="scrollSec('t-modal')"><span class="nav-dot"></span> Modalverben</button>
+  <button class="nav-item" onclick="scrollSec('t-praefix')"><span class="nav-dot"></span> Präfixverben</button>
+  <button class="nav-item" onclick="scrollSec('t-reflexiv')"><span class="nav-dot"></span> Reflexive</button>
+  <button class="nav-item" onclick="scrollSec('t-imperativ')"><span class="nav-dot"></span> Imperativ</button>
+</aside>
+
+<!-- ── MAIN ── -->
+<main>
+
+  <!-- HERO -->
+  <div class="page-hero">
+    <div class="hero-row">
+      <div>
+        <div class="hero-lbl">Módulo 03 · Verbos</div>
+        <h1>Verbotrainer</h1>
+        <p>Conjugación completa · Repaso espaciado SM-2 · 5 modos pedagógicos · Teoría + práctica A1–B1.</p>
+      </div>
+      <div class="hstats">
+        <div class="hstat"><span class="hstat-v" id="hTotal">—</span><span class="hstat-l">Verbos</span></div>
+        <div class="hstat"><span class="hstat-v" id="hMastered">0</span><span class="hstat-l">Dominados</span></div>
+        <div class="hstat"><span class="hstat-v" id="hDue">0</span><span class="hstat-l">Para hoy</span></div>
+        <div class="hstat"><span class="hstat-v" id="hStreak">—</span><span class="hstat-l">Racha</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOBAL PROGRESS -->
+  <div class="gpbar">
+    <span class="gp-lbl">Progreso global</span>
+    <div class="gp-track"><div class="gp-fill" id="gpFill"></div></div>
+    <span class="gp-pct" id="gpPct">0%</span>
+    <span class="gp-chip" id="gpChip">Cargando…</span>
+  </div>
+
+  <!-- MODE TABS -->
+  <div class="mtabs">
+    <button class="mtab active" data-mode="explorer" onclick="switchMode('explorer')"><i class="fas fa-search"></i><span>Explorador</span></button>
+    <button class="mtab" data-mode="trainer"  onclick="switchMode('trainer')"> <i class="fas fa-keyboard"></i><span>Conjugador</span></button>
+    <button class="mtab" data-mode="quiz"     onclick="switchMode('quiz')">    <i class="fas fa-question-circle"></i><span>Quiz</span></button>
+    <button class="mtab" data-mode="flashcard" onclick="switchMode('flashcard')"><i class="fas fa-bolt"></i><span>Flashcards</span></button>
+    <button class="mtab" data-mode="match"    onclick="switchMode('match')">   <i class="fas fa-link"></i><span>Emparejar</span></button>
+  </div>
+
+  <!-- Verb detail panel (shared across modes) -->
+  <div class="vd-panel" id="vdPanel">
+    <div class="vd-header">
+      <div>
+        <div class="vd-title" id="vdTitle">—</div>
+        <div class="vd-sub"  id="vdSub">—</div>
+      </div>
+      <div class="vd-acts">
+        <button class="btn btn-g" id="vdMasterBtn" onclick="toggleMastered()"><i class="fas fa-star"></i> Marcar dominado</button>
+        <button class="btn" onclick="closeVD()"><i class="fas fa-times"></i> Cerrar</button>
+      </div>
+    </div>
+    <div class="vd-grid" id="vdConjGrid"></div>
+    <div id="vdPerfekt" class="perf-box"></div>
+    <div id="vdBsp"     class="bsp-box"></div>
+  </div>
+
+  <!-- ══ PANEL 1: EXPLORADOR ══ -->
+  <div class="panel active" id="panel-explorer">
+    <div class="ph">
+      <span class="ph-title"><i class="fas fa-search" style="color:var(--orange);margin-right:6px"></i>Explorador de verbos</span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <span id="vexCount" style="font-size:.75rem;color:var(--muted)"></span>
+        <button class="btn" onclick="shuffleVerbs()"><i class="fas fa-random"></i> Mezclar</button>
+      </div>
+    </div>
+    <div class="vex-bar">
+      <input class="vex-search" id="vexSearch" placeholder="🔍 Buscar verbo o traducción…" oninput="renderExplorer()">
+      <span class="fchip on" data-f="all"  onclick="setVF('all',this)">Todos</span>
+      <span class="fchip" data-f="A1"  onclick="setVF('A1',this)">A1</span>
+      <span class="fchip" data-f="A2"  onclick="setVF('A2',this)">A2</span>
+      <span class="fchip" data-f="B1"  onclick="setVF('B1',this)">B1</span>
+      <span class="fchip" data-f="irr" onclick="setVF('irr',this)">Irregulares</span>
+      <span class="fchip" data-f="mod" onclick="setVF('mod',this)">Modales</span>
+      <span class="fchip" data-f="new" onclick="setVF('new',this)">Sin repasar</span>
+    </div>
+    <div class="vg" id="verbGrid">
+      <div class="no-msg" style="grid-column:1/-1"><span class="spin"></span><p style="margin-top:10px">Cargando verbos…</p></div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL 2: CONJUGADOR ══ -->
+  <div class="panel" id="panel-trainer">
+    <div class="ph">
+      <span class="ph-title"><i class="fas fa-keyboard" style="color:var(--orange);margin-right:6px"></i>Conjugador — Escribe la forma correcta</span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <span style="font-size:.75rem;color:var(--muted)" id="trStats">✓ 0 &nbsp; ✗ 0</span>
+        <button class="btn" onclick="initTrainer()"><i class="fas fa-redo"></i> Nueva sesión</button>
+      </div>
+    </div>
+    <div class="ct-setup">
+      <select class="ct-select" id="trTense">
+        <option value="all">Todos los tiempos</option>
+        <option value="prasens">Präsens</option>
+        <option value="praeteritum">Präteritum</option>
+        <option value="partizip2">Partizip II</option>
+      </select>
+      <select class="ct-select" id="trLevel">
+        <option value="all">Todos los niveles</option>
+        <option value="A1">A1</option>
+        <option value="A2">A2</option>
+        <option value="B1">B1</option>
+      </select>
+      <button class="btn btn-p" onclick="initTrainer()"><i class="fas fa-play"></i> Empezar</button>
+    </div>
+    <div id="trainerBody">
+      <div class="no-msg"><i class="fas fa-play-circle"></i><p>Pulsa "Empezar" para comenzar el conjugador.</p></div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL 3: QUIZ ══ -->
+  <div class="panel" id="panel-quiz">
+    <div class="ph">
+      <span class="ph-title"><i class="fas fa-question-circle" style="color:var(--purple);margin-right:6px"></i>Quiz — Elige la respuesta correcta</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="qz-timer" id="qzTimer"><i class="fas fa-clock"></i><span id="qzTimerV">15</span></div>
+        <span class="qz-chip" id="qzChip">0/0</span>
+      </div>
+    </div>
+    <div id="qzBody">
+      <div class="no-msg"><i class="fas fa-hand-point-up"></i><p>Carga automáticamente con los verbos de Supabase.</p></div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL 4: FLASHCARDS ══ -->
+  <div class="panel" id="panel-flashcard">
+    <div class="ph">
+      <span class="ph-title"><i class="fas fa-bolt" style="color:var(--yellow);margin-right:6px"></i>Flashcards — Formas irregulares</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:.78rem;color:var(--yellow);display:flex;align-items:center;gap:4px">
+          <i class="fas fa-fire"></i><span id="fcStreakN">0</span> racha
+        </span>
+        <button class="btn" onclick="initFC(true)"><i class="fas fa-random"></i> Mezclar</button>
+      </div>
+    </div>
+    <div class="fc-wrap" id="fcWrap">
+      <div class="no-msg"><i class="fas fa-hand-point-up"></i><p>Cargando…</p></div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL 5: EMPAREJAR ══ -->
+  <div class="panel" id="panel-match">
+    <div class="ph">
+      <span class="ph-title"><i class="fas fa-link" style="color:var(--green);margin-right:6px"></i>Emparejar — Une verbo con traducción</span>
+      <div class="match-timer-row">
+        <span class="mtimer" id="matchTimer">0:00</span>
+        <span class="mpairs" id="matchPairsLbl">0/0 pares</span>
+      </div>
+    </div>
+    <div id="matchBody">
+      <div class="no-msg"><i class="fas fa-hand-point-up"></i><p>Cargando…</p></div>
+    </div>
+  </div>
+
+  <!-- ══ THEORY ══ -->
+  <p class="slbl" style="margin-top:28px"><i class="fas fa-book-open"></i> Teoría gramatical</p>
+
+  <!-- GRUNDREGEL -->
+  <div class="theory-section" id="t-grundregel">
+    <div class="theory-card">
+      <div class="tc-header">
+        <div class="tc-title-wrap">
+          <div class="tc-icon" style="background:var(--odim);color:var(--orange)"><i class="fas fa-book"></i></div>
+          <div><h2>Grundregel — Regla base del verbo</h2><div class="tc-sub">Infinitiv · Verbstamm · Endungen</div></div>
+        </div>
+      </div>
+      <div class="rbox">
+        <div class="rtitle"><i class="fas fa-info-circle"></i>¿Qué es un verbo en alemán?</div>
+        <p>Los verbos (<em>Verben</em>) expresan acciones, estados o procesos. La <strong>forma base es el Infinitiv</strong>, que termina en <span class="hl-p">-en</span> (o a veces <span class="hl-p">-n</span>: lächeln, wandern).</p>
+        <p>Para conjugar: <strong>Verbstamm</strong> (Infinitiv sin -en) <strong>+ Endung</strong> según persona y tiempo.</p>
+        <p>Ejemplo: <strong>lernen</strong> → Stamm: <span class="hl-p">lern</span> → ich lern<span class="hl-a">e</span>, du lern<span class="hl-a">st</span>, er lern<span class="hl-a">t</span>…</p>
+      </div>
+      <div class="tipbox">
+        <div class="tt"><i class="fas fa-lightbulb"></i>Categorías importantes</div>
+        <p><strong>Regelmäßige Verben:</strong> siguen siempre el patrón estándar de conjugación.</p>
+        <p><strong>Unregelmäßige Verben:</strong> cambian la vocal del Stamm en Präsens y Präteritum (fahren → fährt, fuhr).</p>
+        <p><strong>Trennbare Verben:</strong> llevan un prefijo que se separa al conjugar (aufmachen → Ich mache auf).</p>
+        <p><strong>Modalverben:</strong> verbos auxiliares de modalidad (können, müssen, wollen…). No tienen -st en du 3ª sing.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRÄSENS -->
+  <div class="theory-section" id="t-prasens">
+    <div class="theory-card">
+      <div class="tc-header">
+        <div class="tc-title-wrap">
+          <div class="tc-icon" style="background:var(--bdim);color:var(--blue)"><i class="fas fa-clock"></i></div>
+          <div><h2>Präsens — Presente</h2><div class="tc-sub">Acciones actuales, habituales o hechos generales</div></div>
+        </div>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Persona</th><th>gehen (ir)</th><th>Endung</th><th>lernen (aprender)</th><th>Endung</th></tr></thead>
+          <tbody>
+            <tr><td class="person">ich</td><td class="form">gehe</td><td class="end">-e</td><td class="form">lerne</td><td class="end">-e</td></tr>
+            <tr><td class="person">du</td><td class="form">gehst</td><td class="end">-st</td><td class="form">lernst</td><td class="end">-st</td></tr>
+            <tr><td class="person">er/sie/es</td><td class="form">geht</td><td class="end">-t</td><td class="form">lernt</td><td class="end">-t</td></tr>
+            <tr><td class="person">wir</td><td class="form">gehen</td><td class="end">-en</td><td class="form">lernen</td><td class="end">-en</td></tr>
+            <tr><td class="person">ihr</td><td class="form">geht</td><td class="end">-t</td><td class="form">lernt</td><td class="end">-t</td></tr>
+            <tr><td class="person">sie/Sie</td><td class="form">gehen</td><td class="end">-en</td><td class="form">lernen</td><td class="end">-en</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tipbox">
+        <div class="tt"><i class="fas fa-exclamation-triangle"></i>Besonderheiten (Particularidades)</div>
+        <p>Si el Stamm termina en <strong>-t / -d</strong>: se inserta una <span class="hl-g">-e-</span> antes de la terminación → arbeite<strong>st</strong>, arbeite<strong>t</strong>.</p>
+        <p>Si el Stamm termina en <strong>-s / -ss / -ß / -z</strong>: la 2ª persona (du) solo lleva <span class="hl-a">-t</span> → du rei<strong>st</strong>, du sit<strong>zt</strong>.</p>
+      </div>
+      <div class="mbox">
+        <div class="mt"><i class="fas fa-random"></i>Vokalwechsel — Cambios vocálicos en irregulares</div>
+        <ul class="elist">
+          <li>fahren → du <span class="hl-a">fährst</span>, er <span class="hl-a">fährt</span> &nbsp;(a → ä)</li>
+          <li>laufen → du <span class="hl-a">läufst</span>, er <span class="hl-a">läuft</span> &nbsp;(au → äu)</li>
+          <li>geben → du <span class="hl-a">gibst</span>, er <span class="hl-a">gibt</span> &nbsp;(e → i)</li>
+          <li>sehen → du <span class="hl-a">siehst</span>, er <span class="hl-a">sieht</span> &nbsp;(e → ie)</li>
+          <li>essen → du <span class="hl-a">isst</span>, er <span class="hl-a">isst</span> &nbsp;(e → i)</li>
+          <li>schlafen → du <span class="hl-a">schläfst</span>, er <span class="hl-a">schläft</span> &nbsp;(a → ä)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERFEKT -->
+  <div class="theory-section" id="t-perfekt">
+    <div class="theory-card">
+      <div class="tc-header">
+        <div class="tc-title-wrap">
+          <div class="tc-icon" style="background:var(--gdim);color:var(--green)"><i class="fas fa-history"></i></div>
+          <div><h2>Perfekt — Pasado coloquial</h2><div class="tc-sub">Lo más usado en alemán hablado para el pasado</div></div>
+        </div>
+      </div>
+      <div class="rbox">
+        <div class="rtitle"><i class="fas fa-calculator"></i>Fórmula</div>
+        <p><span class="hl-g">haben</span> / <span class="hl-a">sein</span> (conjugado) + <span class="hl-p">Partizip II</span> al final</p>
+        <p>→ "Ich <span class="hl-g">habe</span> gestern Deutsch <span class="hl-p">gelernt</span>." &nbsp;&nbsp; "Er <span class="hl-a">ist</span> nach Berlin <span class="hl-p">gefahren</span>."</p>
+      </div>
+      <div class="tipbox">
+        <div class="tt"><i class="fas fa-balance-scale"></i>¿Cuándo usar sein? — Regla SEW</div>
+        <p><strong>S</strong>ustandsveränderung (cambio de estado): schlafen → einschlafen (ist eingeschlafen)</p>
+        <p><strong>E</strong>rtswechsel / Ortsbewegung (cambio de lugar): gehen, fahren, fliegen, kommen → siempre con sein</p>
+        <p><strong>W</strong>erden, bleiben, passieren → siempre con sein</p>
+        <p>El resto: <strong>haben</strong></p>
+      </div>
+      <div class="rbox">
+        <div class="rtitle"><i class="fas fa-cog"></i>Bildung Partizip II</div>
+        <p><strong>Regelmäßig:</strong> ge- + Stamm + -t &nbsp;→ lernen → <span class="hl-p">gelernt</span>, kaufen → <span class="hl-p">gekauft</span></p>
+        <p><strong>Unregelmäßig:</strong> ge- + Stamm (verändert) + -en &nbsp;→ fahren → <span class="hl-p">gefahren</span>, schreiben → <span class="hl-p">geschrieben</span></p>
+        <p><strong>Untrennbare Präfixe</strong> (be-, er-, ge-, ver-, zer-): sin ge- &nbsp;→ verstehen → <span class="hl-p">verstanden</span></p>
+        <p><strong>Trennbare:</strong> Präfix + ge + Stamm + t &nbsp;→ aufmachen → <span class="hl-p">aufgemacht</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRÄTERITUM -->
+  <div class="theory-section" id="t-praeteritum">
+    <div class="theory-card">
+      <div class="tc-header">
+        <div class="tc-title-wrap">
+          <div class="tc-icon" style="background:var(--rdim);color:var(--red)"><i class="fas fa-hourglass"></i></div>
+          <div><h2>Präteritum — Pretérito</h2><div class="tc-sub">Más usado en textos escritos y haben/sein/Modalverben</div></div>
+        </div>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Persona</th><th>lernen (reg.)</th><th>fahren (irreg.)</th><th>Haben</th><th>Sein</th></tr></thead>
+          <tbody>
+            <tr><td class="person">ich</td><td>lernte</td><td>fuhr</td><td>hatte</td><td>war</td></tr>
+            <tr><td class="person">du</td><td>lerntest</td><td>fuhrst</td><td>hattest</td><td>warst</td></tr>
+            <tr><td class="person">er/sie/es</td><td>lernte</td><td>fuhr</td><td>hatte</td><td>war</td></tr>
+            <tr><td class="person">wir</td><td>lernten</td><td>fuhren</td><td>hatten</td><td>waren</td></tr>
+            <tr><td class="person">ihr</td><td>lerntet</td><td>fuhrt</td><td>hattet</td><td>wart</td></tr>
+            <tr><td class="person">sie/Sie</td><td>lernten</td><td>fuhren</td><td>hatten</td><td>waren</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mbox">
+        <div class="mt"><i class="fas fa-brain"></i>Regla mnemotécnica</div>
+        <p>Präteritum regular: Stamm + <span class="hl-y">-te-</span> + Personalendung (ich lernte, du lerntest, wir lernten).</p>
+        <p>Präteritum irregular: hay que memorizar el Stamm cambiado (fahren → <span class="hl-a">fuhr</span>, gehen → <span class="hl-a">ging</span>, schreiben → <span class="hl-a">schrieb</span>).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FUTUR -->
+  <div class="theory-section" id="t-futur">
+    <div class="theory-card">
+      <div class="tc-header">
+        <div class="tc-title-wrap">
+          <div class="tc-icon" style="background:var(--ydim);color:var(--yellow)"><i class="fas fa-forward"></i></div>
+          <div><h2>Futur I — Futuro</h2><div class="tc-sub">werden + Infinitiv · o Präsens + Zeitangabe</div></div>
+        </div>
+      </div>
+      <div class="rbox">
+        <div class="rtitle"><i class="fas fa-info-circle"></i>Dos formas de expresar futuro</div>
+        <p><strong>1. Präsens + Temporaladverb</strong> (más natural en habla cotidiana):<br>
+        → "Ich <span class="hl-p">gehe</span> <em>morgen</em> ins Kino." (Mañana voy al cine.)</p>
+        <p><strong>2. Futur I:</strong> <span class="hl-y">werden</span> (conjugado, pos. 2) + Infinitiv (al final):<br>
+        → "Ich <span class="hl-y">werde</span> morgen ins Kino <span class="hl-p">gehen</span>."</p>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Persona</th><th>werden (Präsens)</th></tr></thead>
+          <tbody>
+            <tr><td class="person">ich</td><td class="form">werde</td></tr>
+            <tr><td class="person">du</td><td class="form">wirst</td></tr>
+            <tr><td class="person">er/sie/es</td><td class="form">wird</td></tr>
+            <tr><td class="person">wir</td><td class="form">werden</td></tr>
+            <tr><td class="person">ihr</td><td class="form">werdet</td></tr>
+            <tr><td class="person">sie/Sie</td><td class="form">werden</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- HABEN SEIN -->
+  <div class="theory-section" id="t-habensein">
+    <div class="theory-card">
+      <div class="tc-header">
+        <div class="tc-title-wrap">
+          <div class="tc-icon" style="background:var(--odim);color:var(--orange)"><i class="fas fa-hand-holding"></i></div>
+          <div><h2>haben und sein</h2><div class="tc-sub">Los dos verbos más usados — Memorización obligatoria</div></div>
+        </div>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Persona</th><th>haben — Präsens</th><th>haben — Prät.</th><th>sein — Präsens</th><th>sein — Prät.</th></tr></thead>
+          <tbody>
+            <tr><td class="person">ich</td><td class="form conj-ich">habe</td><td>hatte</td><td class="form conj-ich">bin</td><td>war</td></tr>
+            <tr><td class="person">du</td><td class="form">hast</td><td>hattest</td><td class="form">bist</td><td>warst</td></tr>
+            <tr><td class="person">er/sie/es</td><td class="form">hat</td><td>hatte</td><td class="form">ist</td><td>war</td></tr>
+            <tr><td class="person">wir</td><td class="form">haben</td><td>hatten</td><td class="form">sind</td><td>waren</td></tr>
+            <tr><td class="person">ihr</td><td class="form">habt</td><td>hattet</td><td class="form">seid</td><td>wart</td></tr>
+            <tr><td class="person">sie/Sie</td><td class="form">haben</td><td>hatten</td><td class="form">sind</td><td>waren</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALVERBEN -->
+  <div class="theory-section" id="t-modal">
+    <div class="theory-card">
+      <div class="tc-header">
+        <div class="tc-title-wrap">
+          <div class="tc-icon" style="background:var(--pdim);color:var(--purple)"><i class="fas fa-exclamation"></i></div>
+          <div><h2>Modalverben</h2><div class="tc-sub">können · müssen · wollen · dürfen · sollen · mögen</div></div>
+        </div>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Persona</th><th>können</th><th>müssen</th><th>wollen</th><th>dürfen</th><th>sollen</th></tr></thead>
+          <tbody>
+            <tr><td class="person">ich</td><td>kann</td><td>muss</td><td>will</td><td>darf</td><td>soll</td></tr>
+            <tr><td class="person">du</td><td>kannst</td><td>musst</td><td>willst</td><td>darfst</td><td>sollst</td></tr>
+            <tr><td class="person">er/sie/es</td><td>kann</td><td>muss</td><td>will</td><td>darf</td><td>soll</td></tr>
+            <tr><td class="person">wir</td><td>können</td><td>müssen</td><td>wollen</td><td>dürfen</td><td>sollen</td></tr>
+            <tr><td class="person">ihr</td><td>könnt</td><td>müsst</td><td>wollt</td><td>dürft</td><td>sollt</td></tr>
+            <tr><td class="person">sie/Sie</td><td>können</td><td>müssen</td><td>wollen</td><td>dürfen</td><td>sollen</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mbox">
+        <div class="mt"><i class="fas fa-brain"></i>Regla especial Modalverben</div>
+        <p><strong>ich</strong> y <strong>er/sie/es</strong> tienen la misma forma (sin -t en 3ª persona).</p>
+        <p>El infinitivo del verbo principal va <strong>siempre al final</strong>: "Ich <span class="hl-p">kann</span> gut Deutsch <span class="hl-a">sprechen</span>."</p>
+        <p>En Präteritum: konnte, musste, wollte, durfte, sollte (todos regulares).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRÄFIXVERBEN -->
+  <div class="theory-section" id="t-praefix">
+    <div class="theory-card">
+      <div class="tc-header">
+        <div class="tc-title-wrap">
+          <div class="tc-icon" style="background:var(--bdim);color:var(--blue)"><i class="fas fa-link"></i></div>
+          <div><h2>Präfixverben</h2><div class="tc-sub">Trennbar vs. Untrennbar</div></div>
+        </div>
+      </div>
+      <div class="rbox">
+        <div class="rtitle"><i class="fas fa-cut"></i>Trennbare Verben (separables)</div>
+        <p>Präfix (betont) + Verbstamm. En oración el prefijo va al FINAL.</p>
+        <p>Präfixe: <span class="hl-p">ab-, an-, auf-, aus-, ein-, mit-, vor-, zu-, zurück-…</span></p>
+        <ul class="elist" style="margin-top:8px">
+          <li>aufmachen → "Ich <span class="hl-p">mache</span> das Fenster <span class="hl-p">auf</span>."</li>
+          <li>ankommen → "Der Zug <span class="hl-p">kommt</span> um 10 Uhr <span class="hl-p">an</span>."</li>
+          <li>einschlafen → "Das Kind <span class="hl-p">schläft</span> schnell <span class="hl-p">ein</span>."</li>
+        </ul>
+      </div>
+      <div class="rbox">
+        <div class="rtitle"><i class="fas fa-lock"></i>Untrennbare Verben (inseparables)</div>
+        <p>Präfix (unbetont) + Verb. El prefijo NO se separa NUNCA. Sin ge- en Partizip II.</p>
+        <p>Präfixe: <span class="hl-a">be-, er-, ge-, miss-, ver-, zer-</span></p>
+        <ul class="elist" style="margin-top:8px">
+          <li>verstehen → "Ich <span class="hl-a">verstehe</span> das nicht." | Partizip: <span class="hl-a">verstanden</span></li>
+          <li>bekommen → "Sie <span class="hl-a">bekommt</span> eine E-Mail." | Partizip: <span class="hl-a">bekommen</span></li>
+          <li>erklären → "Er <span class="hl-a">erklärt</span> die Regel." | Partizip: <span class="hl-a">erklärt</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- REFLEXIVE -->
+  <div class="theory-section" id="t-reflexiv">
+    <div class="theory-card">
+      <div class="tc-header">
+        <div class="tc-title-wrap">
+          <div class="tc-icon" style="background:var(--tdim);color:var(--teal)"><i class="fas fa-sync-alt"></i></div>
+          <div><h2>Reflexive Verben</h2><div class="tc-sub">Verbos reflexivos — sich + Verb</div></div>
+        </div>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Persona</th><th>sich waschen (lavarse)</th><th>Akkusativ</th></tr></thead>
+          <tbody>
+            <tr><td class="person">ich</td><td>ich wasche <strong>mich</strong></td><td>mich</td></tr>
+            <tr><td class="person">du</td><td>du wäschst <strong>dich</strong></td><td>dich</td></tr>
+            <tr><td class="person">er/sie/es</td><td>er wäscht <strong>sich</strong></td><td>sich</td></tr>
+            <tr><td class="person">wir</td><td>wir waschen <strong>uns</strong></td><td>uns</td></tr>
+            <tr><td class="person">ihr</td><td>ihr wascht <strong>euch</strong></td><td>euch</td></tr>
+            <tr><td class="person">sie/Sie</td><td>sie waschen <strong>sich</strong></td><td>sich</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mbox">
+        <div class="mt"><i class="fas fa-brain"></i>Regla de oro</div>
+        <p>La 3ª persona (er/sie/es/sie pl./Sie) SIEMPRE usa <span class="hl-y">sich</span>.</p>
+        <p>Verbos reflexivos comunes: sich freuen (alegrarse), sich interessieren (interesarse), sich vorstellen (presentarse/imaginarse), sich entscheiden (decidir), sich erinnern (recordar).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPERATIV -->
+  <div class="theory-section" id="t-imperativ">
+    <div class="theory-card">
+      <div class="tc-header">
+        <div class="tc-title-wrap">
+          <div class="tc-icon" style="background:var(--rdim);color:var(--red)"><i class="fas fa-bullhorn"></i></div>
+          <div><h2>Imperativ — Imperativo</h2><div class="tc-sub">du / ihr / Sie</div></div>
+        </div>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Forma</th><th>kommen</th><th>fahren</th><th>nehmen</th></tr></thead>
+          <tbody>
+            <tr><td class="person">du (informal)</td><td>Komm!</td><td>Fahr!</td><td>Nimm!</td></tr>
+            <tr><td class="person">ihr (grupo)</td><td>Kommt!</td><td>Fahrt!</td><td>Nehmt!</td></tr>
+            <tr><td class="person">Sie (formal)</td><td>Kommen Sie!</td><td>Fahren Sie!</td><td>Nehmen Sie!</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tipbox">
+        <div class="tt"><i class="fas fa-lightbulb"></i>Reglas</div>
+        <p><strong>du-Imperativ:</strong> Verbstamm (sin -st). Si hay Vokalwechsel e→i/ie: también en imperativo (geben → Gib!, nehmen → Nimm!).</p>
+        <p><strong>ihr-Imperativ:</strong> igual que Präsens ihr (simplemente quitar el sujeto).</p>
+        <p><strong>Sie-Imperativ:</strong> infinitivo + Sie (invertido respecto al Präsens).</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div><!-- /layout -->
+
+<footer class="pfoot">
+  <div class="pfoot-in">
+    <div>
+      <div class="pfoot-brand">DEULCHALEX</div>
+      <div class="pfoot-copy">© 2024 · Centro de Aprendizaje de Alemán para hispanohablantes</div>
+    </div>
+    <div class="pfoot-links">
+      <a href="index.html"><i class="fas fa-home"></i> Inicio</a>
+      <a href="Grundlagentheorie.html"><i class="fas fa-graduation-cap"></i> Gramática</a>
+      <a href="voca.html"><i class="fas fa-book"></i> Vocabulario</a>
+    </div>
+  </div>
+</footer>
+
+<div id="toast"></div>
+
+<!-- ════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════ -->
+<script>
+/* ── SUPABASE ── */
+const SB_URL = 'https://kcfiacdwufadnuknkfkp.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZmlhY2R3dWZhZG51a25rZmtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxOTA5MTksImV4cCI6MjA4Nzc2NjkxOX0.bmz4K7E-a2PCM5CObDYz9ritbTKLi_OpwyiNBMOH5fU';
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+let USER_ID = null;
+
+/* ── FALLBACK VERBS (used if Supabase verbs table is empty) ── */
+const DEFAULT_VERBS = [
+  {id:1,infinitive:'sein',translation:'ser / estar',level:'A1',type:'irr',prasens_ich:'bin',prasens_du:'bist',prasens_er:'ist',prasens_wir:'sind',prasens_ihr:'seid',prasens_sie:'sind',praeteritum_ich:'war',partizip2:'gewesen',perfekt_haben_sein:'ist',beispiel:'Ich bin müde.'},
+  {id:2,infinitive:'haben',translation:'tener',level:'A1',type:'irr',prasens_ich:'habe',prasens_du:'hast',prasens_er:'hat',prasens_wir:'haben',prasens_ihr:'habt',prasens_sie:'haben',praeteritum_ich:'hatte',partizip2:'gehabt',perfekt_haben_sein:'hat',beispiel:'Ich habe ein Buch.'},
+  {id:3,infinitive:'werden',translation:'convertirse / llegar a ser',level:'A2',type:'irr',prasens_ich:'werde',prasens_du:'wirst',prasens_er:'wird',prasens_wir:'werden',prasens_ihr:'werdet',prasens_sie:'werden',praeteritum_ich:'wurde',partizip2:'geworden',perfekt_haben_sein:'ist',beispiel:'Er wird Arzt.'},
+  {id:4,infinitive:'gehen',translation:'ir',level:'A1',type:'irr',prasens_ich:'gehe',prasens_du:'gehst',prasens_er:'geht',prasens_wir:'gehen',prasens_ihr:'geht',prasens_sie:'gehen',praeteritum_ich:'ging',partizip2:'gegangen',perfekt_haben_sein:'ist',beispiel:'Ich gehe nach Hause.'},
+  {id:5,infinitive:'kommen',translation:'venir',level:'A1',type:'irr',prasens_ich:'komme',prasens_du:'kommst',prasens_er:'kommt',prasens_wir:'kommen',prasens_ihr:'kommt',prasens_sie:'kommen',praeteritum_ich:'kam',partizip2:'gekommen',perfekt_haben_sein:'ist',beispiel:'Er kommt aus Berlin.'},
+  {id:6,infinitive:'sprechen',translation:'hablar',level:'A1',type:'irr',prasens_ich:'spreche',prasens_du:'sprichst',prasens_er:'spricht',prasens_wir:'sprechen',prasens_ihr:'sprecht',prasens_sie:'sprechen',praeteritum_ich:'sprach',partizip2:'gesprochen',perfekt_haben_sein:'hat',beispiel:'Ich spreche Deutsch.'},
+  {id:7,infinitive:'essen',translation:'comer',level:'A1',type:'irr',prasens_ich:'esse',prasens_du:'isst',prasens_er:'isst',prasens_wir:'essen',prasens_ihr:'esst',prasens_sie:'essen',praeteritum_ich:'aß',partizip2:'gegessen',perfekt_haben_sein:'hat',beispiel:'Ich esse Brot.'},
+  {id:8,infinitive:'trinken',translation:'beber',level:'A1',type:'irr',prasens_ich:'trinke',prasens_du:'trinkst',prasens_er:'trinkt',prasens_wir:'trinken',prasens_ihr:'trinkt',prasens_sie:'trinken',praeteritum_ich:'trank',partizip2:'getrunken',perfekt_haben_sein:'hat',beispiel:'Ich trinke Wasser.'},
+  {id:9,infinitive:'fahren',translation:'conducir / ir (vehículo)',level:'A1',type:'irr',prasens_ich:'fahre',prasens_du:'fährst',prasens_er:'fährt',prasens_wir:'fahren',prasens_ihr:'fahrt',prasens_sie:'fahren',praeteritum_ich:'fuhr',partizip2:'gefahren',perfekt_haben_sein:'ist',beispiel:'Ich fahre nach Berlin.'},
+  {id:10,infinitive:'nehmen',translation:'tomar',level:'A1',type:'irr',prasens_ich:'nehme',prasens_du:'nimmst',prasens_er:'nimmt',prasens_wir:'nehmen',prasens_ihr:'nehmt',prasens_sie:'nehmen',praeteritum_ich:'nahm',partizip2:'genommen',perfekt_haben_sein:'hat',beispiel:'Ich nehme den Bus.'},
+  {id:11,infinitive:'geben',translation:'dar',level:'A1',type:'irr',prasens_ich:'gebe',prasens_du:'gibst',prasens_er:'gibt',prasens_wir:'geben',prasens_ihr:'gebt',prasens_sie:'geben',praeteritum_ich:'gab',partizip2:'gegeben',perfekt_haben_sein:'hat',beispiel:'Ich gebe dir das Buch.'},
+  {id:12,infinitive:'lernen',translation:'aprender',level:'A1',type:'reg',prasens_ich:'lerne',prasens_du:'lernst',prasens_er:'lernt',prasens_wir:'lernen',prasens_ihr:'lernt',prasens_sie:'lernen',praeteritum_ich:'lernte',partizip2:'gelernt',perfekt_haben_sein:'hat',beispiel:'Ich lerne Deutsch.'},
+  {id:13,infinitive:'arbeiten',translation:'trabajar',level:'A1',type:'reg',prasens_ich:'arbeite',prasens_du:'arbeitest',prasens_er:'arbeitet',prasens_wir:'arbeiten',prasens_ihr:'arbeitet',prasens_sie:'arbeiten',praeteritum_ich:'arbeitete',partizip2:'gearbeitet',perfekt_haben_sein:'hat',beispiel:'Ich arbeite viel.'},
+  {id:14,infinitive:'wohnen',translation:'vivir / residir',level:'A1',type:'reg',prasens_ich:'wohne',prasens_du:'wohnst',prasens_er:'wohnt',prasens_wir:'wohnen',prasens_ihr:'wohnt',prasens_sie:'wohnen',praeteritum_ich:'wohnte',partizip2:'gewohnt',perfekt_haben_sein:'hat',beispiel:'Ich wohne in Berlin.'},
+  {id:15,infinitive:'schreiben',translation:'escribir',level:'A1',type:'irr',prasens_ich:'schreibe',prasens_du:'schreibst',prasens_er:'schreibt',prasens_wir:'schreiben',prasens_ihr:'schreibt',prasens_sie:'schreiben',praeteritum_ich:'schrieb',partizip2:'geschrieben',perfekt_haben_sein:'hat',beispiel:'Ich schreibe einen Brief.'},
+  {id:16,infinitive:'lesen',translation:'leer',level:'A1',type:'irr',prasens_ich:'lese',prasens_du:'liest',prasens_er:'liest',prasens_wir:'lesen',prasens_ihr:'lest',prasens_sie:'lesen',praeteritum_ich:'las',partizip2:'gelesen',perfekt_haben_sein:'hat',beispiel:'Ich lese ein Buch.'},
+  {id:17,infinitive:'schlafen',translation:'dormir',level:'A1',type:'irr',prasens_ich:'schlafe',prasens_du:'schläfst',prasens_er:'schläft',prasens_wir:'schlafen',prasens_ihr:'schlaft',prasens_sie:'schlafen',praeteritum_ich:'schlief',partizip2:'geschlafen',perfekt_haben_sein:'hat',beispiel:'Ich schlafe gut.'},
+  {id:18,infinitive:'können',translation:'poder',level:'A2',type:'mod',prasens_ich:'kann',prasens_du:'kannst',prasens_er:'kann',prasens_wir:'können',prasens_ihr:'könnt',prasens_sie:'können',praeteritum_ich:'konnte',partizip2:'gekonnt',perfekt_haben_sein:'hat',beispiel:'Ich kann gut singen.'},
+  {id:19,infinitive:'müssen',translation:'tener que / deber',level:'A2',type:'mod',prasens_ich:'muss',prasens_du:'musst',prasens_er:'muss',prasens_wir:'müssen',prasens_ihr:'müsst',prasens_sie:'müssen',praeteritum_ich:'musste',partizip2:'gemusst',perfekt_haben_sein:'hat',beispiel:'Ich muss lernen.'},
+  {id:20,infinitive:'wollen',translation:'querer',level:'A2',type:'mod',prasens_ich:'will',prasens_du:'willst',prasens_er:'will',prasens_wir:'wollen',prasens_ihr:'wollt',prasens_sie:'wollen',praeteritum_ich:'wollte',partizip2:'gewollt',perfekt_haben_sein:'hat',beispiel:'Ich will Arzt werden.'},
+  {id:21,infinitive:'dürfen',translation:'poder (permiso)',level:'A2',type:'mod',prasens_ich:'darf',prasens_du:'darfst',prasens_er:'darf',prasens_wir:'dürfen',prasens_ihr:'dürft',prasens_sie:'dürfen',praeteritum_ich:'durfte',partizip2:'gedurft',perfekt_haben_sein:'hat',beispiel:'Hier darf man nicht rauchen.'},
+  {id:22,infinitive:'sollen',translation:'deber (obligación externa)',level:'A2',type:'mod',prasens_ich:'soll',prasens_du:'sollst',prasens_er:'soll',prasens_wir:'sollen',prasens_ihr:'sollt',prasens_sie:'sollen',praeteritum_ich:'sollte',partizip2:'gesollt',perfekt_haben_sein:'hat',beispiel:'Du sollst nicht lügen.'},
+  {id:23,infinitive:'helfen',translation:'ayudar',level:'A2',type:'irr',prasens_ich:'helfe',prasens_du:'hilfst',prasens_er:'hilft',prasens_wir:'helfen',prasens_ihr:'helft',prasens_sie:'helfen',praeteritum_ich:'half',partizip2:'geholfen',perfekt_haben_sein:'hat',beispiel:'Ich helfe dir.'},
+  {id:24,infinitive:'bringen',translation:'traer / llevar',level:'A2',type:'irr',prasens_ich:'bringe',prasens_du:'bringst',prasens_er:'bringt',prasens_wir:'bringen',prasens_ihr:'bringt',prasens_sie:'bringen',praeteritum_ich:'brachte',partizip2:'gebracht',perfekt_haben_sein:'hat',beispiel:'Bringst du das Buch?'},
+  {id:25,infinitive:'wissen',translation:'saber',level:'A2',type:'irr',prasens_ich:'weiß',prasens_du:'weißt',prasens_er:'weiß',prasens_wir:'wissen',prasens_ihr:'wisst',prasens_sie:'wissen',praeteritum_ich:'wusste',partizip2:'gewusst',perfekt_haben_sein:'hat',beispiel:'Ich weiß die Antwort.'},
+  {id:26,infinitive:'kennen',translation:'conocer',level:'A2',type:'irr',prasens_ich:'kenne',prasens_du:'kennst',prasens_er:'kennt',prasens_wir:'kennen',prasens_ihr:'kennt',prasens_sie:'kennen',praeteritum_ich:'kannte',partizip2:'gekannt',perfekt_haben_sein:'hat',beispiel:'Ich kenne ihn gut.'},
+  {id:27,infinitive:'denken',translation:'pensar',level:'A2',type:'irr',prasens_ich:'denke',prasens_du:'denkst',prasens_er:'denkt',prasens_wir:'denken',prasens_ihr:'denkt',prasens_sie:'denken',praeteritum_ich:'dachte',partizip2:'gedacht',perfekt_haben_sein:'hat',beispiel:'Ich denke an dich.'},
+  {id:28,infinitive:'finden',translation:'encontrar / opinar',level:'A1',type:'irr',prasens_ich:'finde',prasens_du:'findest',prasens_er:'findet',prasens_wir:'finden',prasens_ihr:'findet',prasens_sie:'finden',praeteritum_ich:'fand',partizip2:'gefunden',perfekt_haben_sein:'hat',beispiel:'Ich finde das interessant.'},
+  {id:29,infinitive:'kaufen',translation:'comprar',level:'A2',type:'reg',prasens_ich:'kaufe',prasens_du:'kaufst',prasens_er:'kauft',prasens_wir:'kaufen',prasens_ihr:'kauft',prasens_sie:'kaufen',praeteritum_ich:'kaufte',partizip2:'gekauft',perfekt_haben_sein:'hat',beispiel:'Ich kaufe ein Auto.'},
+  {id:30,infinitive:'laufen',translation:'correr / caminar',level:'A2',type:'irr',prasens_ich:'laufe',prasens_du:'läufst',prasens_er:'läuft',prasens_wir:'laufen',prasens_ihr:'lauft',prasens_sie:'laufen',praeteritum_ich:'lief',partizip2:'gelaufen',perfekt_haben_sein:'ist',beispiel:'Ich laufe jeden Tag.'},
+  {id:31,infinitive:'fliegen',translation:'volar',level:'A2',type:'irr',prasens_ich:'fliege',prasens_du:'fliegst',prasens_er:'fliegt',prasens_wir:'fliegen',prasens_ihr:'fliegt',prasens_sie:'fliegen',praeteritum_ich:'flog',partizip2:'geflogen',perfekt_haben_sein:'ist',beispiel:'Wir fliegen nach Spanien.'},
+  {id:32,infinitive:'verstehen',translation:'entender / comprender',level:'A1',type:'irr',prasens_ich:'verstehe',prasens_du:'verstehst',prasens_er:'versteht',prasens_wir:'verstehen',prasens_ihr:'versteht',prasens_sie:'verstehen',praeteritum_ich:'verstand',partizip2:'verstanden',perfekt_haben_sein:'hat',beispiel:'Ich verstehe dich.'},
+  {id:33,infinitive:'erklären',translation:'explicar',level:'A2',type:'reg',prasens_ich:'erkläre',prasens_du:'erklärst',prasens_er:'erklärt',prasens_wir:'erklären',prasens_ihr:'erklärt',prasens_sie:'erklären',praeteritum_ich:'erklärte',partizip2:'erklärt',perfekt_haben_sein:'hat',beispiel:'Er erklärt die Regel.'},
+  {id:34,infinitive:'aufmachen',translation:'abrir',level:'A2',type:'sep',prasens_ich:'mache auf',prasens_du:'machst auf',prasens_er:'macht auf',prasens_wir:'machen auf',prasens_ihr:'macht auf',prasens_sie:'machen auf',praeteritum_ich:'machte auf',partizip2:'aufgemacht',perfekt_haben_sein:'hat',beispiel:'Mach die Tür auf!'},
+  {id:35,infinitive:'anfangen',translation:'empezar',level:'A2',type:'sep',prasens_ich:'fange an',prasens_du:'fängst an',prasens_er:'fängt an',prasens_wir:'fangen an',prasens_ihr:'fangt an',prasens_sie:'fangen an',praeteritum_ich:'fing an',partizip2:'angefangen',perfekt_haben_sein:'hat',beispiel:'Wann fangen wir an?'},
+  {id:36,infinitive:'ankommen',translation:'llegar',level:'A2',type:'sep',prasens_ich:'komme an',prasens_du:'kommst an',prasens_er:'kommt an',prasens_wir:'kommen an',prasens_ihr:'kommt an',prasens_sie:'kommen an',praeteritum_ich:'kam an',partizip2:'angekommen',perfekt_haben_sein:'ist',beispiel:'Wir kommen um 10 an.'},
+  {id:37,infinitive:'vorstellen',translation:'presentar / imaginar',level:'B1',type:'sep',prasens_ich:'stelle vor',prasens_du:'stellst vor',prasens_er:'stellt vor',prasens_wir:'stellen vor',prasens_ihr:'stellt vor',prasens_sie:'stellen vor',praeteritum_ich:'stellte vor',partizip2:'vorgestellt',perfekt_haben_sein:'hat',beispiel:'Darf ich mich vorstellen?'},
+  {id:38,infinitive:'vergessen',translation:'olvidar',level:'B1',type:'irr',prasens_ich:'vergesse',prasens_du:'vergisst',prasens_er:'vergisst',prasens_wir:'vergessen',prasens_ihr:'vergesst',prasens_sie:'vergessen',praeteritum_ich:'vergaß',partizip2:'vergessen',perfekt_haben_sein:'hat',beispiel:'Ich habe es vergessen.'},
+  {id:39,infinitive:'empfehlen',translation:'recomendar',level:'B1',type:'irr',prasens_ich:'empfehle',prasens_du:'empfiehlst',prasens_er:'empfiehlt',prasens_wir:'empfehlen',prasens_ihr:'empfehlt',prasens_sie:'empfehlen',praeteritum_ich:'empfahl',partizip2:'empfohlen',perfekt_haben_sein:'hat',beispiel:'Können Sie ein Hotel empfehlen?'},
+  {id:40,infinitive:'entscheiden',translation:'decidir',level:'B1',type:'irr',prasens_ich:'entscheide',prasens_du:'entscheidest',prasens_er:'entscheidet',prasens_wir:'entscheiden',prasens_ihr:'entscheidet',prasens_sie:'entscheiden',praeteritum_ich:'entschied',partizip2:'entschieden',perfekt_haben_sein:'hat',beispiel:'Ich muss mich entscheiden.'},
+];
+
+/* ── STATE ── */
+let verbs    = [];
+let userProg = {}; // { verb_id: { mastered, repetitions, next_review, mistakes, interval_days, id } }
+let currentVerbId = null;
+let vFilter = 'all';
+
+// Trainer state
+let trQueue = [], trIdx = 0, trOk = 0, trErr = 0;
+// Quiz state
+let qQueue = [], qIdx = 0, qCorrect = 0, qTimer = null, qTimerV = 15, qAnswered = false;
+// FC state
+let fcQueue = [], fcIdx = 0, fcStreak = 0, fcOk = 0, fcNo = 0;
+// Match state
+let mPairs = [], mSel = null, mMatched = 0, mTimer = null, mElapsed = 0;
+
+/* ── UTILS ── */
+const $ = id => document.getElementById(id);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a;}
+function today(){return new Date().toISOString().split('T')[0];}
+function addDays(d,n){const dt=new Date(d);dt.setDate(dt.getDate()+n);return dt.toISOString().split('T')[0];}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function verbProg(id){return userProg[id]||{};}
+function isMastered(id){return !!verbProg(id).mastered;}
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', async () => {
+  // Theme
+  if(localStorage.getItem('dlaTheme')==='light'){
+    document.body.classList.add('light');
+    $('themeBtn').querySelector('i').className='fas fa-sun';
+  }
+  $('themeBtn').addEventListener('click',()=>{
+    document.body.classList.toggle('light');
+    const il=document.body.classList.contains('light');
+    localStorage.setItem('dlaTheme',il?'light':'dark');
+    $('themeBtn').querySelector('i').className=il?'fas fa-sun':'fas fa-moon';
+  });
+
+  // Session
+  const {data:{session}} = await sb.auth.getSession();
+  if(session?.user){
+    USER_ID = session.user.id;
+    const name=session.user.user_metadata?.full_name||session.user.email?.split('@')[0]||'?';
+    $('uNm').textContent=name;
+    $('uAv').textContent=name.charAt(0).toUpperCase();
+  }
+
+  await loadVerbs();
+  await loadUserProgress();
+  updateStats();
+  renderExplorer();
+  initQuiz();
+  initFC(false);
+  initMatch();
+});
+
+/* ── LOAD VERBS ── */
+async function loadVerbs(){
+  const {data,error} = await sb.from('verbs').select('*').order('id');
+  if(error||!data||data.length===0){
+    // Use fallback + try to seed
+    verbs = DEFAULT_VERBS;
+    if(!error){
+      try{
+        for(let i=0;i<DEFAULT_VERBS.length;i+=10)
+          await sb.from('verbs').upsert(DEFAULT_VERBS.slice(i,i+10));
+      }catch(e){}
+    }
+  } else {
+    verbs = data;
+  }
+  $('hTotal').textContent = verbs.length;
+  $('sTotal').textContent = verbs.length;
+}
+
+async function loadUserProgress(){
+  if(!USER_ID) return;
+  const {data} = await sb.from('user_verbs').select('*').eq('user_id',USER_ID);
+  userProg={};
+  (data||[]).forEach(r=>{userProg[r.verb_id]=r;});
+}
+
+async function saveProgress(verbId, correct){
+  const p = verbProg(verbId);
+  const h = today();
+  const newReps  = (p.repetitions||0)+(correct?1:0);
+  const newFails = (p.mistakes||0)+(correct?0:1);
+  const newInt   = correct ? Math.min((p.interval_days||1)*2,64) : 1;
+  const nextRev  = addDays(h, newInt);
+  const mastered = p.mastered||(newReps>=5||newInt>30);
+
+  const updates = {
+    user_id: USER_ID||'anon', verb_id: verbId,
+    repetitions: newReps, interval_days: newInt, next_review: nextRev,
+    mistakes: newFails, mastered, last_reviewed: h
+  };
+  if(!USER_ID){userProg[verbId]=updates;updateStats();return;}
+  try{
+    if(p.id){
+      await sb.from('user_verbs').update(updates).eq('id',p.id);
+    } else {
+      const {data} = await sb.from('user_verbs').insert([updates]).select();
+      if(data?.[0]) updates.id=data[0].id;
+    }
+    userProg[verbId]=updates;
+    updateStats();
+    if(mastered&&!p.mastered) toast('🏆 Verbo dominado: '+verbs.find(v=>v.id==verbId)?.infinitive);
+  }catch(e){console.warn(e);userProg[verbId]=updates;}
+}
+
+async function toggleMastered(){
+  if(!currentVerbId) return;
+  const p = verbProg(currentVerbId);
+  const newState = !p.mastered;
+  if(!USER_ID){userProg[currentVerbId]={...p,mastered:newState};updateStats();renderExplorer();showVD(currentVerbId);return;}
+  try{
+    if(p.id){
+      await sb.from('user_verbs').update({mastered:newState}).eq('id',p.id);
+    } else {
+      const {data} = await sb.from('user_verbs').insert([{
+        user_id:USER_ID,verb_id:currentVerbId,mastered:newState,
+        repetitions:0,interval_days:1,next_review:today(),mistakes:0,last_reviewed:today()
+      }]).select();
+      if(data?.[0]) p.id=data[0].id;
+    }
+    userProg[currentVerbId]={...p,mastered:newState};
+    updateStats();renderExplorer();showVD(currentVerbId);
+    toast(newState?'⭐ Marcado como dominado':'☆ Desmarcado');
+  }catch(e){console.warn(e);}
+}
+
+/* ── STATS ── */
+function updateStats(){
+  const mastered = Object.values(userProg).filter(p=>p.mastered).length;
+  const h = today();
+  const due = Object.values(userProg).filter(p=>p.next_review&&p.next_review<=h&&!p.mastered).length;
+  const pct = verbs.length>0?Math.round((mastered/verbs.length)*100):0;
+  $('hMastered').textContent = mastered;
+  $('hDue').textContent      = due;
+  $('sDone').textContent     = mastered;
+  $('gpFill').style.width    = pct+'%';
+  $('gpPct').textContent     = pct+'%';
+  $('gpChip').textContent    = `${mastered}/${verbs.length} verbos dominados`;
+  $('navBar').style.width    = pct+'%';
+  $('navPct').textContent    = pct+'%';
+
+  let totalQ=0,totalC=0;
+  Object.values(userProg).forEach(p=>{
+    const attempts=(p.repetitions||0)+(p.mistakes||0);
+    if(attempts>0){totalQ++;totalC+=(p.repetitions||0);}
+  });
+  $('sScore').textContent = totalQ>0?Math.round((totalC/totalQ)*100)+'%':'—';
+}
+
+/* ── SCROLL NAV ── */
+function scrollSec(id){
+  const el=$(id);
+  if(el) window.scrollTo({top:el.offsetTop-75,behavior:'smooth'});
+}
+
+/* ── MODE SWITCHER ── */
+function switchMode(mode){
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.toggle('active',t.dataset.mode===mode));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+mode));
+  document.querySelectorAll('.nav-item[data-nav]').forEach(n=>n.classList.toggle('active',n.dataset.nav===mode));
+}
+
+/* ──────────────────────────────
+   1. EXPLORADOR
+────────────────────────────── */
+function setVF(f,el){
+  vFilter=f;
+  document.querySelectorAll('.fchip').forEach(c=>c.classList.toggle('on',c.dataset.f===f));
+  renderExplorer();
+}
+function shuffleVerbs(){verbs=shuffle([...verbs]);renderExplorer();}
+
+function renderExplorer(){
+  const search = ($('vexSearch')?.value||'').toLowerCase();
+  const h = today();
+  let list = [...verbs];
+  if(search) list=list.filter(v=>(v.infinitive||'').toLowerCase().includes(search)||(v.translation||'').toLowerCase().includes(search));
+  if(vFilter==='A1') list=list.filter(v=>v.level==='A1');
+  if(vFilter==='A2') list=list.filter(v=>v.level==='A2');
+  if(vFilter==='B1') list=list.filter(v=>v.level==='B1');
+  if(vFilter==='irr') list=list.filter(v=>v.type==='irr'||(!v.type&&v.partizip2&&!v.partizip2.startsWith('ge')));
+  if(vFilter==='mod') list=list.filter(v=>v.type==='mod'||['können','müssen','wollen','dürfen','sollen','mögen'].includes(v.infinitive));
+  if(vFilter==='new') list=list.filter(v=>!userProg[v.id]||(!userProg[v.id].repetitions&&!userProg[v.id].mastered));
+
+  $('vexCount').textContent=`${list.length} verbos`;
+  const grid=$('verbGrid');
+  grid.innerHTML='';
+  if(list.length===0){grid.innerHTML='<div class="no-msg" style="grid-column:1/-1"><i class="fas fa-filter"></i><p>Sin resultados.</p></div>';return;}
+
+  list.forEach(v=>{
+    const p=verbProg(v.id);
+    const typeBadge = v.type==='mod'?'<span class="badge badge-mod">Modal</span>':
+                      v.type==='sep'?'<span class="badge badge-sep">Trennbar</span>':
+                      v.type==='irr'?'<span class="badge badge-irr">Irregular</span>':
+                      '<span class="badge badge-reg">Regular</span>';
+    const card=document.createElement('div');
+    card.className='vc'+(p.mastered?' mastered':'');
+    card.onclick=()=>showVD(v.id);
+    card.innerHTML=`
+      <div class="vc-inf">${v.infinitive}</div>
+      <div class="vc-trans">${v.translation}</div>
+      <div class="vc-badges">
+        <span class="badge badge-lvl">${v.level||'A2'}</span>
+        ${typeBadge}
+      </div>
+      <div class="vc-forms">
+        <span class="vc-form-tag">${v.prasens_ich||''}</span>
+        <span class="vc-form-tag">${v.praeteritum_ich||''}</span>
+        <span class="vc-form-tag">${v.partizip2||''}</span>
+      </div>
+      ${p.mastered?'<div class="vc-star">★</div>':''}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+/* ── VERB DETAIL ── */
+function showVD(id){
+  const v=verbs.find(x=>x.id==id);
+  if(!v) return;
+  currentVerbId=id;
+  const p=verbProg(id);
+  $('vdTitle').textContent=v.infinitive;
+  $('vdSub').textContent=`${v.translation} · ${v.level||'A2'} · ${isMastered(id)?'⭐ Dominado':'Sin dominar'}`;
+  $('vdMasterBtn').innerHTML=`<i class="fas fa-star"></i> ${isMastered(id)?'Quitar dominado':'Marcar dominado'}`;
+
+  // Conjugation blocks
+  const blocks=[
+    {cls:'hdr-pras',label:'Präsens',rows:[
+      ['ich',v.prasens_ich],['du',v.prasens_du],['er/sie/es',v.prasens_er],
+      ['wir',v.prasens_wir],['ihr',v.prasens_ihr],['sie/Sie',v.prasens_sie]
+    ]},
+    {cls:'hdr-prat',label:'Präteritum',rows:[
+      ['ich',v.praeteritum_ich],['du',(v.praeteritum_ich||'')+'st'],
+      ['er/sie/es',v.praeteritum_ich],['wir',(v.praeteritum_ich||'')+'en'],
+      ['ihr',(v.praeteritum_ich||'')+'t'],['sie/Sie',(v.praeteritum_ich||'')+'en']
+    ]},
+  ];
+  $('vdConjGrid').innerHTML=blocks.map(b=>`
+    <div class="conj-block">
+      <div class="conj-block-hdr ${b.cls}"><i class="fas fa-clock"></i>${b.label}</div>
+      <table><tbody>
+        ${b.rows.map(r=>`<tr><td class="person">${r[0]}</td><td class="form ${r[0]==='ich'?'conj-ich':''}">${r[1]||''}</td></tr>`).join('')}
+      </tbody></table>
+    </div>`).join('');
+
+  $('vdPerfekt').innerHTML=`
+    <div class="pt"><i class="fas fa-history"></i> Perfekt & Partizip II</div>
+    <p><strong>Partizip II:</strong> <span style="color:var(--green);font-weight:700">${v.partizip2||''}</span>
+    &nbsp;·&nbsp; Hilfsverb: <span style="color:var(--orange);font-weight:700">${v.perfekt_haben_sein||'hat'}</span></p>
+    <p style="margin-top:6px">Beispiel: <em>"Ich ${v.perfekt_haben_sein==='ist'?'bin':'habe'} ${v.partizip2||''}"</em></p>
+    ${p.repetitions!==undefined?`<p style="margin-top:8px;font-size:.75rem;color:var(--muted)">Repeticiones: ${p.repetitions||0} · Próximo repaso: ${p.next_review||'—'}</p>`:''}
+  `;
+  $('vdBsp').innerHTML=`<strong>Beispiel:</strong> "${v.beispiel||''}"`;
+
+  $('vdPanel').classList.add('show');
+  $('vdPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function closeVD(){$('vdPanel').classList.remove('show');currentVerbId=null;}
+
+/* ──────────────────────────────
+   2. CONJUGATION TRAINER
+────────────────────────────── */
+function initTrainer(){
+  const tense = $('trTense')?.value||'all';
+  const level = $('trLevel')?.value||'all';
+  const tenses=['prasens','praeteritum','partizip2'];
+  const persons=['ich','du','er','wir','ihr','sie'];
+
+  let pool=[...verbs];
+  if(level!=='all') pool=pool.filter(v=>v.level===level);
+  if(pool.length===0){$('trainerBody').innerHTML='<div class="no-msg"><i class="fas fa-exclamation-triangle"></i><p>No hay verbos para este filtro.</p></div>';return;}
+
+  // Build question objects
+  trQueue=[];
+  shuffle(pool).slice(0,20).forEach(v=>{
+    const ts = tense==='all'?tenses:([tense]);
+    ts.forEach(t=>{
+      if(t==='prasens'){
+        persons.forEach(p=>{
+          const form=v['prasens_'+p];
+          if(form) trQueue.push({verb:v,tense:t,person:p,answer:form});
+        });
+      } else if(t==='praeteritum'){
+        if(v.praeteritum_ich) trQueue.push({verb:v,tense:t,person:'ich',answer:v.praeteritum_ich});
+      } else if(t==='partizip2'){
+        if(v.partizip2) trQueue.push({verb:v,tense:t,person:'—',answer:v.partizip2});
+      }
+    });
+  });
+  trQueue=shuffle(trQueue).slice(0,15);
+  trIdx=0;trOk=0;trErr=0;
+  $('trStats').textContent='✓ 0  ✗ 0';
+  renderTrainer();
+}
+
+function renderTrainer(){
+  if(trIdx>=trQueue.length){renderTrainerDone();return;}
+  const q=trQueue[trIdx];
+  const pct=Math.round((trIdx/trQueue.length)*100);
+  const tenseLabel=q.tense==='prasens'?'Präsens':q.tense==='praeteritum'?'Präteritum':'Partizip II';
+  const tenseColor=q.tense==='prasens'?'var(--blue)':q.tense==='praeteritum'?'var(--red)':'var(--green)';
+
+  $('trainerBody').innerHTML=`
+    <div class="ct-prog">
+      <div class="ct-prog-track"><div class="ct-prog-fill" style="width:${pct}%"></div></div>
+      <span class="ct-ctr">${trIdx+1}/${trQueue.length}</span>
+    </div>
+    <div class="ct-q">
+      <div class="ct-prompt">Conjuga en ${tenseLabel}</div>
+      <div class="ct-verb-big">${q.verb.infinitive}</div>
+      <span class="ct-tense-tag" style="background:color-mix(in srgb,${tenseColor} 14%,transparent);color:${tenseColor}">${tenseLabel}</span>
+      <div class="ct-person">${q.tense==='partizip2'?'Partizip II':q.person}</div>
+    </div>
+    <div class="ct-kb">
+      ${['ä','ö','ü','Ä','Ö','Ü','ß'].map(c=>`<button class="kb" onclick="insertCh('trInput','${c}')">${c}</button>`).join('')}
+    </div>
+    <div class="ct-input-row">
+      <input class="ct-input" id="trInput" placeholder="Escribe la forma…" autocomplete="off"
+        onkeydown="if(event.key==='Enter')checkTrainer()">
+      <button class="ct-chk" onclick="checkTrainer()"><i class="fas fa-check"></i> Comprobar</button>
+    </div>
+    <div class="ct-fb" id="trFb"></div>
+    <button class="ct-next" id="trNext" onclick="nextTrainer()">Siguiente <i class="fas fa-arrow-right"></i></button>
+    <button style="background:none;border:none;color:var(--muted);font-size:.75rem;cursor:pointer;display:block;margin:6px auto 0;text-decoration:underline;text-underline-offset:2px" onclick="nextTrainer()">Saltar</button>
+  `;
+  setTimeout(()=>$('trInput')?.focus(),60);
+}
+
+function insertCh(inputId,c){
+  const inp=$(inputId);if(!inp)return;
+  const pos=inp.selectionStart;
+  inp.value=inp.value.slice(0,pos)+c+inp.value.slice(inp.selectionEnd);
+  inp.selectionStart=inp.selectionEnd=pos+1;inp.focus();
+}
+
+function checkTrainer(){
+  const q=trQueue[trIdx];
+  const inp=$('trInput');if(!inp)return;
+  const user=inp.value.trim().toLowerCase();
+  const correct=q.answer.toLowerCase();
+  const ok=user===correct;
+  inp.classList.add(ok?'ok':'err');
+  inp.disabled=true;
+  if(ok){trOk++;}else{trErr++;}
+  $('trStats').textContent=`✓ ${trOk}  ✗ ${trErr}`;
+  saveProgress(q.verb.id,ok);
+  const fb=$('trFb');
+  if(fb){
+    fb.className='ct-fb '+(ok?'ok':'err');
+    fb.innerHTML=ok?`<strong>✅ ¡Correcto!</strong> ${q.verb.infinitive} → ${q.answer}`
+      :`<strong>❌</strong> La respuesta correcta es: <strong>${q.answer}</strong><br><em>"${q.verb.beispiel||''}"</em>`;
+  }
+  const nxt=$('trNext');if(nxt)nxt.classList.add('show');
+  const sk=document.querySelector('#trainerBody button:last-child');if(sk)sk.style.display='none';
+}
+
+function nextTrainer(){trIdx++;renderTrainer();}
+
+function renderTrainerDone(){
+  const pct=trQueue.length>0?Math.round((trOk/trQueue.length)*100):0;
+  $('trainerBody').innerHTML=`
+    <div class="result-card">
+      <div style="font-size:2.5rem;margin-bottom:10px">${pct>=80?'🏆':pct>=50?'💪':'📚'}</div>
+      <h3>${pct>=80?'¡Excelente conjugación!':pct>=50?'¡Buen trabajo!':'Sigue practicando'}</h3>
+      <div class="rg">
+        <div class="rb"><span class="rb-v" style="color:var(--green)">${trOk}</span><span class="rb-l">Correctas</span></div>
+        <div class="rb"><span class="rb-v" style="color:var(--red)">${trErr}</span><span class="rb-l">Errores</span></div>
+        <div class="rb"><span class="rb-v" style="color:var(--orange)">${pct}%</span><span class="rb-l">Acierto</span></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-p" onclick="initTrainer()"><i class="fas fa-redo"></i> Repetir</button>
+        <button class="btn" onclick="switchMode('quiz')"><i class="fas fa-question-circle"></i> Ir al Quiz</button>
+      </div>
+    </div>`;
+}
+
+/* ──────────────────────────────
+   3. QUIZ MCQ
+────────────────────────────── */
+function initQuiz(){
+  qQueue=shuffle([...verbs]).slice(0,12);
+  qIdx=0;qCorrect=0;clearInterval(qTimer);
+  if(verbs.length>=4) renderQuiz();
+}
+
+function renderQuiz(){
+  if(qIdx>=qQueue.length){renderQuizResult();return;}
+  const v=qQueue[qIdx];
+  const pct=Math.round((qIdx/qQueue.length)*100);
+  const types=['translation','partizip2','prasens','prateritum'];
+  const type=types[Math.floor(Math.random()*types.length)];
+  const all=verbs;
+
+  let question='',display='',opts=[];
+  if(type==='translation'){
+    question='Traduce al español:';
+    display=v.infinitive;
+    const wrongs=shuffle(all.filter(x=>x.id!==v.id)).slice(0,3);
+    opts=shuffle([{text:v.translation,ok:true},...wrongs.map(w=>({text:w.translation,ok:false}))]);
+  } else if(type==='partizip2'){
+    question='¿Cuál es el Partizip II?';
+    display=v.infinitive;
+    const wrongs=shuffle(all.filter(x=>x.id!==v.id&&x.partizip2)).slice(0,3);
+    opts=shuffle([{text:v.partizip2,ok:true},...wrongs.map(w=>({text:w.partizip2,ok:false}))]);
+  } else if(type==='prasens'){
+    const pers=['ich','du','er','wir','ihr','sie'];
+    const p=pers[Math.floor(Math.random()*pers.length)];
+    question=`Conjuga en Präsens — "${p}":`;
+    display=v.infinitive;
+    const wrongs=shuffle(all.filter(x=>x.id!==v.id&&x['prasens_'+p])).slice(0,3);
+    const correct=v['prasens_'+p]||v.prasens_ich;
+    opts=shuffle([{text:correct,ok:true},...wrongs.map(w=>({text:w['prasens_'+p]||w.prasens_ich,ok:false}))]);
+  } else {
+    question='¿Cuál es el Präteritum (ich)?';
+    display=v.infinitive;
+    const wrongs=shuffle(all.filter(x=>x.id!==v.id&&x.praeteritum_ich)).slice(0,3);
+    opts=shuffle([{text:v.praeteritum_ich,ok:true},...wrongs.map(w=>({text:w.praeteritum_ich,ok:false}))]);
+  }
+  opts=opts.slice(0,4);
+
+  qAnswered=false;qTimerV=15;clearInterval(qTimer);
+  qTimer=setInterval(()=>{
+    qTimerV--;
+    const tv=$('qzTimerV');if(tv)tv.textContent=qTimerV;
+    const tb=$('qzTimer');if(tb)tb.classList.toggle('danger',qTimerV<=5);
+    if(qTimerV<=0){clearInterval(qTimer);if(!qAnswered)autoWrong();}
+  },1000);
+
+  $('qzChip').textContent=`${qCorrect}/${qIdx}`;
+  $('qzBody').innerHTML=`
+    <div class="qz-hdr">
+      <span style="font-size:.78rem;color:var(--muted)">${qIdx+1}/${qQueue.length}</span>
+    </div>
+    <div class="qz-bar-track"><div class="qz-bar-fill" style="width:${pct}%"></div></div>
+    <div class="qz-q">${question}</div>
+    <div class="qz-word">${display}</div>
+    <div class="qz-opts">
+      ${opts.map((o,i)=>`
+        <button class="qz-opt" onclick="answerQuiz(this,${o.ok},'${(o.text||'').replace(/'/g,"\\'")}','${(v.beispiel||'').replace(/'/g,"\\'")}')">
+          <span class="qz-lett">${'ABCD'[i]}</span>${o.text}
+        </button>`).join('')}
+    </div>
+    <div class="qz-fb" id="qzFb"></div>
+    <button class="qz-next" id="qzNext" onclick="nextQuiz()">Siguiente <i class="fas fa-arrow-right"></i></button>
+  `;
+}
+
+function answerQuiz(btn,ok,correctText,bsp){
+  if(qAnswered)return;qAnswered=true;clearInterval(qTimer);
+  if(ok)qCorrect++;
+  const v=qQueue[qIdx];saveProgress(v.id,ok);
+  document.querySelectorAll('.qz-opt').forEach(b=>{
+    b.disabled=true;
+    if(b===btn)b.classList.add(ok?'correct':'wrong');
+  });
+  if(!ok) document.querySelectorAll('.qz-opt').forEach(b=>{
+    if(b.textContent.trim().includes(correctText))b.classList.add('correct');
+  });
+  const fb=$('qzFb');
+  if(fb){
+    fb.className='qz-fb '+(ok?'ok':'err');
+    fb.innerHTML=ok
+      ?`<strong>✅ ¡Correcto!</strong><div class="exp">"${bsp}"</div>`
+      :`<strong>❌</strong> Respuesta: <strong>${correctText}</strong><div class="exp">"${bsp}"</div>`;
+  }
+  const nxt=$('qzNext');if(nxt)nxt.style.display='block';
+  $('qzChip').textContent=`${qCorrect}/${qIdx+1}`;
+}
+
+function autoWrong(){
+  qAnswered=true;const v=qQueue[qIdx];saveProgress(v.id,false);
+  document.querySelectorAll('.qz-opt').forEach(b=>b.disabled=true);
+  const fb=$('qzFb');
+  if(fb){fb.className='qz-fb err';fb.innerHTML='<strong>⏱ Tiempo agotado.</strong>';}
+  const nxt=$('qzNext');if(nxt)nxt.style.display='block';
+}
+function nextQuiz(){qIdx++;qIdx>=qQueue.length?renderQuizResult():renderQuiz();}
+
+function renderQuizResult(){
+  clearInterval(qTimer);
+  const pct=Math.round((qCorrect/qQueue.length)*100);
+  const medal=pct>=90?'🏆':pct>=70?'🥈':pct>=50?'🥉':'📚';
+  $('qzBody').innerHTML=`
+    <div class="result-card">
+      <span style="font-size:2.8rem;display:block;margin-bottom:10px">${medal}</span>
+      <h3>${pct>=90?'¡Dominio excepcional!':pct>=70?'¡Muy bien!':pct>=50?'Buen esfuerzo':'Repasa más los verbos'}</h3>
+      <div class="rg">
+        <div class="rb"><span class="rb-v" style="color:var(--green)">${qCorrect}</span><span class="rb-l">Correctas</span></div>
+        <div class="rb"><span class="rb-v" style="color:var(--red)">${qQueue.length-qCorrect}</span><span class="rb-l">Errores</span></div>
+        <div class="rb"><span class="rb-v" style="color:var(--orange)">${pct}%</span><span class="rb-l">Acierto</span></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-p" onclick="initQuiz()"><i class="fas fa-redo"></i> Repetir</button>
+        <button class="btn" onclick="switchMode('trainer')"><i class="fas fa-keyboard"></i> Conjugador</button>
+      </div>
+    </div>`;
+}
+
+/* ──────────────────────────────
+   4. FLASHCARDS (Irregular focus)
+────────────────────────────── */
+function initFC(doShuffle){
+  const h=today();
+  // Prioritize due + irregular
+  const due=verbs.filter(v=>{const p=verbProg(v.id);return !p.mastered&&(!p.next_review||p.next_review<=h);});
+  const rest=verbs.filter(v=>!due.find(d=>d.id===v.id));
+  fcQueue=doShuffle?shuffle([...verbs]):[...shuffle(due),...shuffle(rest)];
+  fcIdx=0;fcStreak=0;fcOk=0;fcNo=0;
+  renderFC();
+}
+
+function renderFC(){
+  const wrap=$('fcWrap');
+  if(fcIdx>=fcQueue.length){
+    const pct=fcQueue.length>0?Math.round((fcOk/fcQueue.length)*100):0;
+    wrap.innerHTML=`
+      <div class="fc-done" style="text-align:center;padding:28px;width:100%;max-width:480px">
+        <div style="font-size:2.5rem;margin-bottom:10px">${pct>=80?'🏆':pct>=50?'💪':'📚'}</div>
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:8px">¡Sesión completada!</h3>
+        <div class="fc-sg" style="display:flex;gap:10px;justify-content:center;margin:14px 0;flex-wrap:wrap">
+          <div class="fc-sc" style="text-align:center;background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 18px"><span class="fc-sc-v" style="font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;color:var(--green);display:block">${fcOk}</span><span style="font-size:.63rem;color:var(--muted)">Sabía</span></div>
+          <div class="fc-sc" style="text-align:center;background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 18px"><span class="fc-sc-v" style="font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;color:var(--red);display:block">${fcNo}</span><span style="font-size:.63rem;color:var(--muted)">No sabía</span></div>
+          <div class="fc-sc" style="text-align:center;background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 18px"><span class="fc-sc-v" style="font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;color:var(--yellow);display:block">${fcStreak}</span><span style="font-size:.63rem;color:var(--muted)">Racha máx.</span></div>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-p" onclick="initFC(false)"><i class="fas fa-redo"></i> Repetir</button>
+          <button class="btn" onclick="initFC(true)"><i class="fas fa-random"></i> Mezclar</button>
+        </div>
+      </div>`;
+    return;
+  }
+  const v=fcQueue[fcIdx];
+  const p=verbProg(v.id);
+  const pct=Math.round((fcIdx/fcQueue.length)*100);
+  $('fcStreakN').textContent=fcStreak;
+  wrap.innerHTML=`
+    <div class="fc-prog-row">
+      <div class="fc-track"><div class="fc-fill" style="width:${pct}%"></div></div>
+      <span class="fc-ctr">${fcIdx+1}/${fcQueue.length}</span>
+    </div>
+    <div class="fc-card" id="fcCard" onclick="revealFC()">
+      <div class="fc-inner">
+        <div class="fc-face">
+          <div class="fc-lbl">¿Sabes las 3 formas?</div>
+          <div class="fc-word">${v.infinitive}</div>
+          <div style="font-size:.8rem;color:var(--muted)">${v.translation}</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:5px">${v.level||'A2'} · ${p.repetitions||0} rep.</div>
+          <div class="fc-tap"><i class="fas fa-hand-pointer"></i> Toca para ver las formas</div>
+        </div>
+        <div class="fc-face fc-back">
+          <div class="fc-lbl">Las 3 formas</div>
+          <div class="fc-word" style="font-size:1.3rem">${v.infinitive}</div>
+          <div class="fc-forms-grid">
+            <div class="fc-fg-item"><div class="fc-fg-lbl">Präsens (er)</div><div class="fc-fg-val" style="color:var(--blue)">${v.prasens_er||'—'}</div></div>
+            <div class="fc-fg-item"><div class="fc-fg-lbl">Präteritum</div><div class="fc-fg-val" style="color:var(--red)">${v.praeteritum_ich||'—'}</div></div>
+            <div class="fc-fg-item"><div class="fc-fg-lbl">Partizip II</div><div class="fc-fg-val" style="color:var(--green)">${v.partizip2||'—'}</div></div>
+          </div>
+          <div style="margin-top:10px;font-size:.73rem;color:var(--muted);font-style:italic">"${v.beispiel||''}"</div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-btns">
+      <button class="fc-btn fc-no" id="fcNo" onclick="answerFC(false)" disabled><i class="fas fa-times"></i> No sabía</button>
+      <button class="fc-btn fc-yes" id="fcYes" onclick="answerFC(true)" disabled><i class="fas fa-check"></i> ¡Sabía!</button>
+    </div>
+    <div style="font-size:.7rem;color:var(--muted);text-align:center">← No sabía &nbsp;|&nbsp; Sí sabía →</div>
+  `;
+  document.onkeydown=e=>{
+    if($('fcYes')?.disabled){if(e.key===' '){e.preventDefault();revealFC();}}
+    else{if(e.key==='ArrowRight')answerFC(true);if(e.key==='ArrowLeft')answerFC(false);}
+  };
+}
+
+function revealFC(){
+  const c=$('fcCard');if(!c||c.classList.contains('revealed'))return;
+  c.classList.add('revealed');
+  $('fcNo').disabled=false;$('fcYes').disabled=false;
+}
+
+async function answerFC(knew){
+  const v=fcQueue[fcIdx];
+  if(knew){fcOk++;fcStreak++;}else{fcNo++;fcStreak=0;}
+  await saveProgress(v.id,knew);
+  fcIdx++;document.onkeydown=null;
+  renderFC();
+}
+
+/* ──────────────────────────────
+   5. EMPAREJAR
+────────────────────────────── */
+function initMatch(){
+  if(verbs.length<4){$('matchBody').innerHTML='<div class="no-msg"><i class="fas fa-exclamation-triangle"></i><p>Necesitas al menos 4 verbos.</p></div>';return;}
+  mPairs=shuffle([...verbs]).slice(0,8);
+  mSel=null;mMatched=0;mElapsed=0;clearInterval(mTimer);
+  mTimer=setInterval(()=>{mElapsed++;updateMTimer();},1000);
+  renderMatch();
+}
+
+function renderMatch(){
+  const left =shuffle([...mPairs]).map((v,i)=>({id:'L'+i,vid:v.id,text:v.infinitive,pair:v.id}));
+  const right=shuffle([...mPairs]).map((v,i)=>({id:'R'+i,vid:v.id,text:v.translation,pair:v.id}));
+  $('matchPairsLbl').textContent=`0/${mPairs.length} pares`;
+  $('matchBody').innerHTML=`
+    <div class="match-board">
+      <div class="match-col" id="matchL">
+        ${left.map(it=>`<div class="mi" id="${it.id}" data-pair="${it.pair}" data-side="L" onclick="selectMI(this)">${it.text}</div>`).join('')}
+      </div>
+      <div class="match-col" id="matchR">
+        ${right.map(it=>`<div class="mi" id="${it.id}" data-pair="${it.pair}" data-side="R" onclick="selectMI(this)">${it.text}</div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function updateMTimer(){
+  const m=Math.floor(mElapsed/60),s=mElapsed%60;
+  const el=$('matchTimer');if(el)el.textContent=`${m}:${s<10?'0':''}${s}`;
+}
+
+function selectMI(el){
+  if(el.classList.contains('matched'))return;
+  if(mSel===null){
+    if(el.dataset.side==='L'){el.classList.add('sel');mSel=el;}
+    else toast('Selecciona primero un verbo (izquierda)');
+    return;
+  }
+  if(el.dataset.side==='L'){mSel.classList.remove('sel');mSel=el;el.classList.add('sel');return;}
+  const ok=mSel.dataset.pair===el.dataset.pair;
+  if(ok){
+    mSel.classList.remove('sel');mSel.classList.add('matched');el.classList.add('matched');
+    mMatched++;$('matchPairsLbl').textContent=`${mMatched}/${mPairs.length} pares`;
+    saveProgress(parseInt(mSel.dataset.pair),true);
+    if(mMatched>=mPairs.length){clearInterval(mTimer);setTimeout(matchDone,400);}
+  } else {
+    mSel.classList.remove('sel');mSel.classList.add('wfl');el.classList.add('wfl');
+    const s=mSel,e=el;setTimeout(()=>{s.classList.remove('wfl');e.classList.remove('wfl');},450);
+    saveProgress(parseInt(mSel.dataset.pair),false);
+  }
+  mSel=null;
+}
+
+function matchDone(){
+  const m=Math.floor(mElapsed/60),s=mElapsed%60;
+  $('matchBody').innerHTML=`
+    <div class="match-done result-card">
+      <span style="font-size:2.5rem;display:block;margin-bottom:10px">🎉</span>
+      <h3>¡Todos los pares completados!</h3>
+      <p style="color:var(--muted);font-size:.82rem;margin-bottom:16px">
+        Tiempo: <strong>${m}:${s<10?'0':''}${s}</strong> · ${mPairs.length} pares
+      </p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-p" onclick="initMatch()"><i class="fas fa-redo"></i> Repetir</button>
+        <button class="btn" onclick="switchMode('quiz')"><i class="fas fa-question-circle"></i> Quiz</button>
+      </div>
+    </div>`;
+}
+</script>
+</body>
+</html>
