@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEULCHALEX – Memofiches</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg:#0b0f1a; --surface:#131929; --s2:#1a2236; --s3:#202b42;
+      --border:rgba(255,255,255,0.07); --b2:rgba(255,255,255,0.13);
+      --blue:#4f8ef7; --bdim:rgba(79,142,247,.13);
+      --green:#22d3a5; --gdim:rgba(34,211,165,.13);
+      --red:#f75f5f;   --rdim:rgba(247,95,95,.13);
+      --yellow:#fbbf24;--ydim:rgba(251,191,36,.13);
+      --purple:#a78bfa;--pdim:rgba(167,139,250,.13);
+      --orange:#fb923c;--odim:rgba(251,146,60,.13);
+      --pink:#f472b6;  --pinkdim:rgba(244,114,182,.13);
+      --teal:#2dd4bf;  --tdim:rgba(45,212,191,.13);
+      --text:#e2e8f0;  --muted:#64748b;
+      --radius:14px;   --r20:20px;
+    }
+    .light{
+      --bg:#f0f4f8;--surface:#fff;--s2:#e8edf4;--s3:#dde5f0;
+      --border:rgba(0,0,0,.08);--b2:rgba(0,0,0,.15);
+      --text:#1e293b;--muted:#64748b;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);
+      min-height:100vh;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased}
+
+    /* ── AUDIO ── */
+    /* hidden elements */
+
+    /* ── TOPBAR ── */
+    .topbar{display:flex;align-items:center;justify-content:space-between;
+      padding:11px 20px;background:var(--surface);border-bottom:1px solid var(--border);
+      position:sticky;top:0;z-index:200;backdrop-filter:blur(12px)}
+    .topbar-l{display:flex;align-items:center;gap:12px}
+    .back-link{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;font-weight:600;
+      color:var(--muted);text-decoration:none;padding:6px 12px;border:1px solid var(--border);
+      border-radius:10px;transition:all .2s}
+    .back-link:hover{color:var(--yellow);border-color:var(--ydim)}
+    .page-ttl{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700}
+    .topbar-r{display:flex;align-items:center;gap:8px}
+    .ib{width:34px;height:34px;border-radius:9px;background:var(--s2);border:1px solid var(--border);
+      color:var(--muted);display:flex;align-items:center;justify-content:center;
+      font-size:.85rem;cursor:pointer;transition:all .2s}
+    .ib:hover{background:var(--ydim);color:var(--yellow);border-color:var(--ydim)}
+    .uchip{display:flex;align-items:center;gap:6px;background:var(--s2);
+      border:1px solid var(--border);border-radius:30px;padding:4px 11px 4px 4px;font-size:.8rem}
+    .uav{width:24px;height:24px;border-radius:50%;
+      background:linear-gradient(135deg,var(--yellow),var(--orange));
+      display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:#fff}
+
+    /* ── WRAP ── */
+    .wrap{max-width:1200px;margin:0 auto;padding:22px 16px 60px}
+
+    /* ── HERO ── */
+    .hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--r20);
+      padding:22px 26px;margin-bottom:18px;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,var(--yellow),var(--orange),var(--pink))}
+    .hero-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .hero-lbl{font-size:.7rem;font-weight:700;color:var(--yellow);
+      text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+    .hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.2rem,2.5vw,1.7rem);
+      font-weight:700;margin-bottom:4px}
+    .hero p{font-size:.82rem;color:var(--muted);line-height:1.6}
+    .hstats{display:flex;gap:9px;flex-wrap:wrap;flex-shrink:0}
+    .hst{text-align:center;background:var(--s2);border:1px solid var(--border);
+      border-radius:var(--radius);padding:8px 14px;min-width:66px}
+    .hst-v{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;
+      color:var(--yellow);display:block;line-height:1}
+    .hst-l{font-size:.6rem;color:var(--muted)}
+
+    /* ── GLOBAL PROGRESS ── */
+    .gpbar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+      padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .gp-lbl{font-size:.78rem;font-weight:600;white-space:nowrap}
+    .gp-track{flex:1;height:6px;background:var(--s2);border-radius:20px;overflow:hidden;min-width:60px}
+    .gp-fill{height:100%;background:linear-gradient(90deg,var(--yellow),var(--orange));
+      border-radius:20px;width:0%;transition:width .9s cubic-bezier(.23,1,.32,1)}
+    .gp-pct{font-family:'Space Grotesk',sans-serif;font-size:.86rem;font-weight:700;color:var(--yellow)}
+    .gp-chip{font-size:.68rem;padding:2px 8px;border-radius:20px;font-weight:600;
+      background:var(--ydim);color:var(--yellow);border:1px solid rgba(251,191,36,.2)}
+
+    /* ── MODE TABS ── */
+    .mtabs{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap}
+    .mtab{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;
+      font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;
+      background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+    .mtab:hover{border-color:var(--yellow);color:var(--yellow)}
+    .mtab.active{background:var(--yellow);color:#000;border-color:var(--yellow);
+      box-shadow:0 4px 14px rgba(251,191,36,.3)}
+    .mtab i{font-size:.8rem}
+
+    /* ── SECTION LABEL ── */
+    .slbl{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;
+      letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+    .slbl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+    /* ── PANELS ── */
+    .panel{display:none}
+    .panel.active{display:block}
+
+    /* ═══════════════════════════
+       PANEL 1 — GALERÍA DE FICHAS
+    ═══════════════════════════ */
+    .filter-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+    .fchip{padding:5px 12px;border-radius:20px;font-size:.72rem;font-weight:600;
+      cursor:pointer;border:1px solid var(--border);background:var(--s2);color:var(--muted);transition:all .15s}
+    .fchip.on{background:var(--yellow);color:#000;border-color:var(--yellow)}
+    .memo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+    .memo-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r20);
+      padding:18px;cursor:pointer;transition:all .2s;text-align:center;position:relative;
+      overflow:hidden}
+    .memo-card:hover{border-color:var(--c,var(--yellow));transform:translateY(-3px);
+      box-shadow:0 8px 24px rgba(0,0,0,.25)}
+    .memo-card.viewed{border-color:rgba(34,211,165,.3)}
+    .memo-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+      background:var(--c,var(--yellow));border-radius:var(--r20) var(--r20) 0 0}
+    .memo-num{display:inline-flex;align-items:center;justify-content:center;
+      width:32px;height:32px;border-radius:50%;font-family:'Space Grotesk',sans-serif;
+      font-size:.82rem;font-weight:700;background:var(--c,var(--yellow));color:#000;
+      margin-bottom:10px}
+    .memo-emoji{font-size:2rem;margin-bottom:8px;display:block}
+    .memo-title{font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:3px}
+    .memo-topic{font-size:.72rem;color:var(--muted);margin-bottom:10px}
+    .memo-tag{font-size:.62rem;padding:2px 7px;border-radius:20px;
+      background:var(--s2);color:var(--muted);border:1px solid var(--border)}
+    .memo-viewed{position:absolute;top:8px;right:8px;width:16px;height:16px;border-radius:50%;
+      background:var(--green);display:none;align-items:center;justify-content:center;
+      font-size:.55rem;color:#fff}
+    .memo-card.viewed .memo-viewed{display:flex}
+
+    /* ═══════════════════════════
+       MEMO DETAIL / READER
+    ═══════════════════════════ */
+    .memo-reader{background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--r20);overflow:hidden;margin-bottom:16px;
+      animation:fadeUp .3s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+    .mr-header{padding:16px 20px;border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+      background:color-mix(in srgb,var(--c,var(--yellow)) 8%,var(--surface))}
+    .mr-header-l{display:flex;align-items:center;gap:12px}
+    .mr-num{width:38px;height:38px;border-radius:50%;background:var(--c,var(--yellow));
+      color:#000;display:flex;align-items:center;justify-content:center;
+      font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.9rem;flex-shrink:0}
+    .mr-title{font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:700}
+    .mr-sub{font-size:.76rem;color:var(--muted);margin-top:2px}
+    .mr-acts{display:flex;gap:7px;flex-wrap:wrap}
+    .mr-body{padding:22px}
+
+    /* image section */
+    .mr-img-wrap{background:var(--s2);border:1px solid var(--b2);border-radius:var(--radius);
+      padding:16px;margin-bottom:16px;text-align:center;position:relative;min-height:120px}
+    .mr-img{max-width:100%;max-height:400px;border-radius:10px;border:1px solid var(--border)}
+    .mr-img-placeholder{padding:32px;color:var(--muted);font-size:.85rem}
+    .mr-img-placeholder i{font-size:2rem;display:block;margin-bottom:8px;color:var(--border)}
+
+    /* content grid */
+    .mr-content{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+    @media(max-width:600px){.mr-content{grid-template-columns:1fr}}
+    .content-box{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+    .cb-title{font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:700;
+      color:var(--c,var(--yellow));margin-bottom:9px;display:flex;align-items:center;gap:6px}
+    .cb-item{display:flex;justify-content:space-between;align-items:center;
+      padding:6px 0;border-bottom:1px solid var(--border);font-size:.82rem;gap:8px}
+    .cb-item:last-child{border-bottom:none}
+    .cb-de{font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--text)}
+    .cb-es{font-size:.78rem;color:var(--muted);text-align:right}
+    .cb-speak{background:none;border:none;color:var(--blue);cursor:pointer;font-size:.7rem;
+      padding:2px 5px;border-radius:5px;flex-shrink:0;transition:all .15s}
+    .cb-speak:hover{background:var(--bdim)}
+
+    /* rule/tip boxes */
+    .rule-box{background:var(--bdim);border:1px solid rgba(79,142,247,.2);border-left:3px solid var(--blue);
+      border-radius:var(--radius);padding:12px 14px;margin-bottom:10px;font-size:.82rem;line-height:1.6}
+    .rule-box .rt{font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:700;
+      color:var(--blue);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+    .rule-box p+p{margin-top:4px}
+    .tip-box{background:var(--ydim);border:1px solid rgba(251,191,36,.2);border-left:3px solid var(--yellow);
+      border-radius:var(--radius);padding:12px 14px;margin-bottom:10px;font-size:.82rem;line-height:1.6}
+    .tip-box .tt{font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:700;
+      color:var(--yellow);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+
+    /* ═══════════════════════════
+       PANEL 2 — FLASHCARDS
+    ═══════════════════════════ */
+    .fc-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}
+    .fc-prog-row{width:100%;max-width:460px;display:flex;align-items:center;gap:10px}
+    .fc-track{flex:1;height:5px;background:var(--s2);border-radius:20px;overflow:hidden}
+    .fc-fill{height:100%;background:linear-gradient(90deg,var(--yellow),var(--orange));
+      border-radius:20px;transition:width .4s}
+    .fc-ctr{font-size:.75rem;color:var(--muted);white-space:nowrap}
+    .fc-card{width:100%;max-width:460px;min-height:220px;perspective:1200px;cursor:pointer}
+    .fc-inner{width:100%;height:220px;position:relative;transform-style:preserve-3d;
+      transition:transform .55s cubic-bezier(.23,1,.32,1)}
+    .fc-card.flipped .fc-inner{transform:rotateY(180deg)}
+    .fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+      background:var(--s2);border:1px solid var(--b2);border-radius:var(--r20);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:24px;text-align:center}
+    .fc-back{transform:rotateY(180deg);background:var(--s3)}
+    .fc-lbl{font-size:.66rem;font-weight:700;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+    .fc-emoji{font-size:2.5rem;margin-bottom:8px}
+    .fc-word{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;
+      color:var(--yellow);margin-bottom:4px}
+    .fc-tap{font-size:.66rem;color:var(--muted);display:flex;align-items:center;gap:4px;margin-top:10px}
+    .fc-spanish{font-size:1.1rem;font-weight:600;margin-bottom:6px}
+    .fc-note{font-size:.78rem;color:var(--muted);font-style:italic}
+    .fc-btns{display:flex;gap:10px;width:100%;max-width:460px}
+    .fc-btn{flex:1;padding:11px;border-radius:12px;font-size:.83rem;font-weight:700;
+      cursor:pointer;transition:all .2s;border:none;font-family:'Inter',sans-serif;
+      display:flex;align-items:center;justify-content:center;gap:6px}
+    .fc-no{background:var(--rdim);color:var(--red);border:1px solid rgba(247,95,95,.25)}
+    .fc-no:hover{background:rgba(247,95,95,.22);transform:translateY(-2px)}
+    .fc-yes{background:var(--gdim);color:var(--green);border:1px solid rgba(34,211,165,.25)}
+    .fc-yes:hover{background:rgba(34,211,165,.22);transform:translateY(-2px)}
+    .fc-btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important}
+    .fc-streak{font-size:.78rem;color:var(--yellow);display:flex;align-items:center;gap:4px}
+
+    /* ═══════════════════════════
+       PANEL 3 — QUIZ MCQ
+    ═══════════════════════════ */
+    .qz-header-row{display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:12px;flex-wrap:wrap;gap:8px}
+    .qz-timer{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;
+      color:var(--yellow);display:flex;align-items:center;gap:6px}
+    .qz-timer.danger{color:var(--red);animation:pulse .5s infinite alternate}
+    @keyframes pulse{from{opacity:1}to{opacity:.5}}
+    .qz-chip{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;
+      background:var(--ydim);color:var(--yellow);border:1px solid rgba(251,191,36,.2)}
+    .qz-bar-track{height:4px;background:var(--s2);border-radius:20px;overflow:hidden;margin-bottom:16px}
+    .qz-bar-fill{height:100%;background:linear-gradient(90deg,var(--yellow),var(--orange));transition:width .3s}
+    .qz-word{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:700;
+      text-align:center;padding:16px;background:var(--s2);border-radius:var(--radius);
+      margin-bottom:12px}
+    .qz-q{font-size:.84rem;font-weight:600;color:var(--muted);margin-bottom:10px}
+    .qz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+    .qz-opt{padding:10px 13px;border-radius:10px;border:1px solid var(--border);
+      background:var(--s2);cursor:pointer;transition:all .15s;font-size:.82rem;
+      font-weight:500;color:var(--text);text-align:left;display:flex;align-items:center;gap:7px}
+    .qz-opt:hover:not(:disabled){border-color:var(--yellow);background:var(--ydim)}
+    .qz-opt.correct{border-color:var(--green);background:var(--gdim);color:var(--green)}
+    .qz-opt.wrong{border-color:var(--red);background:var(--rdim);color:var(--red)}
+    .qz-opt:disabled{cursor:not-allowed}
+    .qz-l{width:20px;height:20px;border-radius:5px;flex-shrink:0;background:var(--surface);
+      display:flex;align-items:center;justify-content:center;font-size:.63rem;font-weight:700;color:var(--muted)}
+    .qz-opt.correct .qz-l{background:var(--green);color:#fff}
+    .qz-opt.wrong .qz-l{background:var(--red);color:#fff}
+    .qz-fb{padding:10px 14px;border-radius:10px;font-size:.81rem;display:none;margin-bottom:10px;line-height:1.5}
+    .qz-fb.ok{background:var(--gdim);color:var(--green);border:1px solid rgba(34,211,165,.2);display:block}
+    .qz-fb.err{background:var(--rdim);color:var(--red);border:1px solid rgba(247,95,95,.2);display:block}
+    .qz-fb .exp{color:var(--text);margin-top:4px;font-size:.77rem}
+    .qz-next{width:100%;padding:10px;border-radius:10px;background:var(--yellow);color:#000;
+      border:none;font-size:.86rem;font-weight:700;cursor:pointer;transition:all .2s;display:none}
+    .qz-next:hover{background:#e6aa10}
+
+    /* ═══════════════════════════
+       PANEL 4 — MEMORIA (match)
+    ═══════════════════════════ */
+    .match-ctrl{display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:14px;flex-wrap:wrap;gap:8px}
+    .match-timer{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:var(--yellow)}
+    .match-pairs{font-size:.75rem;color:var(--muted)}
+    .match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:560px;margin:0 auto}
+    .match-col{display:flex;flex-direction:column;gap:7px}
+    .mi{padding:10px 13px;border-radius:10px;border:1px solid var(--border);
+      background:var(--s2);cursor:pointer;transition:all .15s;font-size:.82rem;
+      font-weight:500;text-align:center;min-height:42px;display:flex;align-items:center;justify-content:center}
+    .mi:hover:not(.matched):not(.wfl){border-color:var(--yellow);background:var(--ydim)}
+    .mi.sel{border-color:var(--yellow);background:rgba(251,191,36,.2);color:var(--yellow);font-weight:700}
+    .mi.matched{border-color:var(--green);background:var(--gdim);color:var(--green);cursor:default}
+    .mi.wfl{border-color:var(--red);background:var(--rdim);animation:wfl .4s}
+    @keyframes wfl{0%,100%{transform:scale(1)}50%{transform:scale(.97)}}
+
+    /* ═══════════════════════════
+       RESULT CARD (shared)
+    ═══════════════════════════ */
+    .result-card{text-align:center;padding:28px;background:var(--surface);
+      border:1px solid var(--border);border-radius:var(--r20)}
+    .result-card h3{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:7px}
+    .rg{display:flex;gap:10px;justify-content:center;margin:14px 0;flex-wrap:wrap}
+    .rb{text-align:center;background:var(--s2);border:1px solid var(--border);
+      border-radius:var(--radius);padding:10px 16px}
+    .rb-v{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;display:block}
+    .rb-l{font-size:.62rem;color:var(--muted)}
+
+    /* ── BUTTONS ── */
+    .btn{padding:8px 14px;border-radius:9px;font-size:.78rem;font-weight:600;
+      cursor:pointer;transition:all .2s;border:1px solid var(--border);
+      background:var(--s2);color:var(--text);font-family:'Inter',sans-serif;
+      display:inline-flex;align-items:center;gap:5px}
+    .btn:hover{background:var(--ydim);border-color:rgba(251,191,36,.3);color:var(--yellow)}
+    .btn-y{background:var(--yellow);color:#000;border-color:var(--yellow)}
+    .btn-y:hover{background:#e6aa10;color:#000}
+    .btn-g{background:var(--green);color:#fff;border-color:var(--green)}
+    .btn-g:hover{background:#1ab893;color:#fff}
+    .speak-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:none;
+      color:var(--blue);font-size:.75rem;cursor:pointer;padding:4px 8px;border-radius:7px;transition:all .15s}
+    .speak-btn:hover{background:var(--bdim)}
+
+    /* ── FOOTER ── */
+    .pfoot{background:var(--surface);border-top:1px solid var(--border);padding:16px 20px;margin-top:20px}
+    .pfoot-in{max-width:1200px;margin:0 auto;display:flex;align-items:center;
+      justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .pfoot-brand{font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700}
+    .pfoot-copy{font-size:.72rem;color:var(--muted)}
+    .pfoot-links{display:flex;gap:13px}
+    .pfoot-links a{font-size:.72rem;color:var(--muted);text-decoration:none;transition:color .2s}
+    .pfoot-links a:hover{color:var(--yellow)}
+
+    /* TOAST */
+    #toast{position:fixed;bottom:18px;right:18px;background:var(--surface);
+      border:1px solid var(--border);border-radius:12px;padding:10px 15px;font-size:.8rem;
+      box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:9999;
+      transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.23,1,.32,1);max-width:270px}
+    #toast.show{transform:translateY(0);opacity:1}
+
+    /* RESPONSIVE */
+    @media(max-width:600px){
+      .memo-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+      .qz-opts{grid-template-columns:1fr}
+      .match-grid{grid-template-columns:1fr 1fr}
+      .hstats{gap:6px}.hst{padding:6px 10px}
+    }
+    @media(max-width:380px){.mtabs{gap:4px}.mtab{padding:6px 9px;font-size:.7rem}}
+  </style>
+</head>
+<body>
+
+<!-- AUDIO -->
+<audio id="sndOK"    src="games/correct.mp3"   preload="auto"></audio>
+<audio id="sndBad"   src="games/incorrect.mp3"  preload="auto"></audio>
+<audio id="sndClick" src="games/clip.mp3"        preload="auto"></audio>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-l">
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Inicio</a>
+    <span class="page-ttl">Memofiches · Módulo 07</span>
+  </div>
+  <div class="topbar-r">
+    <div class="uchip">
+      <div class="uav" id="uAv">?</div>
+      <span id="uNm" style="font-size:.79rem">—</span>
+    </div>
+    <button class="ib" id="themeBtn"><i class="fas fa-moon"></i></button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-row">
+      <div>
+        <div class="hero-lbl">Módulo 07 · Fichas Visuales</div>
+        <h1>🃏 Memofiches</h1>
+        <p>20 fichas interactivas A1-B1 · 4 modos de estudio · Audio TTS · Contenido propio + tus imágenes memo/.</p>
+      </div>
+      <div class="hstats">
+        <div class="hst"><span class="hst-v">20</span><span class="hst-l">Fichas</span></div>
+        <div class="hst"><span class="hst-v" id="hViewed">0</span><span class="hst-l">Vistas</span></div>
+        <div class="hst"><span class="hst-v" id="hScore">—</span><span class="hst-l">%</span></div>
+        <div class="hst"><span class="hst-v" id="hStreak">0</span><span class="hst-l">🔥 Racha</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOBAL PROGRESS -->
+  <div class="gpbar">
+    <span class="gp-lbl">Progreso</span>
+    <div class="gp-track"><div class="gp-fill" id="gpFill"></div></div>
+    <span class="gp-pct" id="gpPct">0%</span>
+    <span class="gp-chip" id="gpChip">0 / 20 fichas vistas</span>
+  </div>
+
+  <!-- MODE TABS -->
+  <div class="mtabs">
+    <button class="mtab active" data-mode="gallery" onclick="switchMode('gallery')">
+      <i class="fas fa-th-large"></i><span>Galería</span>
+    </button>
+    <button class="mtab" data-mode="flashcard" onclick="switchMode('flashcard')">
+      <i class="fas fa-bolt"></i><span>Flashcards</span>
+    </button>
+    <button class="mtab" data-mode="quiz" onclick="switchMode('quiz')">
+      <i class="fas fa-question-circle"></i><span>Quiz</span>
+    </button>
+    <button class="mtab" data-mode="match" onclick="switchMode('match')">
+      <i class="fas fa-link"></i><span>Emparejar</span>
+    </button>
+  </div>
+
+  <!-- ══ PANEL 1: GALERÍA ══ -->
+  <div class="panel active" id="panel-gallery">
+    <div class="filter-row">
+      <span class="fchip on" data-f="all"  onclick="setFilter('all',this)">Todas</span>
+      <span class="fchip" data-f="A1"   onclick="setFilter('A1',this)">A1</span>
+      <span class="fchip" data-f="A2"   onclick="setFilter('A2',this)">A2</span>
+      <span class="fchip" data-f="B1"   onclick="setFilter('B1',this)">B1</span>
+      <span class="fchip" data-f="gram" onclick="setFilter('gram',this)">Gramática</span>
+      <span class="fchip" data-f="voc"  onclick="setFilter('voc',this)">Vocabulario</span>
+      <button class="btn btn-y" onclick="markAllViewed()" style="margin-left:auto">
+        <i class="fas fa-check-double"></i> Marcar todas
+      </button>
+    </div>
+    <!-- MEMO READER (inserted here when a card is opened) -->
+    <div id="memoReader"></div>
+    <!-- MEMO GRID -->
+    <div class="memo-grid" id="memoGrid"></div>
+  </div>
+
+  <!-- ══ PANEL 2: FLASHCARDS ══ -->
+  <div class="panel" id="panel-flashcard">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <span style="font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:700">
+        <i class="fas fa-bolt" style="color:var(--yellow);margin-right:6px"></i>Flashcards — ¿Lo sabes?
+      </span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="fc-streak"><i class="fas fa-fire"></i><span id="fcStreakN">0</span> racha</span>
+        <button class="btn" onclick="initFC(true)"><i class="fas fa-random"></i> Mezclar</button>
+      </div>
+    </div>
+    <div class="fc-wrap" id="fcWrap">
+      <div style="text-align:center;padding:40px;color:var(--muted)">
+        <i class="fas fa-bolt" style="font-size:1.8rem;display:block;margin-bottom:10px;color:var(--border)"></i>
+        <p>Cargando fichas…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL 3: QUIZ ══ -->
+  <div class="panel" id="panel-quiz">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <span style="font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:700">
+        <i class="fas fa-question-circle" style="color:var(--purple);margin-right:6px"></i>Quiz — ¿Cuál es la traducción?
+      </span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="qz-timer" id="qzTimer"><i class="fas fa-clock"></i><span id="qzTV">15</span></div>
+        <span class="qz-chip" id="qzChip">0/0</span>
+      </div>
+    </div>
+    <div id="qzBody">
+      <div style="text-align:center;padding:40px;color:var(--muted)">
+        <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;margin-bottom:10px;display:block"></i>
+        <p>Cargando quiz…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL 4: EMPAREJAR ══ -->
+  <div class="panel" id="panel-match">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <span style="font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:700">
+        <i class="fas fa-link" style="color:var(--green);margin-right:6px"></i>Emparejar — Une alemán con español
+      </span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="match-timer" id="matchTimer">0:00</span>
+        <span class="match-pairs" id="matchPairsLbl">0/8 pares</span>
+        <button class="btn" onclick="initMatch()"><i class="fas fa-redo"></i> Nuevo</button>
+      </div>
+    </div>
+    <div id="matchBody">
+      <div style="text-align:center;padding:40px;color:var(--muted)">
+        <span class="spin" style="width:20px;height:20px"></span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<footer class="pfoot">
+  <div class="pfoot-in">
+    <div>
+      <div class="pfoot-brand">DEULCHALEX</div>
+      <div class="pfoot-copy">© 2024 · Centro de Aprendizaje de Alemán para hispanohablantes</div>
+    </div>
+    <div class="pfoot-links">
+      <a href="index.html"><i class="fas fa-home"></i> Inicio</a>
+      <a href="voca.html"><i class="fas fa-book"></i> Vocabulario</a>
+      <a href="verben.html"><i class="fas fa-running"></i> Verbos</a>
+    </div>
+  </div>
+</footer>
+
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════ -->
+<script>
+/* ── SUPABASE (for future progress) ── */
+const SB_URL = 'https://kcfiacdwufadnuknkfkp.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZmlhY2R3dWZhZG51a25rZmtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxOTA5MTksImV4cCI6MjA4Nzc2NjkxOX0.bmz4K7E-a2PCM5CObDYz9ritbTKLi_OpwyiNBMOH5fU';
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+let USER_ID = null;
+
+/* ── AUDIO ── */
+function playSound(id){
+  try{const a=document.getElementById(id);if(a){a.currentTime=0;a.play().catch(()=>{});}}catch(e){}
+}
+const sndOK  = () => playSound('sndOK');
+const sndBad = () => playSound('sndBad');
+const sndClk = () => playSound('sndClick');
+
+/* ── TTS ── */
+function speak(text){
+  if(!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'de-DE'; u.rate = 0.9;
+  const voices = speechSynthesis.getVoices();
+  const de = voices.find(v=>v.lang.startsWith('de'));
+  if(de) u.voice = de;
+  speechSynthesis.speak(u);
+}
+
+/* ══════════════════════════════════════
+   MEMO DATA — 20 fichas con contenido completo
+══════════════════════════════════════ */
+const MEMOS = [
+  {
+    id:1, emoji:'🌦️', german:'Das Wetter', spanish:'El clima', level:'A1', type:'voc',
+    color:'#60a5fa',
+    items:[
+      {de:'die Sonne', es:'el sol'}, {de:'der Regen', es:'la lluvia'},
+      {de:'der Schnee', es:'la nieve'}, {de:'der Wind', es:'el viento'},
+      {de:'bewölkt', es:'nublado'}, {de:'heiß', es:'caliente/caluroso'},
+      {de:'kalt', es:'frío'}, {de:'die Wolke', es:'la nube'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> Construcción</div><p><strong>Es ist + Adjektiv</strong> → Es ist heiß. (Hace calor.)<br><strong>Es gibt + Akkusativ</strong> → Es gibt Regen. (Hay lluvia.)<br><strong>Die Sonne scheint.</strong> (El sol brilla.)</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Truco</div><p>Para preguntar el tiempo: <strong>Wie ist das Wetter?</strong> — la respuesta siempre empieza con "Es ist..." o "Es gibt..."</p>'
+  },
+  {
+    id:2, emoji:'🔄', german:'Wechselpräpositionen', spanish:'Preposiciones de cambio', level:'B1', type:'gram',
+    color:'#a78bfa',
+    items:[
+      {de:'an', es:'en/a (vertical)'}, {de:'auf', es:'sobre/en'},
+      {de:'hinter', es:'detrás de'}, {de:'in', es:'en/dentro'},
+      {de:'neben', es:'al lado de'}, {de:'über', es:'sobre/encima'},
+      {de:'unter', es:'bajo/debajo'}, {de:'vor', es:'delante de'},
+      {de:'zwischen', es:'entre'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> WO / WOHIN</div><p><strong>WO? (¿dónde?)</strong> → DATIV<br><strong>WOHIN? (¿a dónde?)</strong> → AKKUSATIV</p><p>Ejemplo: Das Buch liegt <strong>auf dem</strong> Tisch. (WO → Dat.)<br>Ich lege das Buch <strong>auf den</strong> Tisch. (WOHIN → Akk.)</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Regla visual</div><p>🎯 DATIV = objeto estático · 🚀 AKKUSATIV = objeto en movimiento</p>'
+  },
+  {
+    id:3, emoji:'🤝', german:'Hilfsverben', spanish:'Verbos auxiliares', level:'A2', type:'gram',
+    color:'#34d399',
+    items:[
+      {de:'haben — hat — hatte', es:'tener (aux. Perfekt)'}, {de:'sein — ist — war', es:'ser/estar (aux. Perfekt)'},
+      {de:'werden — wird — wurde', es:'convertirse / Futur/Passiv'}, {de:'Ich habe gelesen', es:'He leído'},
+      {de:'Er ist gefahren', es:'Él fue (en coche)'}, {de:'Es wird kalt', es:'Está haciendo frío'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> haben o sein en Perfekt</div><p><strong>SEIN</strong>: verbos de movimiento y cambio de estado (gehen, kommen, fahren, aufwachen).<br><strong>HABEN</strong>: todos los demás verbos.</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Regla SEW</div><p><strong>S</strong>ustandsveränderung · <strong>E</strong>rtswechsel · <strong>W</strong>erden → siempre usan SEIN</p>'
+  },
+  {
+    id:4, emoji:'⏰', german:'Die Uhrzeit', spanish:'La hora', level:'A1', type:'voc',
+    color:'#fbbf24',
+    items:[
+      {de:'Es ist 8 Uhr.', es:'Son las 8.'}, {de:'Es ist halb neun.', es:'Son las 8:30.'},
+      {de:'Es ist Viertel nach sieben.', es:'Son las 7:15.'}, {de:'Es ist Viertel vor fünf.', es:'Son las 4:45.'},
+      {de:'Um wie viel Uhr?', es:'¿A qué hora?'}, {de:'Wie spät ist es?', es:'¿Qué hora es?'},
+      {de:'morgens / abends', es:'por la mañana / tarde'}, {de:'pünktlich', es:'puntual / a tiempo'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> Sistema de la hora</div><p><strong>halb + [siguiente hora]</strong> = y media<br><strong>Viertel nach + hora</strong> = y cuarto<br><strong>Viertel vor + hora</strong> = menos cuarto</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Truco halb</div><p>"halb neun" = mitad de camino hacia las 9 = 8:30. ¡No es "media nueve"!</p>'
+  },
+  {
+    id:5, emoji:'🔑', german:'Possessivpronomen', spanish:'Pronombres posesivos', level:'A2', type:'gram',
+    color:'#f472b6',
+    items:[
+      {de:'mein / meine', es:'mi / mis'}, {de:'dein / deine', es:'tu / tus'},
+      {de:'sein / seine', es:'su (él) / sus'}, {de:'ihr / ihre', es:'su (ella) / sus'},
+      {de:'unser / unsere', es:'nuestro/a'}, {de:'euer / eure', es:'vuestro/a'},
+      {de:'ihr / ihre (pl.)', es:'su (ellos) / sus'}, {de:'Ihr / Ihre (formal)', es:'su (Ud.) / sus'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> Declinación como "ein"</div><p>Todos los posesivos siguen el patrón de <strong>ein/eine/ein</strong>:<br>Nom. m: mein · Akk. m: meinen · Dat. m: meinem</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Memoria rápida</div><p>Si sabes conjugar "ein", sabes conjugar TODOS los posesivos. Es el mismo patrón.</p>'
+  },
+  {
+    id:6, emoji:'👥', german:'Pronomen', spanish:'Pronombres', level:'A1', type:'gram',
+    color:'#fb923c',
+    items:[
+      {de:'ich → mich / mir', es:'yo → me (Akk/Dat)'}, {de:'du → dich / dir', es:'tú → te'},
+      {de:'er → ihn / ihm', es:'él → lo / le'}, {de:'sie → sie / ihr', es:'ella → la / le'},
+      {de:'es → es / ihm', es:'ello → lo / le'}, {de:'wir → uns / uns', es:'nosotros → nos'},
+      {de:'ihr → euch / euch', es:'vosotros → os'}, {de:'sie/Sie → sie/ihnen', es:'ellos/Ud → los/les'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> Akkusativ vs Dativ</div><p>Objeto directo (lo/la): <strong>Akkusativ</strong> → mich, dich, ihn, sie...<br>Objeto indirecto (le/les): <strong>Dativ</strong> → mir, dir, ihm, ihr...</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Truco LE/LO</div><p>"Le" en español → Dativ: Ich helfe <strong>dir</strong>.<br>"Lo/La" en español → Akkusativ: Ich sehe <strong>dich</strong>.</p>'
+  },
+  {
+    id:7, emoji:'❓', german:'Fragen stellen', spanish:'Formular preguntas', level:'A1', type:'gram',
+    color:'#2dd4bf',
+    items:[
+      {de:'Was?', es:'¿Qué?'}, {de:'Wer?', es:'¿Quién?'},
+      {de:'Wo?', es:'¿Dónde?'}, {de:'Wohin?', es:'¿A dónde?'},
+      {de:'Wann?', es:'¿Cuándo?'}, {de:'Warum?', es:'¿Por qué?'},
+      {de:'Wie?', es:'¿Cómo?'}, {de:'Wie viel?', es:'¿Cuánto?'},
+      {de:'Welche/r/s?', es:'¿Cuál / Qué (tipo)?'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> Estructura de pregunta</div><p><strong>W-Wort + Verb + Subjekt</strong><br>Was <u>kaufst</u> <u>du</u>? ¿Qué compras?<br>Wo <u>wohnt</u> <u>er</u>? ¿Dónde vive él?</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Las 9 palabras W</div><p>Was · Wer · Wo · Wohin · Wann · Warum · Wie · Wie viel · Welche — apréndetelas todas, son la base de cualquier pregunta.</p>'
+  },
+  {
+    id:8, emoji:'⚖️', german:'Je...desto', spanish:'Cuanto más... más', level:'B1', type:'gram',
+    color:'#f75f5f',
+    items:[
+      {de:'Je mehr, desto besser.', es:'Cuanto más, mejor.'}, {de:'Je früher, desto besser.', es:'Cuanto antes, mejor.'},
+      {de:'Je älter man wird, desto weiser.', es:'Cuanto mayor uno es, más sabio.'}, {de:'je + Komparativ...', es:'cuanto más/menos...'},
+      {de:'desto + Komparativ', es:'más/menos... (resultado)'}, {de:'Je schneller, desto teurer.', es:'Cuanto más rápido, más caro.'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> Estructura</div><p><strong>Je + Komparativ + [Nebensatz], desto + Komparativ + [Hauptsatz]</strong><br>Je mehr ich lerne, desto besser werde ich.</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Recuerda</div><p>Después de <strong>je</strong> el verbo va al final (Nebensatz). Después de <strong>desto</strong> el verbo va en posición 2 (Hauptsatz).</p>'
+  },
+  {
+    id:9, emoji:'🔗', german:'Präposition + Artikel', spanish:'Preposición + artículo (contracciones)', level:'A2', type:'gram',
+    color:'#4f8ef7',
+    items:[
+      {de:'an + dem = am', es:'am Bahnhof (en la estación)'}, {de:'an + das = ans', es:'ans Fenster (hacia la ventana)'},
+      {de:'in + dem = im', es:'im Kino (en el cine)'}, {de:'in + das = ins', es:'ins Theater (al teatro)'},
+      {de:'zu + dem = zum', es:'zum Arzt (al médico)'}, {de:'zu + der = zur', es:'zur Schule (a la escuela)'},
+      {de:'von + dem = vom', es:'vom Bahnhof (desde la estación)'}, {de:'bei + dem = beim', es:'beim Essen (durante la comida)'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> ¿Cuándo contraer?</div><p>Estas contracciones son <strong>obligatorias</strong> en alemán estándar. No puedes decir "zu dem Arzt" — siempre debe ser <strong>zum Arzt</strong>.</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Más frecuentes</div><p>Memoriza primero: <strong>im, im, am, ans, ins, zum, zur, vom, beim</strong> — estas cubren el 90% de los casos.</p>'
+  },
+  {
+    id:10, emoji:'👋', german:'Grußworte', spanish:'Saludos y despedidas', level:'A1', type:'voc',
+    color:'#34d399',
+    items:[
+      {de:'Hallo! / Hi!', es:'¡Hola!'}, {de:'Guten Morgen!', es:'¡Buenos días!'},
+      {de:'Guten Tag!', es:'¡Buenas tardes/días!'}, {de:'Guten Abend!', es:'¡Buenas noches!'},
+      {de:'Auf Wiedersehen!', es:'¡Adiós! (formal)'}, {de:'Tschüss!', es:'¡Chao! (informal)'},
+      {de:'Bis bald!', es:'¡Hasta pronto!'}, {de:'Wie geht es Ihnen?', es:'¿Cómo está usted? (formal)'},
+      {de:'Wie geht\'s?', es:'¿Qué tal? (informal)'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> Formal vs. Informal</div><p><strong>Formal (Sie):</strong> Guten Tag, Auf Wiedersehen, Wie geht es Ihnen?<br><strong>Informal (du):</strong> Hallo, Tschüss, Wie geht\'s?</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Auf Wiedersehen</div><p>Literalmente: "hasta el volver a vernos". En el sur de Alemania y Austria dicen <strong>Servus</strong> tanto para saludar como para despedirse.</p>'
+  },
+  {
+    id:11, emoji:'👤', german:'Personalpronomen', spanish:'Pronombres personales (Nominativ)', level:'A1', type:'gram',
+    color:'#a78bfa',
+    items:[
+      {de:'ich', es:'yo'}, {de:'du', es:'tú (informal)'},
+      {de:'er', es:'él'}, {de:'sie', es:'ella'},
+      {de:'es', es:'ello/neutro'}, {de:'wir', es:'nosotros'},
+      {de:'ihr', es:'vosotros'}, {de:'sie (pl.)', es:'ellos/ellas'},
+      {de:'Sie (formal)', es:'usted / ustedes'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> Atención</div><p><strong>sie</strong> (minúscula) = ella / ellas<br><strong>Sie</strong> (mayúscula) = usted / ustedes (formal)<br>El contexto y el verbo indican cuál es.</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> "Sie" mayúscula</div><p>La forma formal <strong>Sie</strong> siempre se escribe con mayúscula, incluso en medio de una frase. Es la forma más segura en contextos de trabajo.</p>'
+  },
+  {
+    id:12, emoji:'⚡', german:'Modalverben', spanish:'Verbos modales', level:'A2', type:'gram',
+    color:'#fb923c',
+    items:[
+      {de:'können (ich kann)', es:'poder'}, {de:'müssen (ich muss)', es:'tener que / deber'},
+      {de:'wollen (ich will)', es:'querer'}, {de:'dürfen (ich darf)', es:'poder (permiso)'},
+      {de:'sollen (ich soll)', es:'deber (consejo externo)'}, {de:'mögen (ich mag)', es:'gustar'},
+      {de:'möchten (ich möchte)', es:'quisiera (forma educada)'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> Estructura</div><p>Modal (pos.2) + ... + <strong>Infinitiv</strong> (final)<br>Ich <strong>kann</strong> gut Deutsch <strong>sprechen</strong>.<br>ich/er/sie/es tienen la misma forma (sin -t).</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> möchten ≠ mögen</div><p><strong>möchten</strong> (quisiera) es la forma educada de querer. En el Präteritum se usa <strong>wollte</strong>. "möchten" no tiene Präteritum propio.</p>'
+  },
+  {
+    id:13, emoji:'🔢', german:'Zahlen', spanish:'Números', level:'A1', type:'voc',
+    color:'#60a5fa',
+    items:[
+      {de:'eins, zwei, drei', es:'uno, dos, tres'}, {de:'vier, fünf, sechs', es:'cuatro, cinco, seis'},
+      {de:'sieben, acht, neun', es:'siete, ocho, nueve'}, {de:'zehn, zwanzig, dreißig', es:'diez, veinte, treinta'},
+      {de:'hundert', es:'cien'}, {de:'tausend', es:'mil'},
+      {de:'einundzwanzig', es:'veintiuno'}, {de:'dreiundvierzig', es:'cuarenta y tres'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> Formación</div><p>21-99: <strong>einheit + und + zehner</strong><br>einundzwanzig (21) = ein + und + zwanzig<br>dreiundfünfzig (53) = drei + und + fünfzig</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Atención</div><p><strong>dreißig</strong> (30) no lleva -zig sino -ßig. <strong>eins</strong> → en composición: <strong>ein</strong> (einundzwanzig, not "einsundzwanzig").</p>'
+  },
+  {
+    id:14, emoji:'📢', german:'Befehle / Imperativ', spanish:'Órdenes / Imperativo', level:'A2', type:'gram',
+    color:'#f75f5f',
+    items:[
+      {de:'Komm! (du)', es:'¡Ven!'}, {de:'Kommt! (ihr)', es:'¡Venid!'},
+      {de:'Kommen Sie! (Sie)', es:'¡Venga usted!'}, {de:'Hör zu! (du)', es:'¡Escucha!'},
+      {de:'Lern! → Lerne! (du)', es:'¡Aprende!'}, {de:'Nimm! (du)', es:'¡Toma! (nehmen, irr.)'},
+      {de:'Gib! (du)', es:'¡Da! (geben, irr.)'}, {de:'Sei ruhig! (du)', es:'¡Cállate!'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> Formación</div><p><strong>du</strong>: Stamm (sin -st). Si hay Vokalwechsel e→i: también en Imperativ.<br><strong>ihr</strong>: igual que Präsens ihr (sin pronombre).<br><strong>Sie</strong>: Infinitiv + Sie.</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Irregulares clave</div><p>geben → <strong>Gib!</strong> · nehmen → <strong>Nimm!</strong> · lesen → <strong>Lies!</strong> · sehen → <strong>Sieh!</strong> · sein → <strong>Sei!</strong></p>'
+  },
+  {
+    id:15, emoji:'🧭', german:'Wegbeschreibung', spanish:'Dar direcciones', level:'A2', type:'voc',
+    color:'#2dd4bf',
+    items:[
+      {de:'geradeaus', es:'todo recto'}, {de:'links', es:'a la izquierda'},
+      {de:'rechts', es:'a la derecha'}, {de:'abbiegen', es:'girar / torcer'},
+      {de:'die Kreuzung', es:'el cruce'}, {de:'die Ampel', es:'el semáforo'},
+      {de:'gegenüber', es:'enfrente de'}, {de:'in der Nähe von', es:'cerca de'},
+      {de:'Wie komme ich zu...?', es:'¿Cómo llego a...?'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> Frases útiles</div><p>Biegen Sie links ab. (Gire a la izquierda.)<br>Gehen Sie geradeaus bis zur Ampel. (Siga recto hasta el semáforo.)<br>Es ist auf der rechten Seite. (Está en el lado derecho.)</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> abbiegen</div><p>Trennbares Verb: Biegen Sie rechts <strong>ab</strong>. (El prefijo "ab" va al final de la oración.)</p>'
+  },
+  {
+    id:16, emoji:'💪', german:'Mein Körper', spanish:'Mi cuerpo', level:'A1', type:'voc',
+    color:'#f472b6',
+    items:[
+      {de:'der Kopf', es:'la cabeza'}, {de:'das Auge (die Augen)', es:'el ojo (los ojos)'},
+      {de:'die Nase', es:'la nariz'}, {de:'der Mund', es:'la boca'},
+      {de:'der Arm', es:'el brazo'}, {de:'die Hand', es:'la mano'},
+      {de:'das Bein', es:'la pierna'}, {de:'der Fuß', es:'el pie'},
+      {de:'der Rücken', es:'la espalda'}, {de:'der Bauch', es:'el estómago/barriga'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> "Ich habe Schmerzen"</div><p>Ich habe <strong>Kopfschmerzen</strong>. (Tengo dolor de cabeza.)<br>Mein <strong>Rücken</strong> tut weh. (Me duele la espalda.)<br>Ich habe mir den <strong>Arm</strong> gebrochen. (Me he roto el brazo.)</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Compuestos</div><p>Alemán crea compuestos fácilmente: Kopf + Schmerzen = <strong>Kopfschmerzen</strong> (dolor de cabeza). Lo mismo: Bauch-, Rücken-, Hals-, Zahnschmerzen...</p>'
+  },
+  {
+    id:17, emoji:'🏠', german:'Haushaltsgegenstände', spanish:'Objetos del hogar', level:'A1', type:'voc',
+    color:'#fbbf24',
+    items:[
+      {de:'das Sofa', es:'el sofá'}, {de:'der Tisch', es:'la mesa'},
+      {de:'der Stuhl', es:'la silla'}, {de:'das Bett', es:'la cama'},
+      {de:'der Schrank', es:'el armario'}, {de:'der Kühlschrank', es:'el frigorífico'},
+      {de:'der Herd', es:'la cocina / el fogón'}, {de:'die Lampe', es:'la lámpara'},
+      {de:'die Dusche', es:'la ducha'}, {de:'das Fenster', es:'la ventana'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> Räume im Haus</div><p>das Wohnzimmer (salón) · das Schlafzimmer (dormitorio) · die Küche (cocina) · das Badezimmer (baño) · der Keller (sótano)</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Géneros</div><p>Muchos muebles son der o das. Recuerda: <strong>der</strong> Tisch, Stuhl, Schrank · <strong>das</strong> Sofa, Bett, Fenster · <strong>die</strong> Lampe, Dusche</p>'
+  },
+  {
+    id:18, emoji:'📍', german:'Wohin? / Wo?', spanish:'Dirección vs. Ubicación', level:'A2', type:'gram',
+    color:'#a78bfa',
+    items:[
+      {de:'Wo bist du? (Dativ)', es:'¿Dónde estás?'}, {de:'Wohin gehst du? (Akk)', es:'¿A dónde vas?'},
+      {de:'im Supermarkt (WO)', es:'en el supermercado (estático)'}, {de:'in den Supermarkt (WOHIN)', es:'al supermercado (dirección)'},
+      {de:'auf dem Tisch (WO)', es:'sobre la mesa (estático)'}, {de:'auf den Tisch (WOHIN)', es:'sobre la mesa (movimiento)'},
+      {de:'an der Wand (WO)', es:'en la pared (colgado)'}, {de:'an die Wand (WOHIN)', es:'hacia la pared'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> La pregunta clave</div><p><strong>Wo?</strong> → Dativ (ubicación estática)<br><strong>Wohin?</strong> → Akkusativ (dirección, movimiento hacia)<br>El mismo verbo puede cambiar según el caso: "stehen" (estar de pie) vs "stellen" (poner de pie).</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Verbos pares</div><p>legen/liegen · stellen/stehen · hängen(tr)/hängen(intr) · setzen/sitzen → el verbo activo usa Akkusativ, el estativo usa Dativ.</p>'
+  },
+  {
+    id:19, emoji:'👨‍👩‍👧‍👦', german:'Die Familie', spanish:'La familia', level:'A1', type:'voc',
+    color:'#fb923c',
+    items:[
+      {de:'die Mutter', es:'la madre'}, {de:'der Vater', es:'el padre'},
+      {de:'die Eltern (pl.)', es:'los padres'}, {de:'der Bruder', es:'el hermano'},
+      {de:'die Schwester', es:'la hermana'}, {de:'die Geschwister (pl.)', es:'los hermanos'},
+      {de:'die Großmutter', es:'la abuela'}, {de:'der Großvater', es:'el abuelo'},
+      {de:'das Kind', es:'el niño/a'}, {de:'die Tochter', es:'la hija'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> Preguntar por la familia</div><p>Haben Sie Geschwister? (¿Tiene hermanos?)<br>Wie viele Kinder haben Sie? (¿Cuántos hijos tiene?)<br>Ich bin Einzelkind. (Soy hijo único.)</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Komposita</div><p>die Schwiegermutter (suegra) · der Schwiegervater (suegro) · die Schwiegertochter (nuera) · der Schwiegersohn (yerno)</p>'
+  },
+  {
+    id:20, emoji:'🇩🇪', german:'Deutschland', spanish:'Alemania — datos y expresiones', level:'A1', type:'voc',
+    color:'#f75f5f',
+    items:[
+      {de:'Deutschland', es:'Alemania'}, {de:'Österreich', es:'Austria'},
+      {de:'die Schweiz', es:'Suiza'}, {de:'Berlin', es:'Berlín (capital)'},
+      {de:'die Bundesrepublik', es:'la República Federal'}, {de:'Ich komme aus...', es:'Soy de...'},
+      {de:'auf Deutsch', es:'en alemán'}, {de:'Deutsch lernen', es:'aprender alemán'},
+      {de:'die Muttersprache', es:'la lengua materna'}, {de:'der Austausch', es:'el intercambio'},
+    ],
+    rule:'<div class="rt"><i class="fas fa-info-circle"></i> DACH-Länder</div><p>El alemán se habla en: <strong>D</strong>eutschland · <strong>A</strong>österreich · <strong>CH</strong> (Confoederatio Helvetica = Suiza)<br>+ Liechtenstein, Luxemburg, Belgien, Südtirol (Italia)</p>',
+    tip:'<div class="tt"><i class="fas fa-brain"></i> Preposiciones geográficas</div><p>Ich komme <strong>aus</strong> Spanien. (origen)<br>Ich fahre <strong>nach</strong> Deutschland. (destino, sin artículo)<br>Ich lebe <strong>in</strong> Deutschland. (ubicación)</p>'
+  }
+];
+
+/* ── STATE ── */
+let viewedSet   = new Set(JSON.parse(localStorage.getItem('memoViewed')||'[]'));
+let quizCorrect = parseInt(localStorage.getItem('memoQC')||'0');
+let quizTotal   = parseInt(localStorage.getItem('memoQT')||'0');
+let streak      = parseInt(localStorage.getItem('memoStreak')||'0');
+let currentMode = 'gallery';
+let galleryFilter = 'all';
+let openMemoId  = null;
+
+// FC state
+let fcQueue=[], fcIdx=0, fcStreak=0, fcOk=0, fcNo=0;
+// Quiz state
+let qQueue=[], qIdx=0, qOk=0, qTimer=null, qTV=15, qAnswered=false;
+// Match state
+let mPairs=[], mSel=null, mMatched=0, mTimer=null, mElapsed=0;
+
+/* ── UTILS ── */
+const $ = id => document.getElementById(id);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a;}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
+function saveViewed(){localStorage.setItem('memoViewed',JSON.stringify([...viewedSet]));}
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', async () => {
+  if(localStorage.getItem('dlaTheme')==='light'){
+    document.body.classList.add('light');
+    $('themeBtn').querySelector('i').className='fas fa-sun';
+  }
+  $('themeBtn').addEventListener('click',()=>{
+    document.body.classList.toggle('light');
+    const il=document.body.classList.contains('light');
+    localStorage.setItem('dlaTheme',il?'light':'dark');
+    $('themeBtn').querySelector('i').className=il?'fas fa-sun':'fas fa-moon';
+  });
+
+  // Session
+  const {data:{session}} = await sb.auth.getSession().catch(()=>({data:{session:null}}));
+  if(session?.user){
+    USER_ID = session.user.id;
+    const name=session.user.user_metadata?.full_name||session.user.email?.split('@')[0]||'?';
+    $('uNm').textContent=name;
+    $('uAv').textContent=name.charAt(0).toUpperCase();
+  }
+
+  updateStats();
+  buildGrid();
+  initFC(false);
+  initQuiz();
+  initMatch();
+});
+
+/* ── STATS ── */
+function updateStats(){
+  const pct = Math.round((viewedSet.size/MEMOS.length)*100);
+  $('hViewed').textContent = viewedSet.size;
+  $('hStreak').textContent = streak;
+  $('gpFill').style.width  = pct+'%';
+  $('gpPct').textContent   = pct+'%';
+  $('gpChip').textContent  = `${viewedSet.size} / ${MEMOS.length} fichas vistas`;
+  const sc = quizTotal>0?Math.round((quizCorrect/quizTotal)*100)+'%':'—';
+  $('hScore').textContent  = sc;
+}
+
+/* ── MODE ── */
+function switchMode(mode){
+  currentMode=mode;sndClk();
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.toggle('active',t.dataset.mode===mode));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+mode));
+  if(mode==='gallery') buildGrid();
+  if(mode==='flashcard') initFC(false);
+  if(mode==='quiz') initQuiz();
+  if(mode==='match') initMatch();
+}
+
+/* ══════════════════════
+   1. GALLERY
+══════════════════════ */
+function setFilter(f,el){
+  galleryFilter=f;
+  document.querySelectorAll('.fchip').forEach(c=>c.classList.toggle('on',c.dataset.f===f));
+  buildGrid();
+}
+
+function buildGrid(){
+  const grid=$('memoGrid');
+  if(!grid)return;
+  grid.innerHTML='';
+  let list=MEMOS;
+  if(galleryFilter==='A1') list=MEMOS.filter(m=>m.level==='A1');
+  if(galleryFilter==='A2') list=MEMOS.filter(m=>m.level==='A2');
+  if(galleryFilter==='B1') list=MEMOS.filter(m=>m.level==='B1');
+  if(galleryFilter==='gram') list=MEMOS.filter(m=>m.type==='gram');
+  if(galleryFilter==='voc')  list=MEMOS.filter(m=>m.type==='voc');
+
+  list.forEach(m=>{
+    const viewed=viewedSet.has(m.id);
+    const card=document.createElement('div');
+    card.className='memo-card'+(viewed?' viewed':'');
+    card.style.setProperty('--c',m.color);
+    card.onclick=()=>openMemo(m.id);
+    card.innerHTML=`
+      <div class="memo-viewed"><i class="fas fa-check"></i></div>
+      <div class="memo-num">${String(m.id).padStart(2,'0')}</div>
+      <span class="memo-emoji">${m.emoji}</span>
+      <div class="memo-title">${m.german}</div>
+      <div class="memo-topic">${m.spanish}</div>
+      <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:6px">
+        <span class="memo-tag">${m.level}</span>
+        <span class="memo-tag">${m.type==='gram'?'Gramática':'Vocabulario'}</span>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function openMemo(id){
+  const m=MEMOS.find(x=>x.id===id);if(!m)return;
+  sndClk();
+  openMemoId=id;
+  viewedSet.add(id);saveViewed();updateStats();buildGrid();
+
+  const reader=$('memoReader');
+  reader.innerHTML=`
+    <div class="memo-reader" style="margin-bottom:14px">
+      <div class="mr-header" style="--c:${m.color}">
+        <div class="mr-header-l">
+          <div class="mr-num" style="background:${m.color};color:#000">${String(m.id).padStart(2,'0')}</div>
+          <div>
+            <div class="mr-title">${m.emoji} ${m.german}</div>
+            <div class="mr-sub">${m.spanish} · Nivel ${m.level}</div>
+          </div>
+        </div>
+        <div class="mr-acts">
+          <button class="speak-btn" onclick="speak('${m.german.replace(/'/g,"\\'")}')">
+            <i class="fas fa-volume-up"></i> Escuchar
+          </button>
+          <button class="btn" onclick="closeMemo()"><i class="fas fa-times"></i> Cerrar</button>
+        </div>
+      </div>
+      <div class="mr-body">
+        <!-- Image (optional) -->
+        <div class="mr-img-wrap">
+          <img class="mr-img" src="memo/memo${m.id}.jpg" alt="${m.german}"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <div class="mr-img-placeholder" style="display:none">
+            <i class="fas fa-images"></i>
+            <p>Imagen no encontrada (memo/memo${m.id}.jpg)</p>
+            <p style="font-size:.72rem;margin-top:4px">El contenido de la ficha está abajo.</p>
+          </div>
+        </div>
+
+        <!-- Vocabulary grid -->
+        <div class="mr-content">
+          <div class="content-box">
+            <div class="cb-title" style="color:${m.color}">
+              <i class="fas fa-book"></i> ${m.type==='gram'?'Estructuras':'Vocabulario'}
+            </div>
+            ${m.items.map(it=>`
+              <div class="cb-item">
+                <span class="cb-de">${it.de}</span>
+                <button class="cb-speak" onclick="speak('${it.de.split('(')[0].split('/')[0].trim().replace(/'/g,"\\'")}')" title="Escuchar">
+                  <i class="fas fa-volume-up"></i>
+                </button>
+                <span class="cb-es">${it.es}</span>
+              </div>`).join('')}
+          </div>
+          <div>
+            <div class="rule-box" style="margin-bottom:10px">${m.rule}</div>
+            <div class="tip-box">${m.tip}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  reader.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function closeMemo(){
+  $('memoReader').innerHTML='';
+  openMemoId=null;
+}
+
+function markAllViewed(){
+  MEMOS.forEach(m=>viewedSet.add(m.id));
+  saveViewed();updateStats();buildGrid();
+  toast('✅ Todas las fichas marcadas como vistas');
+}
+
+/* ══════════════════════
+   2. FLASHCARDS
+══════════════════════ */
+function initFC(doShuffle){
+  // Build queue from all vocab items flattened
+  const flat=[];
+  MEMOS.forEach(m=>{
+    m.items.slice(0,4).forEach(it=>{
+      flat.push({emoji:m.emoji,category:m.german,de:it.de.split('(')[0].split('→')[0].trim(),es:it.es,color:m.color});
+    });
+  });
+  fcQueue=doShuffle?shuffle([...flat]):shuffle([...flat]);
+  fcIdx=0;fcStreak=0;fcOk=0;fcNo=0;
+  $('fcStreakN').textContent=0;
+  renderFC();
+}
+
+function renderFC(){
+  const wrap=$('fcWrap');
+  if(fcIdx>=fcQueue.length){
+    const pct=Math.round((fcOk/fcQueue.length)*100);
+    wrap.innerHTML=`
+      <div class="result-card" style="width:100%;max-width:460px">
+        <div style="font-size:2.5rem;margin-bottom:8px">${pct>=80?'🏆':pct>=50?'💪':'📚'}</div>
+        <h3>${pct>=80?'¡Excelente!':pct>=50?'¡Bien hecho!':'Sigue practicando'}</h3>
+        <div class="rg">
+          <div class="rb"><span class="rb-v" style="color:var(--green)">${fcOk}</span><span class="rb-l">Sabía</span></div>
+          <div class="rb"><span class="rb-v" style="color:var(--red)">${fcNo}</span><span class="rb-l">No sabía</span></div>
+          <div class="rb"><span class="rb-v" style="color:var(--yellow)">${pct}%</span><span class="rb-l">Acierto</span></div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-y" onclick="initFC(false)"><i class="fas fa-redo"></i> Repetir</button>
+          <button class="btn" onclick="initFC(true)"><i class="fas fa-random"></i> Mezclar</button>
+        </div>
+      </div>`;
+    return;
+  }
+  const w=fcQueue[fcIdx];
+  const pct=Math.round((fcIdx/fcQueue.length)*100);
+  $('fcStreakN').textContent=fcStreak;
+  wrap.innerHTML=`
+    <div class="fc-prog-row">
+      <div class="fc-track"><div class="fc-fill" style="width:${pct}%"></div></div>
+      <span class="fc-ctr">${fcIdx+1}/${fcQueue.length}</span>
+    </div>
+    <div class="fc-card" id="fcCard" onclick="revealFC()" style="--c:${w.color}">
+      <div class="fc-inner">
+        <div class="fc-face" style="border-top:3px solid ${w.color}">
+          <div class="fc-lbl">${w.category}</div>
+          <div class="fc-emoji">${w.emoji}</div>
+          <div class="fc-word" style="color:${w.color}">${w.de}</div>
+          <div class="fc-tap"><i class="fas fa-hand-pointer"></i> Toca para ver la traducción</div>
+        </div>
+        <div class="fc-face fc-back" style="border-top:3px solid ${w.color}">
+          <div class="fc-lbl">Traducción al español</div>
+          <div class="fc-emoji">${w.emoji}</div>
+          <div class="fc-spanish">${w.es}</div>
+          <button class="speak-btn" onclick="event.stopPropagation();speak('${w.de.replace(/'/g,"\\'")}')">
+            <i class="fas fa-volume-up"></i> Escuchar alemán
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="fc-btns">
+      <button class="fc-btn fc-no" id="fcNo" onclick="answerFC(false)" disabled>
+        <i class="fas fa-times"></i> No sabía
+      </button>
+      <button class="fc-btn fc-yes" id="fcYes" onclick="answerFC(true)" disabled>
+        <i class="fas fa-check"></i> ¡Sabía!
+      </button>
+    </div>
+    <div style="font-size:.7rem;color:var(--muted);text-align:center">← No sabía &nbsp;|&nbsp; Sí sabía → (teclado)</div>`;
+  document.onkeydown=e=>{
+    if($('fcYes')?.disabled){if(e.key===' '){e.preventDefault();revealFC();}}
+    else{if(e.key==='ArrowRight')answerFC(true);if(e.key==='ArrowLeft')answerFC(false);}
+  };
+}
+
+function revealFC(){
+  const c=$('fcCard');if(!c||c.classList.contains('flipped'))return;
+  c.classList.add('flipped');
+  $('fcNo').disabled=false;$('fcYes').disabled=false;
+}
+
+function answerFC(knew){
+  if(knew){fcOk++;fcStreak++;streak++;sndOK();}else{fcNo++;fcStreak=0;sndBad();}
+  localStorage.setItem('memoStreak',streak);
+  fcIdx++;document.onkeydown=null;renderFC();
+  updateStats();
+}
+
+/* ══════════════════════
+   3. QUIZ MCQ
+══════════════════════ */
+function initQuiz(){
+  // Build from all items
+  const flat=[];
+  MEMOS.forEach(m=>{
+    m.items.slice(0,4).forEach(it=>{
+      flat.push({de:it.de.split('(')[0].split('→')[0].trim(),es:it.es,emoji:m.emoji,category:m.german});
+    });
+  });
+  qQueue=shuffle(flat).slice(0,20);
+  qIdx=0;qOk=0;clearInterval(qTimer);
+  renderQuiz();
+}
+
+function renderQuiz(){
+  if(qIdx>=qQueue.length){renderQuizResult();return;}
+  const w=qQueue[qIdx];
+  const pct=Math.round((qIdx/qQueue.length)*100);
+
+  // 4 options: correct + 3 wrong
+  const wrong=shuffle(qQueue.filter((_,i)=>i!==qIdx)).slice(0,3);
+  const useDeToEs=Math.random()>0.5;
+  const opts=shuffle([
+    {text:useDeToEs?w.es:w.de,ok:true},
+    ...wrong.map(x=>({text:useDeToEs?x.es:x.de,ok:false}))
+  ]);
+  const display=useDeToEs?w.de:w.es;
+
+  $('qzChip').textContent=`${qOk}/${qIdx}`;
+  qAnswered=false;qTV=15;clearInterval(qTimer);
+  $('qzTV').textContent=qTV;
+  $('qzTimer').classList.remove('danger');
+  qTimer=setInterval(()=>{
+    qTV--;const tv=$('qzTV');if(tv)tv.textContent=qTV;
+    const tb=$('qzTimer');if(tb)tb.classList.toggle('danger',qTV<=5);
+    if(qTV<=0){clearInterval(qTimer);if(!qAnswered)autoWrongQ();}
+  },1000);
+
+  $('qzBody').innerHTML=`
+    <div class="qz-header-row" style="margin-bottom:8px">
+      <span style="font-size:.78rem;color:var(--muted)">${qIdx+1}/${qQueue.length} · ${w.emoji} ${w.category}</span>
+      <span style="font-size:.72rem;color:var(--muted)">${useDeToEs?'DE → ES':'ES → DE'}</span>
+    </div>
+    <div class="qz-bar-track"><div class="qz-bar-fill" style="width:${pct}%"></div></div>
+    <div class="qz-q">${useDeToEs?'Traduce al español:':'Selecciona la palabra alemana:'}</div>
+    <div class="qz-word">${w.emoji} ${display}</div>
+    <div class="qz-opts">
+      ${opts.map((o,i)=>`
+        <button class="qz-opt" onclick="answerQ(this,${o.ok},'${w.de.replace(/'/g,"\\'")}')">
+          <span class="qz-l">${'ABCD'[i]}</span>${o.text}
+        </button>`).join('')}
+    </div>
+    <div class="qz-fb" id="qzFb"></div>
+    <button class="qz-next" id="qzNext" onclick="nextQ()">Siguiente <i class="fas fa-arrow-right"></i></button>`;
+}
+
+function answerQ(btn,ok,de){
+  if(qAnswered)return;qAnswered=true;clearInterval(qTimer);
+  if(ok){qOk++;quizCorrect++;sndOK();streak++;}else{sndBad();streak=0;}
+  quizTotal++;
+  localStorage.setItem('memoQC',quizCorrect);
+  localStorage.setItem('memoQT',quizTotal);
+  localStorage.setItem('memoStreak',streak);
+  document.querySelectorAll('.qz-opt').forEach(b=>b.disabled=true);
+  btn.classList.add(ok?'correct':'wrong');
+  if(!ok) document.querySelectorAll('.qz-opt').forEach(b=>{if(b.textContent.trim().includes(de.split('(')[0].trim().slice(0,12)))b.classList.add('correct');});
+  const fb=$('qzFb');
+  if(fb){fb.className='qz-fb '+(ok?'ok':'err');
+    fb.innerHTML=ok?`<strong>✅ Richtig!</strong><div class="exp">${de} <button class="speak-btn" onclick="speak('${de.replace(/'/g,"\\'")}')"><i class="fas fa-volume-up"></i></button></div>`
+      :`<strong>❌</strong> La respuesta era: <strong>${de}</strong> <button class="speak-btn" onclick="speak('${de.replace(/'/g,"\\'")}')"><i class="fas fa-volume-up"></i></button>`;}
+  const nxt=$('qzNext');if(nxt)nxt.style.display='block';
+  $('qzChip').textContent=`${qOk}/${qIdx+1}`;
+  updateStats();
+}
+function autoWrongQ(){
+  qAnswered=true;quizTotal++;sndBad();streak=0;
+  localStorage.setItem('memoQT',quizTotal);localStorage.setItem('memoStreak',0);
+  document.querySelectorAll('.qz-opt').forEach(b=>b.disabled=true);
+  const fb=$('qzFb');if(fb){fb.className='qz-fb err';fb.innerHTML='<strong>⏱ Tiempo agotado.</strong>';}
+  const nxt=$('qzNext');if(nxt)nxt.style.display='block';
+  updateStats();
+}
+function nextQ(){qIdx++;renderQuiz();}
+function renderQuizResult(){
+  clearInterval(qTimer);
+  const pct=Math.round((qOk/qQueue.length)*100);
+  $('qzBody').innerHTML=`
+    <div class="result-card">
+      <div style="font-size:2.5rem;margin-bottom:8px">${pct>=80?'🏆':pct>=70?'🥈':pct>=50?'🥉':'📚'}</div>
+      <h3>${pct>=80?'¡Excelente dominio!':pct>=50?'¡Buen trabajo!':'Sigue repasando las fichas'}</h3>
+      <div class="rg">
+        <div class="rb"><span class="rb-v" style="color:var(--green)">${qOk}</span><span class="rb-l">Correctas</span></div>
+        <div class="rb"><span class="rb-v" style="color:var(--red)">${qQueue.length-qOk}</span><span class="rb-l">Errores</span></div>
+        <div class="rb"><span class="rb-v" style="color:var(--yellow)">${pct}%</span><span class="rb-l">Acierto</span></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-y" onclick="initQuiz()"><i class="fas fa-redo"></i> Repetir</button>
+        <button class="btn" onclick="switchMode('flashcard')"><i class="fas fa-bolt"></i> Flashcards</button>
+      </div>
+    </div>`;
+}
+
+/* ══════════════════════
+   4. EMPAREJAR
+══════════════════════ */
+function initMatch(){
+  // Pick 8 random items
+  const flat=[];
+  MEMOS.forEach(m=>{
+    m.items.slice(0,2).forEach(it=>{
+      flat.push({de:it.de.split('(')[0].split('→')[0].trim(),es:it.es,id:`${m.id}-${it.de.slice(0,8)}`});
+    });
+  });
+  mPairs=shuffle(flat).slice(0,8);
+  mSel=null;mMatched=0;mElapsed=0;clearInterval(mTimer);
+  mTimer=setInterval(()=>{mElapsed++;updateMatchTimer();},1000);
+  renderMatch();
+}
+
+function renderMatch(){
+  const left =shuffle([...mPairs]).map((p,i)=>({id:'ML'+i,pid:p.id,text:p.de,side:'L'}));
+  const right=shuffle([...mPairs]).map((p,i)=>({id:'MR'+i,pid:p.id,text:p.es,side:'R'}));
+  $('matchPairsLbl').textContent=`0/${mPairs.length} pares`;
+  $('matchBody').innerHTML=`
+    <div class="match-grid">
+      <div class="match-col">
+        ${left.map(it=>`<div class="mi" id="${it.id}" data-pid="${it.pid}" data-side="L" onclick="selectMI(this)">${it.text}</div>`).join('')}
+      </div>
+      <div class="match-col">
+        ${right.map(it=>`<div class="mi" id="${it.id}" data-pid="${it.pid}" data-side="R" onclick="selectMI(this)">${it.text}</div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function updateMatchTimer(){
+  const m=Math.floor(mElapsed/60),s=mElapsed%60;
+  const el=$('matchTimer');if(el)el.textContent=`${m}:${s<10?'0':''}${s}`;
+}
+
+function selectMI(el){
+  if(el.classList.contains('matched'))return;
+  if(mSel===null){
+    if(el.dataset.side==='L'){el.classList.add('sel');mSel=el;}
+    else{toast('Selecciona primero el alemán (izquierda)');}
+    return;
+  }
+  if(el.dataset.side==='L'){mSel.classList.remove('sel');mSel=el;el.classList.add('sel');return;}
+  const ok=mSel.dataset.pid===el.dataset.pid;
+  if(ok){
+    mSel.classList.remove('sel');mSel.classList.add('matched');el.classList.add('matched');
+    mMatched++;$('matchPairsLbl').textContent=`${mMatched}/${mPairs.length} pares`;sndOK();
+    if(mMatched>=mPairs.length){clearInterval(mTimer);setTimeout(matchDone,400);}
+  }else{
+    mSel.classList.remove('sel');mSel.classList.add('wfl');el.classList.add('wfl');
+    const s=mSel,e=el;setTimeout(()=>{s.classList.remove('wfl');e.classList.remove('wfl');},450);sndBad();
+  }
+  mSel=null;
+}
+
+function matchDone(){
+  const m=Math.floor(mElapsed/60),s=mElapsed%60;
+  $('matchBody').innerHTML=`
+    <div class="result-card">
+      <div style="font-size:2.5rem;margin-bottom:8px">🎉</div>
+      <h3>¡Todos los pares correctos!</h3>
+      <p style="color:var(--muted);font-size:.82rem;margin-bottom:14px">
+        Tiempo: <strong>${m}:${s<10?'0':''}${s}</strong> · ${mPairs.length} pares
+      </p>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-y" onclick="initMatch()"><i class="fas fa-redo"></i> Nuevo juego</button>
+        <button class="btn" onclick="switchMode('quiz')"><i class="fas fa-question-circle"></i> Quiz</button>
+      </div>
+    </div>`;
+}
+</script>
+</body>
+</html>
