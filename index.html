@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <link rel="manifest" href="images/site.webmanifest">
+  <meta name="msapplication-TileColor" content="#1a1a2e">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEULCHALEX – Alemán para hispanohablantes</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* ===========================
+       TOKENS & VARIABLES
+    =========================== */
+    :root {
+      --bg:          #09090f;
+      --surface:     #111118;
+      --surface2:    #18181f;
+      --border:      rgba(255,255,255,0.07);
+      --border-h:    rgba(52,152,219,0.45);
+      --blue:        #03045e;
+      --blue-l:      #caf0f8;
+      --red:         #3c47e7;
+      --green:       #1abc9c;
+      --yellow:      #f1c40f;
+      --purple:      #8e44ad;
+      --orange:      #e67e22;
+      --teal:        #16a085;
+      --indigo:      #3a57da;
+      --text:        #e8eaf0;
+      --text-muted:  #7f8c9a;
+      --radius:      16px;
+      --radius-sm:   10px;
+      --shadow:      0 20px 60px rgba(0,0,0,0.6);
+      --glow-blue:   0 0 30px rgba(52,152,219,0.25);
+    }
+
+    .light {
+      --bg:         #eef2f7;
+      --surface:    #ffffff;
+      --surface2:   #f5f7fb;
+      --border:     rgba(0,0,0,0.08);
+      --border-h:   rgba(52,152,219,0.4);
+      --text:       #1a1d2e;
+      --text-muted: #6b7280;
+    }
+
+    /* ===========================
+       RESET & BASE
+    =========================== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background .3s, color .3s;
+      overflow-x: hidden;
+    }
+
+    /* Noise overlay for depth */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ===========================
+       AUTH SCREEN
+    =========================== */
+    #authScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      transition: opacity .4s, transform .4s;
+    }
+
+    #authScreen.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(1.02);
+    }
+
+    .auth-wrap {
+      width: 100%;
+      max-width: 440px;
+      padding: 20px;
+    }
+
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .auth-logo-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, var(--blue), var(--red));
+      border-radius: 20px;
+      font-size: 2rem;
+      margin-bottom: 16px;
+      box-shadow: var(--glow-blue);
+    }
+
+    .auth-logo h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--blue), var(--red));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .auth-logo p {
+      color: var(--text-muted);
+      font-size: .9rem;
+      margin-top: 6px;
+    }
+
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 36px;
+      box-shadow: var(--shadow);
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 28px;
+      background: var(--surface2);
+      padding: 5px;
+      border-radius: 12px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem;
+      font-weight: 500;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .auth-tab.active {
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(52,152,219,0.35);
+    }
+
+    .auth-form { display: none; }
+    .auth-form.active { display: block; }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: .85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      letter-spacing: .03em;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 13px 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+
+    .form-group input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(52,152,219,0.15);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--blue), #2471a3);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .25s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(52,152,219,0.4);
+    }
+
+    .btn-primary:disabled {
+      opacity: .6;
+      transform: none;
+      cursor: not-allowed;
+    }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--text-muted);
+      font-size: .8rem;
+    }
+
+    .auth-divider::before, .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .btn-google {
+      width: 100%;
+      padding: 13px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all .2s;
+    }
+
+    .btn-google:hover {
+      border-color: var(--blue);
+      background: rgba(52,152,219,0.07);
+    }
+
+    .auth-msg {
+      margin-top: 14px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: .9rem;
+      display: none;
+    }
+
+    .auth-msg.error { background: rgba(231,76,60,.12); color: #e74c3c; border: 1px solid rgba(231,76,60,.25); display: block; }
+    .auth-msg.success { background: rgba(26,188,156,.12); color: #1abc9c; border: 1px solid rgba(26,188,156,.25); display: block; }
+
+    /* ===========================
+       MAIN APP
+    =========================== */
+    #app {
+      position: relative;
+      z-index: 1;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+    }
+
+    /* ===========================
+       TOPBAR
+    =========================== */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      margin-bottom: 24px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topbar-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--blue), var(--red));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .topbar-brand-text h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--blue), var(--red));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .topbar-brand-text span {
+      font-size: .75rem;
+      color: var(--text-muted);
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 6px 14px 6px 6px;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: .85rem;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .user-name {
+      font-size: .85rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .btn-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all .2s;
+      text-decoration: none;
+    }
+
+    .btn-icon:hover {
+      background: var(--blue);
+      color: white;
+      border-color: var(--blue);
+      box-shadow: 0 4px 14px rgba(52,152,219,0.3);
+    }
+
+    /* ===========================
+       HERO BANNER
+    =========================== */
+    .hero {
+      position: relative;
+      background: linear-gradient(135deg, #0d2137 0%, #0a1628 50%, #12092a 100%);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px 40px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(52,152,219,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -80px;
+      left: 40%;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(142,68,173,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-accent {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--blue), var(--red), var(--green));
+      border-radius: 24px 24px 0 0;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .hero-greeting {
+      font-size: .85rem;
+      font-weight: 500;
+      color: var(--blue-l);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 14px;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(90deg, var(--blue), var(--red));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-sub {
+      color: var(--text-muted);
+      font-size: 1rem;
+      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .hero-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-stat strong {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--blue-l);
+    }
+
+    .hero-stat span {
+      font-size: .78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    /* Streak badge */
+    .streak-badge {
+      position: absolute;
+      top: 32px;
+      right: 32px;
+      background: linear-gradient(135deg, rgba(241,196,15,.12), rgba(230,126,34,.12));
+      border: 1px solid rgba(241,196,15,.3);
+      border-radius: 14px;
+      padding: 12px 18px;
+      text-align: center;
+      z-index: 1;
+    }
+
+    .streak-badge .streak-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--yellow);
+      line-height: 1;
+    }
+
+    .streak-badge .streak-label {
+      font-size: .72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    /* ===========================
+       PROGRESS SECTION
+    =========================== */
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .progress-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .progress-header h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .progress-header .pct {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--blue);
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 10px;
+      background: var(--surface2);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--red));
+      border-radius: 20px;
+      width: 0%;
+      transition: width .8s cubic-bezier(.23,1,.32,1);
+      box-shadow: 0 0 12px rgba(52,152,219,0.4);
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 16px;
+    }
+
+    .skill-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .skill-item .skill-icon {
+      font-size: 1.2rem;
+      color: var(--blue);
+    }
+
+    .skill-item .skill-label {
+      font-size: .72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      text-align: center;
+    }
+
+    .ring {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: conic-gradient(var(--green) 0deg, var(--surface2) 0deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .5s;
+    }
+
+    .ring::before {
+      content: '';
+      position: absolute;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--surface);
+    }
+
+    .ring-val {
+      position: relative;
+      font-family: 'Syne', sans-serif;
+      font-size: .85rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* ===========================
+       MODULES GRID
+    =========================== */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 48px;
+    }
+
+    .module-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+    }
+
+    .module-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--card-color, var(--blue)) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity .3s;
+      pointer-events: none;
+    }
+
+    .module-card:hover {
+      border-color: var(--card-color, var(--blue));
+      transform: translateY(-5px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+    }
+
+    .module-card:hover::before { opacity: .05; }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .card-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      background: color-mix(in srgb, var(--card-color, var(--blue)) 18%, transparent);
+      color: var(--card-color, var(--blue));
+      flex-shrink: 0;
+    }
+
+    .card-num {
+      font-family: 'Syne', sans-serif;
+      font-size: .75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: .06em;
+    }
+
+    .module-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .module-card p {
+      font-size: .9rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      flex-grow: 1;
+      margin-bottom: 20px;
+    }
+
+    .feature-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 22px;
+    }
+
+    .pill {
+      font-size: .72rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--surface2);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .card-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: .9rem;
+      color: var(--card-color, var(--blue));
+      margin-top: auto;
+      transition: gap .2s;
+    }
+
+    .module-card:hover .card-cta { gap: 12px; }
+
+    /* ===========================
+       FOOTER
+    =========================== */
+    footer {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 32px;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-brand {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--blue), var(--red));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .footer-copy {
+      font-size: .8rem;
+      color: var(--text-muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      font-size: .82rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+
+    .footer-links a:hover { color: var(--blue); }
+
+    /* ===========================
+       NOTIFICATION TOAST
+    =========================== */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 20px;
+      font-size: .9rem;
+      box-shadow: var(--shadow);
+      z-index: 9000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all .35s cubic-bezier(.23,1,.32,1);
+      max-width: 340px;
+    }
+
+    #toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ===========================
+       RESPONSIVE
+    =========================== */
+    @media (max-width: 640px) {
+      .hero { padding: 32px 24px 100px; }
+      .streak-badge { top: auto; bottom: 20px; right: 20px; }
+      .modules-grid { grid-template-columns: 1fr; }
+      .topbar { padding: 12px 16px; }
+      .auth-card { padding: 24px 20px; }
+      .user-name { display: none; }
+    }
+
+    @media (max-width: 420px) {
+      .skills-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* Loading spinner */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Fade-in for cards */
+    .module-card {
+      opacity: 0;
+      animation: fadeUp .5s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .module-card:nth-child(1)  { animation-delay: .05s; }
+    .module-card:nth-child(2)  { animation-delay: .10s; }
+    .module-card:nth-child(3)  { animation-delay: .15s; }
+    .module-card:nth-child(4)  { animation-delay: .20s; }
+    .module-card:nth-child(5)  { animation-delay: .25s; }
+    .module-card:nth-child(6)  { animation-delay: .30s; }
+    .module-card:nth-child(7)  { animation-delay: .35s; }
+    .module-card:nth-child(8)  { animation-delay: .40s; }
+    .module-card:nth-child(9)  { animation-delay: .45s; }
+    .module-card:nth-child(10) { animation-delay: .50s; }
+  </style>
+</head>
+<body>
+
+<!-- ============================
+     AUTH SCREEN
+============================= -->
+<div id="authScreen">
+  <div class="auth-wrap">
+    <div class="auth-logo">
+      <div class="auth-logo-mark">🇩🇪</div>
+      <h1>DEULCHALEX</h1>
+      <p>Centro de Aprendizaje de Alemán · A1 – B2</p>
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login')">Iniciar sesión</button>
+        <button class="auth-tab" onclick="switchTab('register')">Registrarse</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div class="auth-form active" id="loginForm">
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input type="email" id="loginEmail" placeholder="tu@correo.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="btn-primary" id="btnLogin" onclick="doLogin()">
+          <i class="fas fa-sign-in-alt"></i> Entrar
+        </button>
+
+        <div class="auth-divider">o continúa con</div>
+        <button class="btn-google" onclick="doGoogleLogin()">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+          Continuar con Google
+        </button>
+        <div class="auth-msg" id="loginMsg"></div>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div class="auth-form" id="registerForm">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" id="regName" placeholder="Tu nombre" autocomplete="given-name">
+        </div>
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input type="email" id="regEmail" placeholder="tu@correo.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label>Contraseña (mín. 6 caracteres)</label>
+          <input type="password" id="regPassword" placeholder="••••••••" autocomplete="new-password">
+        </div>
+        <button class="btn-primary" id="btnRegister" onclick="doRegister()">
+          <i class="fas fa-user-plus"></i> Crear cuenta
+        </button>
+        <div class="auth-msg" id="registerMsg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================
+     MAIN APP
+============================= -->
+<div id="app" style="display:none">
+
+  <!-- TOPBAR -->
+  <nav class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-icon">🇩🇪</div>
+      <div class="topbar-brand-text">
+        <h2>DEULCHALEX</h2>
+        <span>Nivel A1 – B2</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="user-chip">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <span class="user-name" id="userName">Usuario</span>
+      </div>
+      <button class="btn-icon" id="themeToggle" title="Cambiar tema"><i class="fas fa-moon"></i></button>
+      <button class="btn-icon" onclick="doLogout()" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-accent"></div>
+    <div class="hero-content">
+      <div class="hero-greeting">Willkommen zurück 👋</div>
+      <h1>Hola, <span id="heroName">Estudiante</span>.<br>Sigue aprendiendo.</h1>
+      <p class="hero-sub">
+        Tu plataforma personalizada para dominar el alemán. Vocabulario, gramática, lectura y escucha — todo en un lugar.
+      </p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <strong id="statModules">10</strong>
+          <span>Módulos</span>
+        </div>
+        <div class="hero-stat">
+          <strong>2 000+</strong>
+          <span>Palabras</span>
+        </div>
+        <div class="hero-stat">
+          <strong>A1–B2</strong>
+          <span>Niveles</span>
+        </div>
+      </div>
+    </div>
+    <div class="streak-badge">
+      <div class="streak-num" id="streakNum">–</div>
+      <div class="streak-label">🔥 días racha</div>
+    </div>
+  </section>
+
+  <!-- PROGRESS -->
+  <p class="section-title"><i class="fas fa-chart-bar"></i> Tu progreso</p>
+
+  <div class="progress-wrap">
+    <div class="progress-header">
+      <h3>Progreso general del curso</h3>
+      <span class="pct" id="generalPct">0%</span>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill" id="generalBar"></div>
+    </div>
+
+    <div class="skills-grid">
+      <div class="skill-item">
+        <i class="fas fa-graduation-cap skill-icon"></i>
+        <div class="ring" id="ringGrammar"><span class="ring-val" id="valGrammar">0%</span></div>
+        <span class="skill-label">Gramática</span>
+      </div>
+      <div class="skill-item">
+        <i class="fas fa-book-open skill-icon"></i>
+        <div class="ring" id="ringVocab"><span class="ring-val" id="valVocab">0%</span></div>
+        <span class="skill-label">Vocabulario</span>
+      </div>
+      <div class="skill-item">
+        <i class="fas fa-running skill-icon"></i>
+        <div class="ring" id="ringVerbs"><span class="ring-val" id="valVerbs">0%</span></div>
+        <span class="skill-label">Verbos</span>
+      </div>
+      <div class="skill-item">
+        <i class="fas fa-book-reader skill-icon"></i>
+        <div class="ring" id="ringReading"><span class="ring-val" id="valReading">0%</span></div>
+        <span class="skill-label">Lectura</span>
+      </div>
+      <div class="skill-item">
+        <i class="fas fa-pencil-alt skill-icon"></i>
+        <div class="ring" id="ringWriting"><span class="ring-val" id="valWriting">0%</span></div>
+        <span class="skill-label">Escritura</span>
+      </div>
+      <div class="skill-item">
+        <i class="fas fa-headphones skill-icon"></i>
+        <div class="ring" id="ringListening"><span class="ring-val" id="valListening">0%</span></div>
+        <span class="skill-label">Escucha</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULES -->
+  <p class="section-title"><i class="fas fa-th-large"></i> Módulos de aprendizaje</p>
+
+  <div class="modules-grid">
+
+    <a href="Grundlagentheorie.html" class="module-card" style="--card-color: #3498db">
+      <div class="card-top">
+        <div class="card-badge"><i class="fas fa-graduation-cap"></i></div>
+        <span class="card-num">01</span>
+      </div>
+      <h3>Grundlagentheorie</h3>
+      <p>Resumen visual de toda la teoría gramatical esencial. Tablas, trucos mnemotécnicos y explicaciones para hispanohablantes.</p>
+      <div class="feature-pills">
+        <span class="pill">Declinación</span>
+        <span class="pill">4 casos</span>
+        <span class="pill">W-Formel</span>
+        <span class="pill">Preposiciones</span>
+      </div>
+      <span class="card-cta">Abrir <i class="fas fa-arrow-right"></i></span>
+    </a>
+
+    <a href="voca.html" class="module-card" style="--card-color: #1abc9c">
+      <div class="card-top">
+        <div class="card-badge"><i class="fas fa-book"></i></div>
+        <span class="card-num">02</span>
+      </div>
+      <h3>Vokabeltrainer</h3>
+      <p>Sistema de repaso espaciado con más de 2 000 palabras A1-B2 organizadas por temas. Marca favoritas y realiza pruebas.</p>
+      <div class="feature-pills">
+        <span class="pill">2 000+ palabras</span>
+        <span class="pill">Por temas</span>
+        <span class="pill">Favoritos</span>
+        <span class="pill">Repaso inteligente</span>
+      </div>
+      <span class="card-cta">Explorar <i class="fas fa-arrow-right"></i></span>
+    </a>
+
+    <a href="verben.html" class="module-card" style="--card-color: #f39c12">
+      <div class="card-top">
+        <div class="card-badge"><i class="fas fa-running"></i></div>
+        <span class="card-num">03</span>
+      </div>
+      <h3>Verbotrainer</h3>
+      <p>Entrenamiento completo de conjugación verbal. Verbos regulares e irregulares, tiempos verbales y ejercicios interactivos.</p>
+      <div class="feature-pills">
+        <span class="pill">200+ verbos</span>
+        <span class="pill">Todos los tiempos</span>
+        <span class="pill">Estadísticas</span>
+      </div>
+      <span class="card-cta">Entrenar <i class="fas fa-arrow-right"></i></span>
+    </a>
+
+    <a href="trainersaetze.html" class="module-card" style="--card-color: #e74c3c">
+      <div class="card-top">
+        <div class="card-badge"><i class="fas fa-comment-dots"></i></div>
+        <span class="card-num">04</span>
+      </div>
+      <h3>Trainersätze</h3>
+      <p>Domina la estructura gramatical del alemán con ejercicios prácticos y contextualizados. Nivel A2-B1.</p>
+      <div class="feature-pills">
+        <span class="pill">Gramática en contexto</span>
+        <span class="pill">Estructura oracional</span>
+        <span class="pill">Geschichten</span>
+      </div>
+      <span class="card-cta">Acceder <i class="fas fa-arrow-right"></i></span>
+    </a>
+
+    <a href="DeutschLektor.html" class="module-card" style="--card-color: #9b59b6">
+      <div class="card-top">
+        <div class="card-badge"><i class="fas fa-book-reader"></i></div>
+        <span class="card-num">05</span>
+      </div>
+      <h3>DeutschLektor</h3>
+      <p>Micro-historias gramaticales con audio nativo. Ejercicios interactivos enfocados en puntos críticos A2-B1.</p>
+      <div class="feature-pills">
+        <span class="pill">150-200 palabras</span>
+        <span class="pill">Audio nativo</span>
+        <span class="pill">Interactivo</span>
+      </div>
+      <span class="card-cta">Leer <i class="fas fa-arrow-right"></i></span>
+    </a>
+
+    <a href="mediateca.html" class="module-card" style="--card-color: #8e44ad">
+      <div class="card-top">
+        <div class="card-badge"><i class="fas fa-headphones"></i></div>
+        <span class="card-num">06</span>
+      </div>
+      <h3>Mediothek</h3>
+      <p>Podcasts, música en alemán, serie Harry DW y Die Maus. Comprensión auditiva B1-B2 con ejercicios interactivos integrados.</p>
+      <div class="feature-pills">
+        <span class="pill">Podcasts</span>
+        <span class="pill">Harry DW · B1</span>
+        <span class="pill">Die Maus · A1</span>
+        <span class="pill">Shadowing</span>
+      </div>
+      <span class="card-cta">Escuchar <i class="fas fa-arrow-right"></i></span>
+    </a>
+
+    <a href="memo.html" class="module-card" style="--card-color: #e67e22">
+      <div class="card-top">
+        <div class="card-badge"><i class="fas fa-images"></i></div>
+        <span class="card-num">07</span>
+      </div>
+      <h3>Memofiches</h3>
+      <p>20 fichas de memoria temáticas A1-B1 con emojis. Visualización interactiva y modal de detalles integrado.</p>
+      <div class="feature-pills">
+        <span class="pill">20 fichas</span>
+        <span class="pill">Visual</span>
+        <span class="pill">Emojis</span>
+      </div>
+      <span class="card-cta">Ver fichas <i class="fas fa-arrow-right"></i></span>
+    </a>
+
+    <a href="games/index.html" class="module-card" style="--card-color: #3a57da">
+      <div class="card-top">
+        <div class="card-badge"><i class="fas fa-gamepad"></i></div>
+        <span class="card-num">08</span>
+      </div>
+      <h3>Spielplatz</h3>
+      <p>Aprende jugando: memoria de antónimos, ahorcado y emparejar imágenes. Diviértete mientras practicas alemán.</p>
+      <div class="feature-pills">
+        <span class="pill">Memoria</span>
+        <span class="pill">Ahorcado</span>
+        <span class="pill">Imágenes</span>
+      </div>
+      <span class="card-cta">Jugar <i class="fas fa-arrow-right"></i></span>
+    </a>
+
+    <a href="prufen.html" class="module-card" style="--card-color: #e74c3c">
+      <div class="card-top">
+        <div class="card-badge"><i class="fas fa-certificate"></i></div>
+        <span class="card-num">09</span>
+      </div>
+      <h3>Die Prüfen</h3>
+      <p>Simulador de exámenes oficiales A1-B2. Pruebas completas cronometradas de comprensión oral, escrita, lectura y producción. Con puntuación, feedback detallado y certificado.</p>
+      <div class="feature-pills">
+        <span class="pill">A1 · A2 · B1 · B2</span>
+        <span class="pill">Hören</span>
+        <span class="pill">Lesen</span>
+        <span class="pill">Schreiben</span>
+        <span class="pill">Sprechen</span>
+      </div>
+      <span class="card-cta">Examinarse <i class="fas fa-arrow-right"></i></span>
+    </a>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">DEULCHALEX</div>
+        <div class="footer-copy">© 2024 · Centro de Aprendizaje de Alemán para hispanohablantes</div>
+      </div>
+      <div class="footer-links">
+        <a href="#"><i class="fas fa-info-circle"></i> Acerca de</a>
+        <a href="#"><i class="fas fa-lightbulb"></i> Consejos</a>
+        <a href="#"><i class="fas fa-question-circle"></i> FAQ</a>
+        <a href="#"><i class="fas fa-envelope"></i> Contacto</a>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /app -->
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ============================
+     JAVASCRIPT
+============================= -->
+<script>
+// =============================================
+// CONFIG SUPABASE
+// =============================================
+const SUPABASE_URL = 'https://kcfiacdwufadnuknkfkp.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZmlhY2R3dWZhZG51a25rZmtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxOTA5MTksImV4cCI6MjA4Nzc2NjkxOX0.bmz4K7E-a2PCM5CObDYz9ritbTKLi_OpwyiNBMOH5fU';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+
+// =============================================
+// AUTH TAB SWITCH
+// =============================================
+function switchTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((el, i) => {
+    el.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
+  });
+  document.getElementById('loginForm').classList.toggle('active', tab === 'login');
+  document.getElementById('registerForm').classList.toggle('active', tab === 'register');
+}
+
+// =============================================
+// LOGIN
+// =============================================
+async function doLogin() {
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const btn      = document.getElementById('btnLogin');
+  const msg      = document.getElementById('loginMsg');
+
+  if (!email || !password) { showAuthMsg(msg, 'Por favor completa todos los campos.', 'error'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Entrando…';
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    showAuthMsg(msg, traducirError(error.message), 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar';
+  } else {
+    enterApp(data.user);
+  }
+}
+
+// =============================================
+// GOOGLE LOGIN
+// =============================================
+async function doGoogleLogin() {
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href }
+  });
+  if (error) showToast('❌ Error con Google: ' + error.message);
+}
+
+// =============================================
+// REGISTER
+// =============================================
+async function doRegister() {
+  const name     = document.getElementById('regName').value.trim();
+  const email    = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const btn      = document.getElementById('btnRegister');
+  const msg      = document.getElementById('registerMsg');
+
+  if (!name || !email || !password) { showAuthMsg(msg, 'Por favor completa todos los campos.', 'error'); return; }
+  if (password.length < 6) { showAuthMsg(msg, 'La contraseña debe tener al menos 6 caracteres.', 'error'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Creando cuenta…';
+
+  const { data, error } = await sb.auth.signUp({
+    email, password,
+    options: { data: { full_name: name } }
+  });
+
+  if (error) {
+    showAuthMsg(msg, traducirError(error.message), 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-user-plus"></i> Crear cuenta';
+  } else if (data.user && !data.session) {
+    showAuthMsg(msg, '✅ ¡Cuenta creada! Revisa tu correo para confirmar.', 'success');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-user-plus"></i> Crear cuenta';
+  } else if (data.session) {
+    enterApp(data.user);
+  }
+}
+
+// =============================================
+// LOGOUT
+// =============================================
+async function doLogout() {
+  await sb.auth.signOut();
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('authScreen').classList.remove('hidden');
+  showToast('👋 Sesión cerrada. ¡Auf Wiedersehen!');
+}
+
+// =============================================
+// ENTER APP
+// =============================================
+function enterApp(user) {
+  currentUser = user;
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('app').style.display = 'block';
+
+  // User display
+  const name  = user.user_metadata?.full_name || user.email.split('@')[0];
+  const initial = name.charAt(0).toUpperCase();
+
+  document.getElementById('userName').textContent  = name;
+  document.getElementById('heroName').textContent  = name.split(' ')[0];
+  document.getElementById('userAvatar').textContent = initial;
+
+  loadProgress(user.id);
+  loadStreak(user.id);
+}
+
+// =============================================
+// LOAD PROGRESS (real, per user)
+// =============================================
+async function loadProgress(uid) {
+  // Show skeleton while loading
+  ['valGrammar','valVocab','valVerbs','valReading','valWriting','valListening'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '…';
+  });
+
+  try {
+    // Run all queries in parallel — keep ALL as raw results to safely read .count
+    const results = await Promise.all([
+      sb.from('vocabulary').select('id', { count: 'exact', head: true }),
+      sb.from('user_vocabulary').select('id', { count: 'exact', head: true }).eq('user_id', uid).eq('mastered', true),
+      sb.from('verbs').select('id', { count: 'exact', head: true }),
+      sb.from('user_verbs').select('id', { count: 'exact', head: true }).eq('user_id', uid).eq('mastered', true),
+      sb.from('user_grammar_topics').select('id', { count: 'exact', head: true }).eq('user_id', uid).eq('completed', true),
+      sb.from('user_reading_progress').select('id', { count: 'exact', head: true }).eq('user_id', uid).eq('completed', true),
+      sb.from('phrase_exercises').select('id', { count: 'exact', head: true }),
+      sb.from('user_phrase_progress').select('id', { count: 'exact', head: true }).eq('user_id', uid).eq('mastered', true),
+      sb.from('user_listening_progress').select('id', { count: 'exact', head: true }).eq('user_id', uid).eq('completed', true),
+    ]);
+
+    // Safe integer extractor — never returns NaN
+    const n = (res) => {
+      if (!res) return 0;
+      const v = res.count;
+      const num = parseInt(v, 10);
+      return isNaN(num) ? 0 : num;
+    };
+
+    const totalVocab        = n(results[0]);
+    const masteredVocab     = n(results[1]);
+    const totalVerbs        = n(results[2]);
+    const masteredVerbs     = n(results[3]);
+    const temasGrammar      = n(results[4]);   // user-completed grammar topics
+    const historiasReading  = n(results[5]);   // user-completed reading stories
+    const totalPhrases      = n(results[6]);
+    const masteredPhrases   = n(results[7]);
+    const ejerciciosListening = n(results[8]);
+
+    // Calculate percentages — pct() already guards against divide-by-zero
+    const pGrammar   = pct(temasGrammar,        8);                                  // 8 grammar topics total
+    const pVocab     = pct(masteredVocab,        Math.max(totalVocab,   1));
+    const pVerbs     = pct(masteredVerbs,        Math.max(totalVerbs,   1));
+    const pReading   = pct(historiasReading,     6);                                  // 6 stories in DeutschLektor
+    const pWriting   = pct(masteredPhrases,      Math.max(totalPhrases, 1));
+    const pListening = pct(ejerciciosListening,  20);                                 // 20 listening exercises
+
+    // Update rings
+    setRing('ringGrammar',   'valGrammar',   pGrammar);
+    setRing('ringVocab',     'valVocab',     pVocab);
+    setRing('ringVerbs',     'valVerbs',     pVerbs);
+    setRing('ringReading',   'valReading',   pReading);
+    setRing('ringWriting',   'valWriting',   pWriting);
+    setRing('ringListening', 'valListening', pListening);
+
+    // Overall average — safe because all values are 0-100 integers
+    const values = [pGrammar, pVocab, pVerbs, pReading, pWriting, pListening];
+    const avg = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+
+    const barEl = document.getElementById('generalBar');
+    const pctEl = document.getElementById('generalPct');
+    if (barEl) barEl.style.width = avg + '%';
+    if (pctEl) pctEl.textContent  = avg + '%';
+
+    // Also persist lightweight snapshot to localStorage as cache
+    try {
+      localStorage.setItem('dla_progress_' + uid, JSON.stringify({
+        ts: Date.now(), pGrammar, pVocab, pVerbs, pReading, pWriting, pListening, avg
+      }));
+    } catch (_) {}
+
+  } catch (e) {
+    console.error('Error cargando progreso:', e);
+    // Try to restore from localStorage cache on network error
+    try {
+      const cached = JSON.parse(localStorage.getItem('dla_progress_' + uid) || 'null');
+      if (cached) {
+        setRing('ringGrammar',   'valGrammar',   cached.pGrammar   || 0);
+        setRing('ringVocab',     'valVocab',     cached.pVocab     || 0);
+        setRing('ringVerbs',     'valVerbs',     cached.pVerbs     || 0);
+        setRing('ringReading',   'valReading',   cached.pReading   || 0);
+        setRing('ringWriting',   'valWriting',   cached.pWriting   || 0);
+        setRing('ringListening', 'valListening', cached.pListening || 0);
+        const barEl = document.getElementById('generalBar');
+        const pctEl = document.getElementById('generalPct');
+        if (barEl) barEl.style.width = (cached.avg || 0) + '%';
+        if (pctEl) pctEl.textContent  = (cached.avg || 0) + '% (caché)';
+      }
+    } catch (_) {}
+  }
+}
+
+function pct(done, total) {
+  if (!total || total === 0) return 0;
+  return Math.min(100, Math.round((done / total) * 100));
+}
+
+function setRing(ringId, valId, percent) {
+  const deg = (percent / 100) * 360;
+  document.getElementById(ringId).style.background =
+    `conic-gradient(var(--green) ${deg}deg, var(--surface2) ${deg}deg)`;
+  document.getElementById(valId).textContent = percent + '%';
+}
+
+// =============================================
+// STREAK (días consecutivos)
+// =============================================
+async function loadStreak(uid) {
+  try {
+    // Update today's login
+    const today = new Date().toISOString().split('T')[0];
+    await sb.from('user_streaks').upsert({ user_id: uid, last_active: today }, { onConflict: 'user_id' });
+
+    const { data } = await sb.from('user_streaks').select('streak_days, last_active').eq('user_id', uid).single();
+    if (data) {
+      document.getElementById('streakNum').textContent = data.streak_days ?? 1;
+    }
+  } catch (e) {
+    document.getElementById('streakNum').textContent = '–';
+  }
+}
+
+// =============================================
+// HELPERS
+// =============================================
+function showAuthMsg(el, txt, type) {
+  el.textContent = txt;
+  el.className = 'auth-msg ' + type;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function traducirError(msg) {
+  if (msg.includes('Invalid login')) return 'Correo o contraseña incorrectos.';
+  if (msg.includes('Email not confirmed')) return 'Confirma tu correo antes de entrar.';
+  if (msg.includes('already registered')) return 'Este correo ya está registrado.';
+  if (msg.includes('Password should be')) return 'La contraseña debe tener al menos 6 caracteres.';
+  return msg;
+}
+
+// =============================================
+// THEME TOGGLE
+// =============================================
+const themeBtn = document.getElementById('themeToggle');
+const savedTheme = localStorage.getItem('dlaTheme');
+if (savedTheme === 'light') {
+  document.body.classList.add('light');
+  themeBtn.querySelector('i').className = 'fas fa-sun';
+}
+
+themeBtn.addEventListener('click', () => {
+  document.body.classList.toggle('light');
+  const isLight = document.body.classList.contains('light');
+  localStorage.setItem('dlaTheme', isLight ? 'light' : 'dark');
+  themeBtn.querySelector('i').className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+});
+
+// =============================================
+// AUTO-LOGIN (session recovery)
+// =============================================
+document.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    enterApp(session.user);
+  }
+  // Handle Google OAuth redirect
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session?.user && !currentUser) {
+      enterApp(session.user);
+    }
+  });
+});
+</script>
+
+</body>
+</html>
