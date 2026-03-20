@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEULCHALEX – Die Prüfen 📋</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+  /* ── TOKENS ── */
+  :root{
+    --bg:#09090f;--surface:#111118;--s2:#18181f;--s3:#202028;
+    --border:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);
+    --blue:#3498db;--bdim:rgba(52,152,219,.13);
+    --green:#1abc9c;--gdim:rgba(26,188,156,.13);
+    --red:#e74c3c;--rdim:rgba(231,76,60,.13);
+    --yellow:#f1c40f;--ydim:rgba(241,196,15,.13);
+    --purple:#8e44ad;--pdim:rgba(142,68,173,.13);
+    --orange:#e67e22;--odim:rgba(230,126,34,.13);
+    --text:#e8eaf0;--muted:#7f8c9a;
+    --r:14px;--r20:20px;
+    --shadow:0 20px 60px rgba(0,0,0,.6);
+  }
+  .light{
+    --bg:#eef2f7;--surface:#fff;--s2:#f5f7fb;--s3:#ebeef4;
+    --border:rgba(0,0,0,.08);--b2:rgba(0,0,0,.14);
+    --text:#1a1d2e;--muted:#6b7280;
+  }
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);
+    min-height:100vh;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased}
+
+  /* ── TOPBAR ── */
+  .topbar{display:flex;align-items:center;justify-content:space-between;
+    padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--border);
+    position:sticky;top:0;z-index:200;backdrop-filter:blur(12px)}
+  .tb-l{display:flex;align-items:center;gap:12px}
+  .back-link{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;font-weight:600;
+    color:var(--muted);text-decoration:none;padding:6px 12px;border:1px solid var(--border);
+    border-radius:10px;transition:all .2s}
+  .back-link:hover{color:var(--red);border-color:var(--rdim)}
+  .tb-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;
+    background:linear-gradient(90deg,var(--red),var(--purple));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .tb-r{display:flex;align-items:center;gap:8px}
+  .ib{width:36px;height:36px;border-radius:9px;background:var(--s2);border:1px solid var(--border);
+    color:var(--muted);display:flex;align-items:center;justify-content:center;
+    font-size:.85rem;cursor:pointer;transition:all .2s}
+  .ib:hover{background:var(--rdim);color:var(--red)}
+
+  /* ── WRAP ── */
+  .wrap{max-width:1000px;margin:0 auto;padding:28px 20px 80px}
+
+  /* ── EXAM SELECTOR ── */
+  .hero-exam{background:linear-gradient(135deg,#1a0a0a 0%,#0d0a1a 50%,#0a1010 100%);
+    border:1px solid var(--border);border-radius:var(--r20);padding:40px 36px;
+    margin-bottom:28px;position:relative;overflow:hidden;text-align:center}
+  .hero-exam::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--red),var(--yellow),var(--green),var(--blue),var(--purple))}
+  .hero-exam h1{font-family:'Syne',sans-serif;font-size:clamp(1.6rem,3vw,2.4rem);
+    font-weight:800;margin-bottom:8px}
+  .hero-exam h1 span{background:linear-gradient(90deg,var(--red),var(--yellow));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero-exam p{color:var(--muted);font-size:.9rem;max-width:500px;margin:0 auto 28px;line-height:1.7}
+  .cefr-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .cefr-btn{padding:13px 22px;border-radius:12px;border:2px solid var(--border);
+    background:var(--s2);cursor:pointer;transition:all .25s;text-align:center;
+    font-family:'DM Sans',sans-serif;color:var(--muted)}
+  .cefr-btn:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+  .cefr-btn.active{color:#fff}
+  .cefr-btn .lv{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;display:block;margin-bottom:3px}
+  .cefr-btn .ls{font-size:.7rem;opacity:.8}
+  .cefr-a1{--cc:#1abc9c}.cefr-a2{--cc:#3498db}.cefr-b1{--cc:#9b59b6}.cefr-b2{--cc:#e74c3c}
+  .cefr-btn.active{background:var(--cc);border-color:var(--cc);
+    box-shadow:0 8px 20px color-mix(in srgb,var(--cc) 40%,transparent)}
+  .cefr-btn:hover:not(.active){border-color:var(--cc);color:var(--cc);background:color-mix(in srgb,var(--cc) 8%,var(--s2))}
+
+  /* ── MODULE SELECTOR ── */
+  .mod-selector{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:24px}
+  .mod-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r20);
+    padding:20px;cursor:pointer;transition:all .22s;text-align:center;position:relative}
+  .mod-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+  .mod-card.active{border-color:var(--mc,var(--blue))}
+  .mod-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:var(--mc,var(--blue));border-radius:var(--r20) var(--r20) 0 0}
+  .mod-icon{font-size:2rem;display:block;margin-bottom:8px;color:var(--mc,var(--blue))}
+  .mod-name{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:800;margin-bottom:4px}
+  .mod-sub{font-size:.72rem;color:var(--muted)}
+  .mod-dur{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:20px;
+    background:color-mix(in srgb,var(--mc,var(--blue)) 12%,transparent);
+    color:var(--mc,var(--blue));border:1px solid color-mix(in srgb,var(--mc,var(--blue)) 25%,transparent);
+    display:inline-block;margin-top:6px}
+
+  /* ── START BUTTON ── */
+  .start-row{text-align:center;margin:16px 0 28px}
+  .btn-start{padding:15px 40px;border-radius:14px;
+    background:linear-gradient(135deg,var(--red),#c0392b);
+    color:#fff;border:none;font-family:'Syne',sans-serif;font-size:1rem;
+    font-weight:800;cursor:pointer;transition:all .25s;
+    box-shadow:0 8px 24px rgba(231,76,60,.4);display:inline-flex;align-items:center;gap:10px}
+  .btn-start:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(231,76,60,.5)}
+  .btn-start:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+  /* ── EXAM AREA ── */
+  #examArea{display:none}
+  .exam-header{background:var(--surface);border:1px solid var(--border);border-radius:var(--r20);
+    padding:18px 22px;margin-bottom:18px;display:flex;align-items:center;
+    justify-content:space-between;gap:12px;flex-wrap:wrap;position:sticky;top:57px;z-index:100}
+  .eh-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .exam-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800}
+  .level-tag{padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700}
+  .mod-tag{padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;
+    background:var(--s2);border:1px solid var(--border)}
+  .timer-box{display:flex;align-items:center;gap:7px;background:var(--s2);
+    border:1px solid var(--border);border-radius:10px;padding:7px 14px}
+  .timer-val{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;
+    color:var(--green);min-width:50px;text-align:center}
+  .timer-val.warning{color:var(--yellow)}
+  .timer-val.danger{color:var(--red);animation:pulse .5s infinite alternate}
+  @keyframes pulse{from{opacity:1}to{opacity:.4}}
+  .timer-bar{height:4px;background:var(--s2);border-radius:20px;overflow:hidden;margin-top:4px}
+  .timer-fill{height:100%;background:var(--green);border-radius:20px;transition:width .9s linear}
+  .q-counter{font-size:.78rem;color:var(--muted)}
+  .q-dots{display:flex;gap:4px;flex-wrap:wrap}
+  .qdot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:all .2s}
+  .qdot.current{background:var(--yellow);box-shadow:0 0 8px var(--yellow)}
+  .qdot.ok{background:var(--green)}
+  .qdot.err{background:var(--red)}
+  .qdot.skip{background:var(--muted)}
+
+  /* ── QUESTION CARDS ── */
+  .q-card{background:var(--surface);border:1px solid var(--b2);border-radius:var(--r20);
+    padding:24px;margin-bottom:16px;animation:fadeUp .3s ease}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .q-type-badge{font-size:.63rem;font-weight:700;padding:2px 8px;border-radius:20px;
+    background:var(--rdim);color:var(--red);border:1px solid rgba(231,76,60,.2);
+    display:inline-block;margin-bottom:10px}
+  .q-text{font-size:.95rem;font-weight:600;margin-bottom:14px;line-height:1.6}
+  .q-context{background:var(--s2);border-left:3px solid var(--blue);border-radius:var(--r);
+    padding:12px 14px;margin-bottom:14px;font-size:.84rem;line-height:1.7;font-style:italic}
+
+  /* MCQ */
+  .mc-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mc-opt{padding:12px 15px;border-radius:10px;border:1px solid var(--border);
+    background:var(--s2);cursor:pointer;transition:all .15s;font-size:.84rem;
+    font-weight:500;color:var(--text);text-align:left;display:flex;align-items:center;gap:9px}
+  .mc-opt:hover:not(:disabled){border-color:var(--blue);background:var(--bdim)}
+  .mc-opt.correct{border-color:var(--green);background:var(--gdim);color:var(--green)}
+  .mc-opt.wrong{border-color:var(--red);background:var(--rdim);color:var(--red)}
+  .mc-opt:disabled{cursor:not-allowed}
+  .mc-l{width:22px;height:22px;border-radius:6px;flex-shrink:0;background:var(--surface);
+    display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--muted)}
+  .mc-opt.correct .mc-l{background:var(--green);color:#fff}
+  .mc-opt.wrong   .mc-l{background:var(--red);color:#fff}
+
+  /* True/False */
+  .tf-opts{display:flex;gap:10px}
+  .tf-btn{flex:1;padding:14px;border-radius:12px;border:2px solid var(--border);
+    background:var(--s2);cursor:pointer;font-family:'Syne',sans-serif;font-size:.95rem;
+    font-weight:800;transition:all .2s;color:var(--text)}
+  .tf-btn:hover:not(:disabled){transform:translateY(-2px)}
+  .tf-btn[data-v="true"]:hover:not(:disabled){border-color:var(--green);background:var(--gdim);color:var(--green)}
+  .tf-btn[data-v="false"]:hover:not(:disabled){border-color:var(--red);background:var(--rdim);color:var(--red)}
+  .tf-btn.correct{border-color:var(--green);background:var(--gdim);color:var(--green)}
+  .tf-btn.wrong{border-color:var(--red);background:var(--rdim);color:var(--red)}
+  .tf-btn:disabled{cursor:not-allowed}
+
+  /* Fill / Gap */
+  .gap-sent{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;
+    text-align:center;padding:18px;background:var(--s2);border-radius:var(--r);
+    margin-bottom:12px;line-height:1.7}
+  .gap-blank{display:inline-block;min-width:90px;border-bottom:3px solid var(--blue);
+    padding:0 6px;color:var(--blue);font-weight:700;text-align:center}
+  .gap-opts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px}
+  .gap-opt{padding:7px 16px;border-radius:20px;border:2px solid var(--border);
+    background:var(--s2);font-size:.85rem;font-weight:600;cursor:pointer;transition:all .15s}
+  .gap-opt:hover:not(.used){border-color:var(--blue);background:var(--bdim);color:var(--blue)}
+  .gap-opt.correct{border-color:var(--green);background:var(--gdim);color:var(--green)}
+  .gap-opt.wrong{border-color:var(--red);background:var(--rdim);color:var(--red)}
+  .gap-opt.used{opacity:.3;pointer-events:none}
+
+  /* Word Order */
+  .wo-tiles{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px;justify-content:center}
+  .wo-tile{background:linear-gradient(135deg,var(--blue),#2471a3);color:#fff;
+    padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:600;
+    font-size:.83rem;box-shadow:0 3px 0 #1a5276;transition:all .15s;user-select:none}
+  .wo-tile:hover:not(.used){transform:translateY(-2px);box-shadow:0 5px 0 #1a5276}
+  .wo-tile.used{opacity:.25;pointer-events:none}
+  .wo-builder{min-height:50px;background:var(--s2);border:2px dashed var(--border);
+    border-radius:var(--r);padding:10px;display:flex;flex-wrap:wrap;gap:5px;
+    align-items:center;margin-bottom:10px;cursor:pointer}
+  .wo-built{background:var(--surface);border:1px solid var(--border);
+    border-radius:6px;padding:5px 11px;font-size:.82rem;cursor:pointer}
+  .wo-built:hover{border-color:var(--red);color:var(--red)}
+
+  /* Writing */
+  .wr-prompt{background:var(--s2);border-left:3px solid var(--purple);border-radius:var(--r);
+    padding:14px;margin-bottom:12px;font-size:.84rem;line-height:1.6}
+  .wr-ta{width:100%;min-height:110px;padding:12px 14px;border-radius:10px;
+    border:1px solid var(--border);background:var(--surface);color:var(--text);
+    font-size:.88rem;outline:none;resize:vertical;transition:border .2s;
+    font-family:'DM Sans',sans-serif;line-height:1.6}
+  .wr-ta:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(142,68,173,.12)}
+  .wr-count{font-size:.72rem;color:var(--muted);text-align:right;margin-top:4px}
+
+  /* Speaking */
+  .sp-prompt{background:linear-gradient(135deg,rgba(142,68,173,.1),rgba(52,152,219,.08));
+    border:1px solid rgba(142,68,173,.2);border-radius:var(--r);padding:16px;margin-bottom:14px;
+    font-size:.88rem;line-height:1.7}
+  .rec-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;
+    border-radius:12px;border:none;background:var(--red);color:#fff;font-weight:700;
+    cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;font-size:.9rem}
+  .rec-btn:hover{background:#c0392b;transform:translateY(-2px)}
+  .rec-btn.recording{background:var(--green);animation:recpulse 1s infinite alternate}
+  @keyframes recpulse{from{box-shadow:0 0 0 0 rgba(26,188,156,.4)}to{box-shadow:0 0 0 12px rgba(26,188,156,0)}}
+  .rec-timer{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:var(--red);
+    margin-left:10px;display:none}
+  .rec-timer.active{display:inline}
+  .sp-tip{background:var(--ydim);border:1px solid rgba(241,196,15,.2);border-left:3px solid var(--yellow);
+    border-radius:var(--r);padding:10px 14px;font-size:.78rem;margin-top:10px;line-height:1.5}
+  .sp-prep{font-size:.78rem;color:var(--muted);margin-top:10px}
+  .prep-bar{height:3px;background:var(--s2);border-radius:20px;overflow:hidden;margin-top:6px}
+  .prep-fill{height:100%;background:var(--blue);border-radius:20px;width:100%;transition:width 1s linear}
+
+  /* Feedback */
+  .q-fb{padding:11px 14px;border-radius:10px;font-size:.82rem;display:none;
+    margin:10px 0;line-height:1.55}
+  .q-fb.ok{background:var(--gdim);color:var(--green);border:1px solid rgba(26,188,156,.22);display:block}
+  .q-fb.err{background:var(--rdim);color:var(--red);border:1px solid rgba(231,76,60,.22);display:block}
+  .q-fb .exp{color:var(--text);margin-top:4px;font-size:.78rem}
+  .btn-next{padding:9px 18px;border-radius:10px;background:var(--blue);color:#fff;
+    border:none;font-weight:700;cursor:pointer;font-size:.84rem;transition:all .2s;
+    display:none;align-items:center;gap:6px}
+  .btn-next.show{display:inline-flex}
+  .btn-next:hover{background:#2471a3}
+  .btn-skip{padding:9px 16px;border-radius:10px;background:var(--s2);color:var(--muted);
+    border:1px solid var(--border);font-weight:600;cursor:pointer;font-size:.82rem;
+    transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+  .btn-skip:hover{border-color:var(--muted);color:var(--text)}
+
+  /* ── RESULTS ── */
+  #resultsArea{display:none}
+  .res-hero{background:linear-gradient(135deg,#0d1a12 0%,#0a0d1a 50%,#1a0a0d 100%);
+    border:1px solid var(--border);border-radius:var(--r20);padding:40px 30px;
+    text-align:center;margin-bottom:20px;position:relative;overflow:hidden}
+  .res-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--red),var(--yellow),var(--green))}
+  .res-emoji{font-size:4rem;display:block;margin-bottom:14px}
+  .res-grade{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;
+    display:block;margin-bottom:6px}
+  .res-label{font-size:1.1rem;font-weight:600;margin-bottom:4px}
+  .res-sub{color:var(--muted);font-size:.85rem}
+  .score-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin:20px 0}
+  .score-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center}
+  .sc-icon{font-size:1.4rem;display:block;margin-bottom:6px}
+  .sc-v{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;display:block;margin-bottom:3px}
+  .sc-l{font-size:.72rem;color:var(--muted)}
+  .bar-mini{height:6px;background:var(--s2);border-radius:20px;overflow:hidden;margin-top:8px}
+  .bar-mini-fill{height:100%;border-radius:20px;transition:width .8s cubic-bezier(.23,1,.32,1)}
+  .cert-box{background:linear-gradient(135deg,rgba(241,196,15,.06),rgba(230,126,34,.06));
+    border:2px solid rgba(241,196,15,.3);border-radius:var(--r20);padding:28px;
+    text-align:center;margin-bottom:20px}
+  .cert-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;
+    color:var(--yellow);margin-bottom:10px}
+  .cert-body{font-size:.85rem;color:var(--muted);line-height:1.7;margin-bottom:16px}
+  .btn-cert{padding:11px 24px;border-radius:12px;background:linear-gradient(135deg,var(--yellow),var(--orange));
+    color:#000;border:none;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif;
+    transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+  .btn-cert:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(241,196,15,.3)}
+
+  /* CERT PRINT */
+  @media print{
+    body *{visibility:hidden}
+    #certPrintArea,#certPrintArea *{visibility:visible}
+    #certPrintArea{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center}
+  }
+  #certPrintArea{display:none}
+
+  /* MISC */
+  .btn{padding:8px 14px;border-radius:9px;font-size:.78rem;font-weight:600;
+    cursor:pointer;transition:all .2s;border:1px solid var(--border);
+    background:var(--s2);color:var(--text);font-family:'DM Sans',sans-serif;
+    display:inline-flex;align-items:center;gap:5px}
+  .btn:hover{background:var(--rdim);border-color:var(--rdim);color:var(--red)}
+  .btn-r{background:var(--red);color:#fff;border-color:var(--red)}
+  .btn-r:hover{background:#c0392b;color:#fff}
+  #toast{position:fixed;bottom:18px;right:18px;background:var(--surface);
+    border:1px solid var(--border);border-radius:12px;padding:10px 15px;font-size:.8rem;
+    box-shadow:var(--shadow);z-index:9999;transform:translateY(80px);opacity:0;
+    transition:all .3s cubic-bezier(.23,1,.32,1);max-width:270px}
+  #toast.show{transform:translateY(0);opacity:1}
+  .audio-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;
+    border-radius:20px;background:var(--bdim);color:var(--blue);border:1px solid rgba(52,152,219,.2);
+    font-size:.72rem;cursor:pointer;margin-bottom:8px}
+  .audio-badge:hover{background:var(--blue);color:#fff}
+  @media(max-width:600px){.mc-opts{grid-template-columns:1fr}.cefr-row{gap:8px}
+    .cefr-btn{padding:10px 16px}.mod-selector{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="tb-l">
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Inicio</a>
+    <span class="tb-title">Die Prüfen · Simulador Oficial</span>
+  </div>
+  <div class="tb-r">
+    <button class="ib" id="themeBtn"><i class="fas fa-moon"></i></button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- ── SELECTOR ── -->
+<div id="selectorArea">
+  <div class="hero-exam">
+    <h1>📋 Die <span>Prüfen</span></h1>
+    <p>Simulador de exámenes oficiales de alemán. Elige tu nivel y módulo para comenzar una prueba real con tiempo limitado, puntuación y retroalimentación detallada.</p>
+    <div class="cefr-row">
+      <button class="cefr-btn cefr-a1" data-lv="A1" onclick="selectLevel('A1',this)">
+        <span class="lv">A1</span><span class="ls">Einsteiger · Principiante</span>
+      </button>
+      <button class="cefr-btn cefr-a2" data-lv="A2" onclick="selectLevel('A2',this)">
+        <span class="lv">A2</span><span class="ls">Grundstufe · Elemental</span>
+      </button>
+      <button class="cefr-btn cefr-b1" data-lv="B1" onclick="selectLevel('B1',this)">
+        <span class="lv">B1</span><span class="ls">Mittelstufe · Intermedio</span>
+      </button>
+      <button class="cefr-btn cefr-b2" data-lv="B2" onclick="selectLevel('B2',this)">
+        <span class="lv">B2</span><span class="ls">Oberstufe · Avanzado</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="modSel" style="display:none">
+    <p style="font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+      <i class="fas fa-list-check"></i> Elige el módulo a evaluar
+      <span style="flex:1;height:1px;background:var(--border)"></span>
+    </p>
+    <div class="mod-selector">
+      <div class="mod-card" style="--mc:#3498db" data-mod="horen" onclick="selectMod('horen',this)">
+        <span class="mod-icon"><i class="fas fa-headphones"></i></span>
+        <div class="mod-name">Hören</div>
+        <div class="mod-sub">Comprensión auditiva</div>
+        <span class="mod-dur" id="durHoren">12 min</span>
+      </div>
+      <div class="mod-card" style="--mc:#1abc9c" data-mod="lesen" onclick="selectMod('lesen',this)">
+        <span class="mod-icon"><i class="fas fa-book-open"></i></span>
+        <div class="mod-name">Lesen</div>
+        <div class="mod-sub">Comprensión lectora</div>
+        <span class="mod-dur" id="durLesen">15 min</span>
+      </div>
+      <div class="mod-card" style="--mc:#8e44ad" data-mod="schreiben" onclick="selectMod('schreiben',this)">
+        <span class="mod-icon"><i class="fas fa-pen"></i></span>
+        <div class="mod-name">Schreiben</div>
+        <div class="mod-sub">Producción escrita</div>
+        <span class="mod-dur" id="durSchreiben">20 min</span>
+      </div>
+      <div class="mod-card" style="--mc:#e74c3c" data-mod="sprechen" onclick="selectMod('sprechen',this)">
+        <span class="mod-icon"><i class="fas fa-microphone"></i></span>
+        <div class="mod-name">Sprechen</div>
+        <div class="mod-sub">Expresión oral</div>
+        <span class="mod-dur" id="durSprechen">10 min</span>
+      </div>
+      <div class="mod-card" style="--mc:#e67e22" data-mod="all" onclick="selectMod('all',this)">
+        <span class="mod-icon"><i class="fas fa-certificate"></i></span>
+        <div class="mod-name">Examen Completo</div>
+        <div class="mod-sub">Los 4 módulos juntos</div>
+        <span class="mod-dur" id="durAll">57 min</span>
+      </div>
+    </div>
+
+    <div class="start-row">
+      <button class="btn-start" id="btnStart" disabled onclick="startExam()">
+        <i class="fas fa-play"></i> Comenzar examen
+      </button>
+      <p style="font-size:.75rem;color:var(--muted);margin-top:12px" id="examInfo"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ── EXAM AREA ── -->
+<div id="examArea">
+  <div class="exam-header">
+    <div class="eh-left">
+      <span class="exam-title" id="ehTitle">Examen</span>
+      <span class="level-tag" id="ehLevel"></span>
+      <span class="mod-tag" id="ehMod"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="q-dots" id="qDots"></div>
+      <div class="timer-box">
+        <i class="fas fa-clock" style="color:var(--muted);font-size:.8rem"></i>
+        <span class="timer-val" id="timerVal">00:00</span>
+      </div>
+    </div>
+  </div>
+  <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+  <div id="qBody"></div>
+  <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap" id="qActions"></div>
+</div>
+
+<!-- ── RESULTS ── -->
+<div id="resultsArea"></div>
+
+</div><!-- /wrap -->
+
+<div id="certPrintArea"></div>
+<div id="toast"></div>
+
+<script>
+/* ── UTILS ── */
+const $=id=>document.getElementById(id);
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function speak(text,rate=0.85){
+  if(!window.speechSynthesis)return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='de-DE';u.rate=rate;
+  const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.startsWith('de'));
+  if(v)u.voice=v;
+  speechSynthesis.speak(u);
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a;}
+function pad2(n){return String(n).padStart(2,'0');}
+
+/* ── THEME ── */
+document.addEventListener('DOMContentLoaded',()=>{
+  if(localStorage.getItem('dlaTheme')==='light'){
+    document.body.classList.add('light');
+    $('themeBtn').querySelector('i').className='fas fa-sun';
+  }
+  $('themeBtn').addEventListener('click',()=>{
+    document.body.classList.toggle('light');
+    const il=document.body.classList.contains('light');
+    localStorage.setItem('dlaTheme',il?'light':'dark');
+    $('themeBtn').querySelector('i').className=il?'fas fa-sun':'fas fa-moon';
+  });
+  if(window.speechSynthesis)speechSynthesis.getVoices();
+  if(window.speechSynthesis)window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
+});
+
+/* ═══════════════════════════════
+   EXAM DATA — all 4 levels × 4 modules
+═══════════════════════════════ */
+const EXAM_DATA = {
+
+  /* ──────────── A1 ──────────── */
+  A1: {
+    horen: {
+      title:'Hören · A1',time:720,
+      questions:[
+        {type:'tf',audio:'Ich heiße Maria. Ich wohne in Berlin. Ich bin 25 Jahre alt und lerne Deutsch.',
+         q:'La persona se llama María y vive en Berlín.',correct:'true',
+         exp:'"Ich heiße Maria. Ich wohne in Berlin." — ambas afirmaciones son correctas.'},
+        {type:'mcq',audio:'Das Wetter ist heute schön. Die Sonne scheint und es ist warm. Ich gehe spazieren.',
+         q:'¿Qué hace la persona?',opts:['Se queda en casa','Sale a pasear','Va al trabajo','Cocina'],correct:1,
+         exp:'"Ich gehe spazieren" = voy a pasear.'},
+        {type:'mcq',audio:'Ich kaufe Brot, Milch und Äpfel im Supermarkt.',
+         q:'¿Qué NO compra?',opts:['Pan','Manzanas','Queso','Leche'],correct:2,
+         exp:'Käse (queso) no se menciona. Brot, Milch y Äpfel sí.'},
+        {type:'tf',audio:'Heute ist Montag. Die Schule beginnt um acht Uhr.',
+         q:'La escuela empieza a las nueve.',correct:'false',
+         exp:'"Die Schule beginnt um acht Uhr" = empieza a las 8, no a las 9.'},
+        {type:'mcq',audio:'Ich habe eine Katze. Sie heißt Luna und ist sehr nett.',
+         q:'¿Qué animal tiene?',opts:['Un perro','Un pájaro','Una gata','Un conejo'],correct:2,
+         exp:'"Ich habe eine Katze" = tengo una gata. Se llama Luna.'},
+        {type:'tf',audio:'Mein Vater arbeitet als Arzt. Er geht jeden Tag ins Krankenhaus.',
+         q:'El padre trabaja como médico.',correct:'true',
+         exp:'"arbeitet als Arzt" = trabaja como médico.'},
+      ]
+    },
+    lesen:{
+      title:'Lesen · A1',time:900,
+      questions:[
+        {type:'mcq',
+         context:'Heute gehe ich mit meiner Mutter einkaufen. Wir brauchen Brot, Milch und Käse. Der Supermarkt ist um 8 Uhr geöffnet.',
+         q:'¿A qué hora abre el supermercado?',opts:['A las 7','A las 8','A las 9','A las 10'],correct:1,
+         exp:'"ist um 8 Uhr geöffnet" = está abierto a las 8.'},
+        {type:'tf',
+         context:'Das ist mein Zimmer. Ich habe ein Bett, einen Schreibtisch und zwei Stühle. Das Zimmer ist klein aber gemütlich.',
+         q:'El cuarto tiene tres sillas.',correct:'false',
+         exp:'"zwei Stühle" = dos sillas, no tres.'},
+        {type:'mcq',
+         context:'Meine Schwester ist 18 Jahre alt. Sie studiert in München. Sie wohnt in einem Studentenwohnheim.',
+         q:'¿Dónde vive la hermana?',opts:['En casa familiar','En un hotel','En una residencia de estudiantes','En un apartamento propio'],correct:2,
+         exp:'"Studentenwohnheim" = residencia universitaria de estudiantes.'},
+        {type:'gap',
+         context:'Ich lerne ___ Montag und ___ Mittwoch Deutsch. Der Kurs ist sehr gut.',
+         q:'Elige la preposición correcta para los días de la semana:',
+         sent:'Ich lerne _[am]_ Montag und _[am]_ Mittwoch Deutsch.',
+         blanks:['am','am'],opts:['am','im','an','um','bei'],
+         exp:'"am" es la preposición para días de la semana en alemán: am Montag, am Mittwoch.'},
+        {type:'mcq',
+         context:'Guten Morgen! Ich bin Klaus. Heute ist mein Geburtstag. Ich bin jetzt 30 Jahre alt.',
+         q:'¿Cuántos años tiene Klaus?',opts:['20','25','30','35'],correct:2,
+         exp:'"Ich bin jetzt 30 Jahre alt" = ahora tengo 30 años.'},
+      ]
+    },
+    schreiben:{
+      title:'Schreiben · A1',time:1200,
+      questions:[
+        {type:'write',
+         prompt:'✍️ Presenta a un miembro de tu familia. Escribe al menos 3 oraciones en alemán.\n\nEjemplo: Das ist mein Bruder. Er heißt Carlos. Er ist 25 Jahre alt.',
+         hint:'Usa: Mein/Meine... heißt... · Er/Sie ist... Jahre alt · Er/Sie wohnt in...',
+         minWords:15,level:'A1',
+         criteria:'✓ Presentación básica · ✓ Nombre y edad · ✓ Lugar de residencia · ✓ Artículos correctos'},
+        {type:'write',
+         prompt:'📝 Escribe una nota corta a tu profesor/a diciendo que no puedes ir a clase hoy y explica por qué (2-3 oraciones).',
+         hint:'Guten Morgen / Ich kann heute nicht kommen, weil... / Ich habe... / Mit freundlichen Grüßen',
+         minWords:12,level:'A1',
+         criteria:'✓ Fórmula de saludo · ✓ Justificación sencilla · ✓ Despedida'},
+      ]
+    },
+    sprechen:{
+      title:'Sprechen · A1',time:600,
+      questions:[
+        {type:'speak',
+         prompt:'👤 Preséntate en alemán. Habla durante 30-45 segundos incluyendo:\n• Tu nombre\n• Tu país de origen\n• Tu profesión o estudios\n• Un hobby',
+         prepTime:30,speakTime:45,
+         tip:'Usa frases sencillas: "Ich heiße... · Ich komme aus... · Ich bin... · Ich spiele gern..."',
+         criteria:'✓ Nombre y origen · ✓ Profesión/estudios · ✓ Un hobby · ✓ Pronunciación comprensible'},
+        {type:'speak',
+         prompt:'🛒 Imagina que estás en un supermercado alemán. Pide 3 productos al dependiente.\n\nEjemplo: "Ich hätte gern Brot, Milch und Äpfel, bitte."',
+         prepTime:20,speakTime:30,
+         tip:'Fórmulas: "Ich möchte/hätte gern... · Haben Sie...? · Wie viel kostet...?"',
+         criteria:'✓ 3 productos mencionados · ✓ Cortesía básica · ✓ Entonación'},
+      ]
+    }
+  },
+
+  /* ──────────── A2 ──────────── */
+  A2:{
+    horen:{
+      title:'Hören · A2',time:780,
+      questions:[
+        {type:'mcq',audio:'Guten Tag! Ich suche eine Wohnung mit zwei Zimmern. Die Miete soll nicht mehr als 800 Euro kosten. Haben Sie etwas Passendes?',
+         q:'¿Qué tipo de vivienda busca?',opts:['Un estudio','Un piso de 2 habitaciones','Una casa con jardín','Un piso de 3 habitaciones'],correct:1,
+         exp:'"Wohnung mit zwei Zimmern" = piso con dos habitaciones.'},
+        {type:'tf',audio:'Der Bus nach Hamburg fährt um 14:30 Uhr ab. Sie müssen am Gleis 5 warten.',
+         q:'El autobús a Hamburgo sale a las tres de la tarde.',correct:'false',
+         exp:'"14:30 Uhr" = 14:30, es decir las dos y media, no las tres.'},
+        {type:'mcq',audio:'Das Museum ist dienstags bis sonntags von 10 bis 18 Uhr geöffnet. Montags ist das Museum geschlossen.',
+         q:'¿Qué día cierra el museo?',opts:['Domingo','Sábado','Martes','Lunes'],correct:3,
+         exp:'"Montags ist das Museum geschlossen" = los lunes está cerrado.'},
+        {type:'tf',audio:'Ich arbeite als Krankenschwester in einem großen Krankenhaus. Meine Arbeit beginnt um 7 Uhr morgens.',
+         q:'La persona es médica.',correct:'false',
+         exp:'"Krankenschwester" = enfermera, no médica (Ärztin).'},
+        {type:'mcq',audio:'Wir laden Sie herzlich zu unserer Geburtstagsfeier am Samstag, dem 15. März, um 19 Uhr ein.',
+         q:'¿Cuándo es la fiesta de cumpleaños?',opts:['Viernes 14 de marzo a las 19h','Sábado 15 de marzo a las 19h','Domingo 16 de marzo a las 20h','Sábado 15 de marzo a las 20h'],correct:1,
+         exp:'"am Samstag, dem 15. März, um 19 Uhr" — todos los datos correctos en opción B.'},
+        {type:'tf',audio:'Mein Mann hat gestern einen neuen Laptop gekauft. Er war nicht teuer, nur 350 Euro.',
+         q:'El ordenador costó más de 400 euros.',correct:'false',
+         exp:'"nur 350 Euro" = solo 350 euros, no más de 400.'},
+      ]
+    },
+    lesen:{
+      title:'Lesen · A2',time:900,
+      questions:[
+        {type:'mcq',
+         context:'Stellenanzeige: Wir suchen eine Teilzeitkraft (20 Std./Woche) für unsere Bäckerei. Erfahrung im Verkauf erwünscht. Bewerbungen bitte per E-Mail an info@baeckerei-mueller.de.',
+         q:'¿Qué tipo de trabajo se ofrece?',opts:['Jornada completa en fábrica','Trabajo a tiempo parcial en una panadería','Empleo de conductor','Trabajo de oficina'],correct:1,
+         exp:'"Teilzeitkraft" = empleado a tiempo parcial. "Bäckerei" = panadería.'},
+        {type:'tf',
+         context:'Liebe Anna, ich bin leider krank und kann nicht zum Training kommen. Kannst du bitte dem Trainer Bescheid geben? Ich melde mich morgen. Liebe Grüße, Petra.',
+         q:'Petra puede ir al entrenamiento.',correct:'false',
+         exp:'"ich bin leider krank und kann nicht zum Training kommen" = está enferma y no puede ir.'},
+        {type:'mcq',
+         context:'Stadtfest München: 20.–22. Juni · Eintritt frei · Musik, Tanz und regionale Spezialitäten. Öffnungszeiten: täglich 11–23 Uhr.',
+         q:'¿Cuánto cuesta la entrada?',opts:['5 euros','10 euros','Es gratuita','Depende del día'],correct:2,
+         exp:'"Eintritt frei" = entrada libre / gratuita.'},
+        {type:'wo',
+         q:'Ordena las palabras para formar la oración correcta:',
+         words:['Ich','fahre','jeden','Morgen','mit','der','U-Bahn','zur','Arbeit.'],
+         sentence:'Ich fahre jeden Morgen mit der U-Bahn zur Arbeit.',
+         translation:'Cada mañana voy al trabajo en metro.',
+         exp:'Orden: Sujeto + Verbo + Zeitangabe + Modalangabe (mit der U-Bahn) + Zielangabe (zur Arbeit)'},
+        {type:'mcq',
+         context:'Kursangebot: Deutschkurs B1 – Dienstag und Donnerstag, 18:00–20:00 Uhr. Preis: 180 € für 12 Wochen. Anmeldung im Büro oder online.',
+         q:'¿Cuántas horas de clase hay por semana?',opts:['2 horas','4 horas','6 horas','8 horas'],correct:1,
+         exp:'Martes 18-20h (2h) + Jueves 18-20h (2h) = 4 horas por semana.'},
+      ]
+    },
+    schreiben:{
+      title:'Schreiben · A2',time:1200,
+      questions:[
+        {type:'write',
+         prompt:'📧 Escribe un email a tu amigo/a alemán/a contándole tus vacaciones. Incluye:\n• Dónde fuiste\n• Qué hiciste\n• Si te gustó\n\nMínimo 40 palabras.',
+         hint:'Lieber/Liebe... · Letzten Sommer bin ich nach... gefahren. · Ich habe... gemacht. · Es hat mir gut gefallen, weil...',
+         minWords:30,level:'A2',
+         criteria:'✓ Destino de vacaciones · ✓ Actividades (Perfekt) · ✓ Opinión personal · ✓ Fórmulas de email'},
+        {type:'write',
+         prompt:'🏠 Describe tu piso o habitación. Menciona:\n• Cuántas habitaciones tiene\n• Qué muebles hay\n• Si te gusta\n\nMínimo 35 palabras.',
+         hint:'Meine Wohnung hat... Zimmer. In meinem Zimmer gibt es... · Ich finde meine Wohnung...',
+         minWords:25,level:'A2',
+         criteria:'✓ Número de habitaciones · ✓ Al menos 3 muebles (Akkusativ) · ✓ Valoración personal'},
+      ]
+    },
+    sprechen:{
+      title:'Sprechen · A2',time:660,
+      questions:[
+        {type:'speak',
+         prompt:'🗓️ Habla de tu rutina diaria. Menciona al menos 5 actividades con sus horarios.\n\nIncluye: levantarse, desayunar, trabajar/estudiar, comer, actividad de ocio.',
+         prepTime:30,speakTime:60,
+         tip:'"Ich stehe um... auf. Dann... Um... Uhr... · Abends..."',
+         criteria:'✓ 5+ actividades · ✓ Verbos separables · ✓ Indicación de hora'},
+        {type:'speak',
+         prompt:'🛒 Roleplay: Estás en una farmacia alemana. Describe un síntoma y pide un medicamento.\n\n"Guten Tag, ich habe Kopfschmerzen / Fieber / Halsschmerzen..."',
+         prepTime:25,speakTime:45,
+         tip:'Fórmulas: "Ich habe... · Können Sie mir etwas gegen... empfehlen? · Haben Sie...?"',
+         criteria:'✓ Síntoma descrito · ✓ Petición educada · ✓ Vocabulario médico básico'},
+      ]
+    }
+  },
+
+  /* ──────────── B1 ──────────── */
+  B1:{
+    horen:{
+      title:'Hören · B1',time:900,
+      questions:[
+        {type:'mcq',audio:'Nach langem Überlegen habe ich mich entschieden, für ein Jahr nach Deutschland zu gehen. Ich werde dort als Au-pair arbeiten und gleichzeitig Deutsch lernen. Meine Eltern sind zwar ein bisschen traurig, aber sie unterstützen meine Entscheidung.',
+         q:'¿Cómo reaccionan los padres ante la decisión?',
+         opts:['Están muy contentos','Están tristes pero la apoyan','Se oponen firmemente','No saben nada'],correct:1,
+         exp:'"ein bisschen traurig, aber sie unterstützen meine Entscheidung" = algo tristes pero la apoyan.'},
+        {type:'mcq',audio:'Wir renovieren gerade unser Haus. Es ist viel Arbeit, aber wir machen fast alles selbst, weil die Handwerker sehr teuer sind. Letzte Woche haben wir das Badezimmer gestrichen.',
+         q:'¿Por qué hacen la renovación ellos mismos?',
+         opts:['Porque les gusta bricolaje','Porque los trabajadores son muy caros','Porque no encuentran profesionales','Porque tienen mucho tiempo libre'],correct:1,
+         exp:'"weil die Handwerker sehr teuer sind" = porque los obreros son muy caros.'},
+        {type:'tf',audio:'Je mehr man liest, desto besser wird das Leseverstehen. Das gilt auch für Fremdsprachen. Deshalb empfehle ich meinen Schülern, täglich mindestens 20 Minuten auf Deutsch zu lesen.',
+         q:'El profesor recomienda leer al menos media hora al día.',correct:'false',
+         exp:'"mindestens 20 Minuten" = al menos 20 minutos, no media hora.'},
+        {type:'mcq',audio:'Hallo, ich bin Max. Ich studiere seit drei Semestern Informatik an der TU München. Das Studium ist schwierig, aber ich lerne viel. In meiner Freizeit mache ich gerne Sport und spiele Gitarre.',
+         q:'¿Cuánto tiempo lleva Max estudiando?',
+         opts:['Un semestre','Dos semestres','Tres semestres','Cuatro semestres'],correct:2,
+         exp:'"seit drei Semestern" = desde hace tres semestres.'},
+        {type:'mcq',audio:'Der Klimawandel ist eines der größten Probleme unserer Zeit. Wissenschaftler warnen, dass wir sofort handeln müssen. Trotzdem ist der politische Wille oft nicht groß genug.',
+         q:'¿Qué dicen los científicos?',
+         opts:['Que el problema está exagerado','Que hay que actuar inmediatamente','Que los políticos actúan bien','Que el clima mejora'],correct:1,
+         exp:'"wir sofort handeln müssen" = debemos actuar de inmediato.'},
+        {type:'tf',audio:'Obwohl ich sehr müde war, bin ich zum Sport gegangen. Danach habe ich mich viel besser gefühlt. Bewegung hilft wirklich gegen Stress.',
+         q:'La persona no fue al deporte porque estaba cansada.',correct:'false',
+         exp:'"Obwohl ich sehr müde war, bin ich zum Sport gegangen" = aunque estaba cansada, fue al deporte.'},
+      ]
+    },
+    lesen:{
+      title:'Lesen · B1',time:1080,
+      questions:[
+        {type:'mcq',
+         context:'Immer mehr Deutsche arbeiten im Homeoffice. Laut einer Studie arbeiten 40% der Beschäftigten mindestens einmal pro Woche von zu Hause. Die Vorteile sind klar: weniger Pendelzeit, mehr Flexibilität und oft höhere Produktivität.',
+         q:'¿Qué porcentaje trabaja desde casa al menos una vez por semana?',
+         opts:['20%','30%','40%','50%'],correct:2,
+         exp:'"40% der Beschäftigten mindestens einmal pro Woche" — dato exacto del texto.'},
+        {type:'tf',
+         context:'Das Bundesverfassungsgericht hat entschieden, dass das Klimaschutzgesetz in Teilen verfassungswidrig ist. Die Regierung muss nun strengere Maßnahmen für die Zeit nach 2030 festlegen.',
+         q:'El gobierno debe adoptar medidas más estrictas a partir de 2030.',correct:'true',
+         exp:'"strengere Maßnahmen für die Zeit nach 2030" — correcto según el texto.'},
+        {type:'mcq',
+         context:'Liebe Kolleginnen und Kollegen, ich möchte Sie herzlich zur Betriebsfeier am 15. Dezember einladen. Die Veranstaltung findet in der Stadtgalerie statt und beginnt um 18:30 Uhr. Bitte melden Sie sich bis zum 8. Dezember an.',
+         q:'¿Hasta cuándo hay que inscribirse?',
+         opts:['Hasta el 10 de diciembre','Hasta el 8 de diciembre','Hasta el 15 de diciembre','Hasta el 1 de diciembre'],correct:1,
+         exp:'"Bitte melden Sie sich bis zum 8. Dezember an" — plazo de inscripción.'},
+        {type:'wo',
+         q:'Ordena correctamente esta frase B1:',
+         words:['Obwohl','es','stark','regnete,','gingen','wir','trotzdem','spazieren.'],
+         sentence:'Obwohl es stark regnete, gingen wir trotzdem spazieren.',
+         translation:'Aunque llovía mucho, salimos a caminar de todas formas.',
+         exp:'Obwohl = Nebensatz (Verb al final: regnete). Luego inversión: Verb (gingen) + Sujeto (wir).'},
+        {type:'gap',
+         context:'Seit meiner Kindheit interessiere ich mich ___ Musik. Ich spiele ___ fünf Jahren Klavier.',
+         q:'Completa con la preposición correcta:',
+         sent:'Ich interessiere mich _[für]_ Musik und spiele _[seit]_ fünf Jahren Klavier.',
+         blanks:['für','seit'],opts:['für','seit','mit','an','über','ab'],
+         exp:'"sich interessieren für" = interesarse por. "seit" + Dativ = hace X años (duración hasta el presente).'},
+        {type:'mcq',
+         context:'Die Wohnungspreise in deutschen Großstädten sind in den letzten zehn Jahren um durchschnittlich 80% gestiegen. Besonders betroffen sind Berlin, München und Frankfurt. Experten erwarten keinen Rückgang in absehbarer Zeit.',
+         q:'¿Cuánto han subido los precios de vivienda en media?',
+         opts:['Un 40%','Un 60%','Un 80%','Un 100%'],correct:2,
+         exp:'"um durchschnittlich 80% gestiegen" — dato exacto del texto.'},
+      ]
+    },
+    schreiben:{
+      title:'Schreiben · B1',time:1500,
+      questions:[
+        {type:'write',
+         prompt:'📧 Email formal (B1): Escribiste en un blog de cocina alemán y quieres participar como colaborador. Escribe un email de presentación (80-100 palabras) incluyendo:\n• Presentación personal\n• Por qué te interesa colaborar\n• Tu experiencia con la cocina alemana',
+         hint:'Sehr geehrte Damen und Herren... · Ich schreibe Ihnen, weil... · Ich habe Erfahrung in... · Mit freundlichen Grüßen',
+         minWords:60,level:'B1',
+         criteria:'✓ Registro formal · ✓ Presentación clara · ✓ Motivación · ✓ Fórmulas de email formal B1'},
+        {type:'write',
+         prompt:'💬 Foro online (B1): Responde a este mensaje: "Sollte man Haustiere in der Stadt halten dürfen?" Argumenta tu opinión con al menos 2 razones (80 palabras).',
+         hint:'Meiner Meinung nach... · Einerseits... andererseits... · Ich bin der Meinung, dass... · Außerdem... · Deshalb...',
+         minWords:60,level:'B1',
+         criteria:'✓ Opinión clara · ✓ 2+ argumentos · ✓ Conectores B1 · ✓ Konjunktionen causales'},
+      ]
+    },
+    sprechen:{
+      title:'Sprechen · B1',time:720,
+      questions:[
+        {type:'speak',
+         prompt:'📸 Describe la siguiente situación imaginaria: Acabas de volver de un viaje a Alemania. Cuenta qué visitaste, qué comiste y qué te sorprendió más del país. (60-90 segundos)',
+         prepTime:40,speakTime:80,
+         tip:'Usa: "Als ich in... war, habe ich... gemacht. Was mich am meisten überrascht hat, war... Ich würde gerne..."',
+         criteria:'✓ Narración en Perfekt · ✓ Descripción de experiencias · ✓ Opinión personal · ✓ Fluidez B1'},
+        {type:'speak',
+         prompt:'🗣️ Debate: "Soziale Medien haben mehr Nachteile als Vorteile." \n\nArgumenta tu posición durante 60-75 segundos con al menos 2 argumentos.',
+         prepTime:45,speakTime:70,
+         tip:'"Ich bin der Meinung, dass... · Einerseits... andererseits... · Ein wichtiges Argument ist... · Zusammenfassend..."',
+         criteria:'✓ Postura clara · ✓ 2+ argumentos · ✓ Conectores argumentativos · ✓ Vocabulario B1'},
+      ]
+    }
+  },
+
+  /* ──────────── B2 ──────────── */
+  B2:{
+    horen:{
+      title:'Hören · B2',time:1020,
+      questions:[
+        {type:'mcq',audio:'Die gesellschaftliche Debatte über künstliche Intelligenz hat in den letzten Jahren stark zugenommen. Während Befürworter betonen, dass KI die Produktivität erhöhen und Arbeitsplätze schaffen kann, warnen Kritiker vor massivem Jobverlust und ethischen Risiken. Die Wahrheit liegt wohl, wie so oft, irgendwo in der Mitte.',
+         q:'¿Cuál es la conclusión del texto sobre el debate sobre la IA?',
+         opts:['La IA es claramente beneficiosa','La IA es claramente peligrosa','La verdad probablemente está en un punto intermedio','El debate es irrelevante'],correct:2,
+         exp:'"Die Wahrheit liegt wohl irgendwo in der Mitte" — conclusión explícita del texto.'},
+        {type:'tf',audio:'Trotz der wirtschaftlichen Unsicherheiten hat die Europäische Zentralbank beschlossen, die Zinsen vorerst stabil zu halten. Diese Entscheidung wurde von den Märkten positiv aufgenommen, was sich in steigenden Aktienkursen zeigte.',
+         q:'El Banco Central Europeo decidió subir los tipos de interés.',correct:'false',
+         exp:'"die Zinsen vorerst stabil zu halten" = mantener los tipos estables por ahora, no subirlos.'},
+        {type:'mcq',audio:'In einer zunehmend vernetzten Welt stellt sich die Frage, inwieweit Datenschutz noch gewährleistet werden kann. Große Konzerne sammeln systematisch Nutzerdaten, was sowohl wirtschaftliche als auch ethische Fragen aufwirft.',
+         q:'¿Qué tipo de preguntas plantea la recopilación de datos?',
+         opts:['Solo técnicas','Solo económicas','Económicas y éticas','Solo políticas'],correct:2,
+         exp:'"sowohl wirtschaftliche als auch ethische Fragen" = tanto preguntas económicas como éticas.'},
+        {type:'mcq',audio:'Der Rückgang der Artenvielfalt ist eines der drängendsten Umweltprobleme. Laut Wissenschaftlern sterben täglich bis zu 150 Arten aus. Als Hauptursachen gelten Habitatverlust, Klimawandel und invasive Spezies.',
+         q:'¿Cuántas especies se extinguen diariamente según los científicos?',
+         opts:['Hasta 50','Hasta 100','Hasta 150','Hasta 200'],correct:2,
+         exp:'"täglich bis zu 150 Arten" = hasta 150 especies al día.'},
+        {type:'tf',audio:'Bildung ist der Schlüssel zur gesellschaftlichen Mobilität. Studien zeigen jedoch, dass in Deutschland der Bildungserfolg nach wie vor stark vom sozioökonomischen Hintergrund der Eltern abhängt.',
+         q:'Según el texto, el éxito educativo en Alemania no depende del origen familiar.',correct:'false',
+         exp:'"stark vom sozioökonomischen Hintergrund der Eltern abhängt" = depende fuertemente del origen familiar.'},
+        {type:'mcq',audio:'Die Digitalisierung des Gesundheitswesens bietet enorme Chancen: von der elektronischen Patientenakte bis hin zu KI-gestützter Diagnose. Allerdings müssen Datenschutz und Datensicherheit dabei höchste Priorität haben.',
+         q:'¿Qué debe tener la máxima prioridad en la digitalización sanitaria?',
+         opts:['La velocidad de implementación','La reducción de costes','La protección y seguridad de datos','La formación del personal'],correct:2,
+         exp:'"Datenschutz und Datensicherheit dabei höchste Priorität haben" — explícito en el texto.'},
+      ]
+    },
+    lesen:{
+      title:'Lesen · B2',time:1200,
+      questions:[
+        {type:'mcq',
+         context:'Die sogenannte "Stille Kündigung" (Quiet Quitting) beschreibt das Phänomen, bei dem Arbeitnehmer nur noch das Nötigste tun und jede zusätzliche Arbeit vermeiden. Laut einer Gallup-Studie sind in Deutschland etwa 69% der Beschäftigten emotional nur gering an ihren Arbeitsplatz gebunden.',
+         q:'¿Qué describe el "Quiet Quitting"?',
+         opts:['Renunciar al trabajo sin avisar','Trabajar solo lo mínimo requerido','Pedir un aumento de sueldo','Cambiar de empresa frecuentemente'],correct:1,
+         exp:'"nur noch das Nötigste tun und jede zusätzliche Arbeit vermeiden" — definición exacta.'},
+        {type:'tf',
+         context:'Angesichts des Klimawandels hat Deutschland beschlossen, bis 2045 klimaneutral zu werden. Dies erfordert eine umfassende Transformation des Energiesystems, der Industrie und des Verkehrs. Kritiker bezweifeln jedoch, ob die gesetzten Ziele ohne stärkere staatliche Eingriffe erreichbar sind.',
+         q:'El texto afirma que Alemania alcanzará con certeza su objetivo climático.',correct:'false',
+         exp:'"Kritiker bezweifeln, ob die gesetzten Ziele... erreichbar sind" — hay dudas sobre si se alcanzará.'},
+        {type:'mcq',
+         context:'Die Debatte um eine Reform des Rentensystems gewinnt angesichts des demografischen Wandels an Dringlichkeit. Während die einen für eine Verlängerung der Lebensarbeitszeit plädieren, fordern andere eine stärkere Umverteilung und höhere Beiträge für Gutverdiener.',
+         q:'¿Por qué es urgente reformar el sistema de pensiones?',
+         opts:['Por la crisis financiera','Por el cambio demográfico','Por las presiones de la UE','Por la alta inflación'],correct:1,
+         exp:'"angesichts des demografischen Wandels" = ante el cambio demográfico.'},
+        {type:'wo',
+         q:'Ordena esta oración compleja B2:',
+         words:['Angesichts','der','wachsenden','Ungleichheit','müssen','Regierungen','dringend','strukturelle','Reformen','einleiten.'],
+         sentence:'Angesichts der wachsenden Ungleichheit müssen Regierungen dringend strukturelle Reformen einleiten.',
+         translation:'Ante la creciente desigualdad, los gobiernos deben urgentemente impulsar reformas estructurales.',
+         exp:'Angesichts + Genitiv al inicio → inversión: Verb (müssen) antes del sujeto (Regierungen). Infinitivo (einleiten) al final.'},
+        {type:'gap',
+         context:'Die Schere zwischen Arm und Reich klafft ___ auseinander. Damit einher geht ein Vertrauensverlust ___ staatliche Institutionen.',
+         q:'Completa con los conectores apropiados (B2):',
+         sent:'Die Schere klafft _[immer weiter]_ auseinander und geht _[einher mit]_ einem Vertrauensverlust.',
+         blanks:['immer weiter','einher mit'],
+         opts:['immer weiter','sehr schnell','einher mit','zusammen mit','nämlich','jedoch'],
+         exp:'"immer weiter auseinanderklaffen" = brecha que se amplía cada vez más · "einhergehen mit" = ir acompañado de.'},
+        {type:'mcq',
+         context:'Überraschenderweise zeigen Langzeitstudien, dass Menschen in Ländern mit höherem BIP nicht zwangsläufig glücklicher sind als jene in ärmeren Regionen. Als ausschlaggebende Faktoren für das subjektive Wohlbefinden gelten vielmehr soziale Bindungen, persönliche Freiheit und ein gesundheitliches Mindestmaß.',
+         q:'¿Qué determina principalmente el bienestar subjetivo según las investigaciones?',
+         opts:['El PIB del país','Los lazos sociales, la libertad y la salud mínima','El nivel educativo','Los ingresos personales'],correct:1,
+         exp:'"soziale Bindungen, persönliche Freiheit und ein gesundheitliches Mindestmaß" — factores determinantes según el texto.'},
+      ]
+    },
+    schreiben:{
+      title:'Schreiben · B2',time:1800,
+      questions:[
+        {type:'write',
+         prompt:'📰 Erörterung B2 (150-180 palabras): "Sollte das Studium in Deutschland für alle kostenlos sein?"\n\nEscribe un texto argumentativo con:\n• Introducción al tema\n• Argumentos a favor\n• Argumentos en contra\n• Conclusión personal',
+         hint:'Einerseits... andererseits... · Befürworter argumentieren, dass... · Kritiker hingegen... · Meiner Ansicht nach... · Zusammenfassend lässt sich sagen...',
+         minWords:110,level:'B2',
+         criteria:'✓ Estructura argumentativa · ✓ Tesis clara · ✓ Pros y contras · ✓ Conectores B2 · ✓ Registro académico'},
+        {type:'write',
+         prompt:'✉️ Formal complaint (B2) — 120-150 palabras:\n\nRecibiste un ordenador que pediste online, pero llegó dañado y 2 semanas tarde. Escribe una queja formal al servicio al cliente exigiendo solución.',
+         hint:'Sehr geehrte Damen und Herren · Ich wende mich an Sie bezüglich... · Leider muss ich feststellen, dass... · Ich bitte Sie daher... · Ich erwarte Ihre Rückmeldung · Mit freundlichen Grüßen',
+         minWords:85,level:'B2',
+         criteria:'✓ Registro formal B2 · ✓ Descripción del problema · ✓ Petición concreta · ✓ Fórmulas de queja · ✓ Estructura lógica'},
+      ]
+    },
+    sprechen:{
+      title:'Sprechen · B2',time:840,
+      questions:[
+        {type:'speak',
+         prompt:'📊 Präsentation B2: Imagina que presentas los resultados de una encuesta sobre uso de redes sociales a tu jefe. Menciona:\n• Un dato positivo\n• Un dato negativo\n• Una recomendación\n\n(75-90 segundos)',
+         prepTime:60,speakTime:85,
+         tip:'"Laut unserer Umfrage... · Bemerkenswert ist, dass... · Im Gegensatz dazu... · Ich empfehle daher... · Abschließend möchte ich..."',
+         criteria:'✓ Registro formal · ✓ Estructura de presentación · ✓ Uso de datos · ✓ Recomendación · ✓ Vocabulario B2'},
+        {type:'speak',
+         prompt:'🗣️ Diskussion B2: "Ist die Demokratie in Europa in Gefahr?"\n\nExpresa tu opinión con argumentos, refuta una posición contraria y llega a una conclusión. (80-100 segundos)',
+         prepTime:60,speakTime:90,
+         tip:'"Man könnte zwar argumentieren, dass... · Dem gegenüber steht jedoch... · Es ist nicht von der Hand zu weisen, dass... · Letztendlich bin ich überzeugt, dass..."',
+         criteria:'✓ Argumentación compleja B2 · ✓ Refutación de argumento contrario · ✓ Vocabulario político · ✓ Registro oral formal'},
+      ]
+    }
+  }
+};
+
+/* ═══════════════════════════════
+   STATE
+═══════════════════════════════ */
+let selectedLevel=null, selectedMod=null;
+let examQueue=[], examIdx=0, examAnswers=[];
+let examTimer=null, examTotalSec=0, examRemain=0;
+let recTimer=null, recSec=0, prepTimer=null;
+let mediaRecorder=null, audioChunks=[];
+let currentWritings={};
+
+/* ── SELECTOR ── */
+function selectLevel(lv,btn){
+  selectedLevel=lv;
+  document.querySelectorAll('.cefr-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  $('modSel').style.display='block';
+  // update durations per level
+  const durs={A1:{horen:'12 min',lesen:'15 min',schreiben:'20 min',sprechen:'10 min',all:'57 min'},
+               A2:{horen:'13 min',lesen:'15 min',schreiben:'20 min',sprechen:'11 min',all:'59 min'},
+               B1:{horen:'15 min',lesen:'18 min',schreiben:'25 min',sprechen:'12 min',all:'70 min'},
+               B2:{horen:'17 min',lesen:'20 min',schreiben:'30 min',sprechen:'14 min',all:'81 min'}};
+  const d=durs[lv];
+  $('durHoren').textContent=d.horen;$('durLesen').textContent=d.lesen;
+  $('durSchreiben').textContent=d.schreiben;$('durSprechen').textContent=d.sprechen;
+  $('durAll').textContent=d.all;
+  selectedMod=null;
+  document.querySelectorAll('.mod-card').forEach(c=>c.classList.remove('active'));
+  $('btnStart').disabled=true;$('examInfo').textContent='';
+}
+
+function selectMod(mod,card){
+  selectedMod=mod;
+  document.querySelectorAll('.mod-card').forEach(c=>c.classList.remove('active'));
+  card.classList.add('active');
+  $('btnStart').disabled=false;
+  const labels={horen:'Comprensión auditiva',lesen:'Comprensión lectora',
+    schreiben:'Producción escrita',sprechen:'Expresión oral',all:'Examen completo (4 módulos)'};
+  const d=EXAM_DATA[selectedLevel];
+  const totalQ=mod==='all'?
+    Object.values(d).reduce((a,m)=>a+m.questions.length,0):
+    d[mod].questions.length;
+  $('examInfo').textContent=`${labels[mod]} · ${totalQ} preguntas · Nivel ${selectedLevel}`;
+}
+
+/* ── START ── */
+function startExam(){
+  if(!selectedLevel||!selectedMod)return;
+  const d=EXAM_DATA[selectedLevel];
+
+  if(selectedMod==='all'){
+    examQueue=[];
+    ['horen','lesen','schreiben','sprechen'].forEach(m=>{
+      d[m].questions.forEach(q=>examQueue.push({...q,_mod:m,_modTitle:d[m].title}));
+    });
+    examTotalSec=Object.values(d).reduce((a,m)=>a+m.time,0);
+  }else{
+    examQueue=d[selectedMod].questions.map(q=>({...q,_mod:selectedMod,_modTitle:d[selectedMod].title}));
+    examTotalSec=d[selectedMod].time;
+  }
+
+  examIdx=0;examAnswers=[];currentWritings={};
+  $('selectorArea').style.display='none';
+  $('examArea').style.display='block';
+  $('resultsArea').style.display='none';
+  $('resultsArea').innerHTML='';
+
+  // Header
+  $('ehTitle').textContent='Die Prüfen — '+selectedLevel;
+  const lc={'A1':'#1abc9c','A2':'#3498db','B1':'#9b59b6','B2':'#e74c3c'};
+  $('ehLevel').style.cssText=`background:${lc[selectedLevel]}22;color:${lc[selectedLevel]};border:1px solid ${lc[selectedLevel]}44;`;
+  $('ehLevel').textContent=selectedLevel;
+  $('ehMod').textContent=selectedMod==='all'?'Examen completo':examQueue[0]?._modTitle||'';
+
+  // Dots
+  $('qDots').innerHTML=examQueue.map((_,i)=>`<div class="qdot" id="dot-${i}"></div>`).join('');
+
+  examRemain=examTotalSec;
+  startExamTimer();
+  renderQuestion();
+}
+
+/* ── TIMER ── */
+function startExamTimer(){
+  clearInterval(examTimer);
+  updateTimerDisplay();
+  examTimer=setInterval(()=>{
+    examRemain--;
+    updateTimerDisplay();
+    if(examRemain<=0){clearInterval(examTimer);finishExam();}
+  },1000);
+}
+function updateTimerDisplay(){
+  const m=Math.floor(examRemain/60),s=examRemain%60;
+  const tv=$('timerVal');
+  if(tv){
+    tv.textContent=`${pad2(m)}:${pad2(s)}`;
+    tv.className='timer-val'+(examRemain<=60?' danger':examRemain<=180?' warning':'');
+  }
+  const tf=$('timerFill');
+  if(tf)tf.style.width=(examRemain/examTotalSec*100)+'%';
+}
+
+/* ── RENDER QUESTION ── */
+function renderQuestion(){
+  if(examIdx>=examQueue.length){finishExam();return;}
+  const q=examQueue[examIdx];
+  const body=$('qBody');
+  const acts=$('qActions');
+  body.innerHTML='';acts.innerHTML='';
+  // Update dot
+  if(examIdx>0){const pd=$('dot-'+(examIdx-1));if(pd)pd.classList.add(pd.classList.contains('ok')|| pd.classList.contains('err')?'':'skip');}
+  const dot=$('dot-'+examIdx);if(dot){dot.classList.remove('current');dot.classList.add('current');}
+  $('q-counter',$('qDots'))?.remove?.();
+  $('ehMod').textContent=(q._modTitle||'')+(selectedMod==='all'?' ('+(examIdx+1)+'/'+examQueue.length+')':'');
+
+  const card=document.createElement('div');card.className='q-card';
+
+  const typeLbl={mcq:'Opción múltiple',tf:'Verdadero/Falso',gap:'Completar huecos',
+    wo:'Ordenar palabras',write:'Producción escrita',speak:'Expresión oral'};
+  card.innerHTML=`<span class="q-type-badge">${typeLbl[q.type]||q.type} · ${q._mod?.toUpperCase()||''}</span>`;
+
+  if(q.audio){
+    const ab=document.createElement('div');ab.className='audio-badge';
+    ab.onclick=()=>speak(q.audio);
+    ab.innerHTML='<i class="fas fa-play-circle"></i> Escuchar audio';
+    card.appendChild(ab);
+  }
+  if(q.context){
+    const ctx=document.createElement('div');ctx.className='q-context';ctx.textContent=q.context;
+    card.appendChild(ctx);
+  }
+
+  const qt=document.createElement('div');qt.className='q-text';qt.textContent=q.q||'';
+  card.appendChild(qt);
+
+  const qContent=document.createElement('div');qContent.id='qContent';
+  card.appendChild(qContent);
+
+  const fb=document.createElement('div');fb.className='q-fb';fb.id='qFb';
+  card.appendChild(fb);
+
+  body.appendChild(card);
+
+  if(q.type==='mcq')    renderMCQ(q,qContent);
+  else if(q.type==='tf')  renderTF(q,qContent);
+  else if(q.type==='gap') renderGap(q,qContent);
+  else if(q.type==='wo')  renderWO(q,qContent);
+  else if(q.type==='write')renderWrite(q,qContent,acts);
+  else if(q.type==='speak')renderSpeak(q,qContent,acts);
+
+  if(q.type!=='write'&&q.type!=='speak'){
+    const skipBtn=document.createElement('button');
+    skipBtn.className='btn-skip';skipBtn.innerHTML='Saltar <i class="fas fa-forward"></i>';
+    skipBtn.onclick=()=>advanceQuestion(false,null);
+    acts.appendChild(skipBtn);
+  }
+}
+
+/* ── MCQ ── */
+function renderMCQ(q,c){
+  c.innerHTML=`<div class="mc-opts">
+    ${q.opts.map((o,i)=>`<button class="mc-opt" id="mco-${i}" onclick="answerMCQ(${i})">
+      <span class="mc-l">${'ABCD'[i]}</span>${o}</button>`).join('')}
+  </div>`;
+}
+function answerMCQ(i){
+  const q=examQueue[examIdx];
+  document.querySelectorAll('.mc-opt').forEach((b,j)=>{
+    b.disabled=true;
+    if(j===q.correct)b.classList.add('correct');
+    if(j===i&&i!==q.correct)b.classList.add('wrong');
+  });
+  const ok=i===q.correct;
+  showQFb(ok,q.exp);advanceQuestion(ok,ok?'correct':'wrong');
+}
+
+/* ── TF ── */
+function renderTF(q,c){
+  c.innerHTML=`<div class="tf-opts">
+    <button class="tf-btn" data-v="true" onclick="answerTF('true')">✅ Richtig</button>
+    <button class="tf-btn" data-v="false" onclick="answerTF('false')">❌ Falsch</button>
+  </div>`;
+}
+function answerTF(v){
+  const q=examQueue[examIdx];
+  const ok=v===q.correct;
+  document.querySelectorAll('.tf-btn').forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.v===q.correct)b.classList.add('correct');
+    if(b.dataset.v===v&&!ok)b.classList.add('wrong');
+  });
+  showQFb(ok,q.exp);advanceQuestion(ok,ok?'correct':'wrong');
+}
+
+/* ── GAP ── */
+let gapState={selected:{},blanks:[]};
+function renderGap(q,c){
+  let sent=q.sent;
+  gapState={selected:{},blanks:q.blanks};
+  q.blanks.forEach((b,i)=>{
+    sent=sent.replace(`_[${b}]_`,`<span class="gap-blank" id="gb-${i}">${'_'.repeat(Math.max(b.length,5))}</span>`);
+  });
+  c.innerHTML=`<div class="gap-sent">${sent}</div>
+    <div class="gap-opts">${q.opts.map((o,i)=>`<button class="gap-opt" id="go-${i}" onclick="pickGap(${i},'${o.replace(/'/g,"\\'")}',${JSON.stringify(q.blanks)},${JSON.stringify(q.exp||'')})">${o}</button>`).join('')}</div>`;
+}
+function pickGap(idx,val,blanks,exp){
+  const next=Object.keys(gapState.selected).length;
+  if(next>=blanks.length)return;
+  gapState.selected[next]=val;
+  const gb=$('gb-'+next);if(gb){gb.textContent=val;gb.style.color='var(--text)';}
+  $('go-'+idx)?.classList.add('used');
+  if(Object.keys(gapState.selected).length>=blanks.length){
+    const ok=blanks.every((b,i)=>(gapState.selected[i]||'').toLowerCase()===b.toLowerCase());
+    blanks.forEach((b,i)=>{
+      const el=$('gb-'+i);
+      if(el)el.style.color=gapState.selected[i]?.toLowerCase()===b.toLowerCase()?'var(--green)':'var(--red)';
+    });
+    document.querySelectorAll('.gap-opt').forEach(b=>b.disabled=true);
+    showQFb(ok,exp);advanceQuestion(ok,ok?'correct':'wrong');
+  }
+}
+
+/* ── WO ── */
+let woState={built:[],used:[]};
+function renderWO(q,c){
+  const shuffled=shuffle([...q.words]);
+  woState={built:[],used:new Array(shuffled.length).fill(false)};
+  c.innerHTML=`<div style="font-size:.8rem;color:var(--muted);font-style:italic;text-align:center;margin-bottom:10px;padding:8px;background:var(--s2);border-radius:var(--r)">${q.translation}</div>
+    <div class="wo-tiles" id="woTiles">${shuffled.map((w,i)=>`<button class="wo-tile" id="wt-${i}" onclick="pickWO(${i},'${w.replace(/'/g,"\\'")}')">${w}</button>`).join('')}</div>
+    <div style="font-size:.66rem;color:var(--muted);text-align:center;margin-bottom:6px">Clic en el constructor para deshacer</div>
+    <div class="wo-builder" id="woBuilder" onclick="undoWO()"></div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-r" onclick="checkWO('${q.sentence.replace(/'/g,"\\'")}','${(q.exp||'').replace(/'/g,"\\'")}')"><i class="fas fa-check"></i> Verificar</button>
+      <button class="btn" onclick="clearWO()"><i class="fas fa-undo"></i> Limpiar</button>
+    </div>`;
+}
+function pickWO(i,w){if(woState.used[i])return;woState.used[i]=true;$('wt-'+i)?.classList.add('used');
+  woState.built.push({i,w});const b=$('woBuilder');
+  const s=document.createElement('span');s.className='wo-built';s.textContent=w;b.appendChild(s);}
+function undoWO(){if(!woState.built.length)return;const last=woState.built.pop();
+  woState.used[last.i]=false;$('wt-'+last.i)?.classList.remove('used');
+  const b=$('woBuilder');if(b.lastChild)b.removeChild(b.lastChild);}
+function clearWO(){woState.built=[];woState.used=woState.used.map(()=>false);
+  document.querySelectorAll('[id^="wt-"]').forEach(t=>t.classList.remove('used'));
+  const b=$('woBuilder');if(b)b.innerHTML='';}
+function checkWO(correct,exp){
+  const user=woState.built.map(w=>w.w).join(' ');
+  const ok=user.trim()===correct.trim();
+  document.querySelectorAll('.wo-tile').forEach(t=>t.classList.add('used'));
+  showQFb(ok,exp+(ok?'':'\n✓ Correcto: '+correct));
+  advanceQuestion(ok,ok?'correct':'wrong');
+}
+
+/* ── WRITE ── */
+function renderWrite(q,c,acts){
+  c.innerHTML=`<div class="wr-prompt">${q.prompt.replace(/\n/g,'<br>')}<br><br>
+    <small style="color:var(--muted)">💡 ${q.hint}</small></div>
+    <textarea class="wr-ta" id="wrTA" placeholder="Schreibe hier auf Deutsch…" rows="7"
+      oninput="updateWrCount(${q.minWords})"></textarea>
+    <div class="wr-count" id="wrCount">0 / min. ${q.minWords} palabras</div>
+    <div style="margin-top:8px;font-size:.75rem;background:var(--s2);border-radius:var(--r);padding:10px;color:var(--muted)">
+      <strong>Criterios de evaluación:</strong> ${q.criteria}</div>`;
+  acts.innerHTML=`<button class="btn btn-r" onclick="submitWrite(${examIdx})">
+    <i class="fas fa-check"></i> Entregar texto</button>
+    <button class="btn" onclick="speak($('wrTA')?.value||'')"><i class="fas fa-volume-up"></i> Escuchar mi texto</button>`;
+}
+function updateWrCount(min){
+  const words=($('wrTA')?.value||'').trim().split(/\s+/).filter(Boolean).length;
+  const c=$('wrCount');if(c)c.textContent=`${words} / mín. ${min} palabras`;
+  if(c)c.style.color=words>=min?'var(--green)':'var(--muted)';
+}
+function submitWrite(idx){
+  const text=$('wrTA')?.value.trim()||'';
+  const q=examQueue[idx];
+  const words=text.split(/\s+/).filter(Boolean).length;
+  const ok=words>=q.minWords;
+  currentWritings[idx]=text;
+  if(!ok){toast(`⚠️ Necesitas al menos ${q.minWords} palabras (tienes ${words}).`);return;}
+  advanceQuestion(true,'write');
+}
+
+/* ── SPEAK ── */
+function renderSpeak(q,c,acts){
+  c.innerHTML=`<div class="sp-prompt">${q.prompt.replace(/\n/g,'<br>')}</div>
+    <div class="sp-tip">💡 ${q.tip}</div>
+    <div id="spState">
+      <p style="font-size:.82rem;color:var(--muted);margin:12px 0">Pulsa "Prepararse" para comenzar. Tendrás ${q.prepTime}s de preparación antes de hablar.</p>
+      <button class="btn btn-r" id="spPrepBtn" onclick="startPrep(${q.prepTime},${q.speakTime})">
+        <i class="fas fa-clock"></i> Prepararse (${q.prepTime}s)</button>
+    </div>
+    <div class="prep-bar" id="prepBar" style="display:none">
+      <div class="prep-fill" id="prepFill"></div></div>
+    <div style="margin-top:12px;font-size:.76rem;background:var(--s2);border-radius:var(--r);padding:10px;color:var(--muted)">
+      <strong>Criterios:</strong> ${q.criteria}</div>`;
+  acts.innerHTML='';
+}
+function startPrep(prepSec,speakSec){
+  $('spPrepBtn').disabled=true;
+  $('prepBar').style.display='block';
+  let t=prepSec;
+  prepTimer=setInterval(()=>{
+    t--;
+    const f=$('prepFill');if(f)f.style.width=(t/prepSec*100)+'%';
+    if(t<=0){clearInterval(prepTimer);startRecording(speakSec);}
+  },1000);
+}
+function startRecording(speakSec){
+  const ss=$('spState');
+  if(ss)ss.innerHTML=`<button class="rec-btn recording" id="recBtn" onclick="stopRecording()">
+    <i class="fas fa-microphone"></i> Grabando… <span class="rec-timer active" id="recTmr">${speakSec}s</span>
+  </button>`;
+  let t=speakSec;
+  recTimer=setInterval(()=>{
+    t--;
+    const rt=$('recTmr');if(rt)rt.textContent=t+'s';
+    if(t<=0){clearInterval(recTimer);stopRecording();}
+  },1000);
+  // Try real recording
+  if(navigator.mediaDevices?.getUserMedia){
+    navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+      mediaRecorder=new MediaRecorder(stream);
+      audioChunks=[];
+      mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
+      mediaRecorder.start();
+    }).catch(()=>{/* no mic, just time */});
+  }
+}
+function stopRecording(){
+  clearInterval(recTimer);
+  if(mediaRecorder&&mediaRecorder.state!=='inactive'){
+    mediaRecorder.stop();
+    mediaRecorder.stream?.getTracks().forEach(t=>t.stop());
+  }
+  const ss=$('spState');
+  if(ss)ss.innerHTML=`<div style="padding:12px;background:var(--gdim);border:1px solid rgba(26,188,156,.2);
+    border-radius:var(--r);color:var(--green);font-size:.85rem">
+    ✅ Respuesta oral registrada. El evaluador la revisará.
+    <button class="btn" style="margin-top:8px" onclick="submitSpeak()"><i class="fas fa-arrow-right"></i> Continuar</button>
+  </div>`;
+}
+function submitSpeak(){advanceQuestion(true,'speak');}
+
+/* ── FEEDBACK & ADVANCE ── */
+function showQFb(ok,exp){
+  const fb=$('qFb');if(!fb)return;
+  fb.className='q-fb '+(ok?'ok':'err');
+  fb.innerHTML=`${ok?'✅ <strong>Richtig!</strong>':'❌ <strong>Falsch.</strong>'}
+    ${exp?`<div class="exp">💡 ${exp}</div>`:''}`;
+  const acts=$('qActions');
+  if(acts){
+    acts.innerHTML='';
+    const nb=document.createElement('button');nb.className='btn-next show';
+    nb.innerHTML='Siguiente <i class="fas fa-arrow-right"></i>';
+    nb.onclick=()=>advanceQuestion(null,null,true);
+    acts.appendChild(nb);
+  }
+}
+function advanceQuestion(ok,state,fromBtn=false){
+  if(!fromBtn&&ok!==null){
+    examAnswers.push({idx:examIdx,ok,type:examQueue[examIdx].type,mod:examQueue[examIdx]._mod});
+    const dot=$('dot-'+examIdx);
+    if(dot){dot.classList.remove('current');
+      if(state==='correct')dot.classList.add('ok');
+      else if(state==='wrong')dot.classList.add('err');
+      else dot.classList.add('skip');
+    }
+    if(examQueue[examIdx].type!=='write'&&examQueue[examIdx].type!=='speak'){
+      // auto-advance after delay
+      setTimeout(()=>{examIdx++;renderQuestion();},1200);
+      return;
+    }
+  }
+  examIdx++;
+  renderQuestion();
+}
+
+/* ── FINISH ── */
+function finishExam(){
+  clearInterval(examTimer);
+  if(window.speechSynthesis)speechSynthesis.cancel();
+  $('examArea').style.display='none';
+
+  // Calculate scores per module
+  const modScores={horen:{ok:0,total:0},lesen:{ok:0,total:0},
+    schreiben:{ok:0,total:0},sprechen:{ok:0,total:0}};
+  examQueue.forEach((q,i)=>{
+    const m=q._mod;if(!modScores[m])return;
+    modScores[m].total++;
+    const ans=examAnswers.find(a=>a.idx===i);
+    if(ans?.ok)modScores[m].ok++;
+    else if(q.type==='write'&&currentWritings[i])modScores[m].ok++;
+    else if(q.type==='speak')modScores[m].ok++;
+  });
+
+  const pct=(m)=>{
+    if(modScores[m].total===0)return null;
+    return Math.round((modScores[m].ok/modScores[m].total)*100);
+  };
+  const allPcts=Object.keys(modScores).map(m=>pct(m)).filter(v=>v!==null);
+  const overall=allPcts.length>0?Math.round(allPcts.reduce((a,b)=>a+b,0)/allPcts.length):0;
+
+  const grade=overall>=85?'Sehr gut':overall>=70?'Gut':overall>=55?'Befriedigend':overall>=40?'Ausreichend':'Nicht bestanden';
+  const passed=overall>=55;
+  const emoji=overall>=85?'🏆':overall>=70?'🥇':overall>=55?'💪':overall>=40?'📚':'🔄';
+  const gradeColor=overall>=85?'var(--green)':overall>=70?'#3498db':overall>=55?'var(--yellow)':overall>=40?'var(--orange)':'var(--red)';
+
+  const modColors={horen:'#3498db',lesen:'#1abc9c',schreiben:'#8e44ad',sprechen:'#e74c3c'};
+  const modLabels={horen:'🎧 Hören',lesen:'📖 Lesen',schreiben:'✍️ Schreiben',sprechen:'🗣️ Sprechen'};
+
+  const scoreCardsHTML=Object.keys(modScores)
+    .filter(m=>modScores[m].total>0)
+    .map(m=>{
+      const p=pct(m);
+      return `<div class="score-card">
+        <span class="sc-icon">${modLabels[m].split(' ')[0]}</span>
+        <span class="sc-v" style="color:${modColors[m]}">${p}%</span>
+        <span class="sc-l">${modLabels[m].split(' ')[1]}</span>
+        <div class="bar-mini"><div class="bar-mini-fill" style="width:${p}%;background:${modColors[m]}"></div></div>
+      </div>`;
+    }).join('');
+
+  const writingReviewHTML=Object.entries(currentWritings).map(([idx,text])=>{
+    const q=examQueue[parseInt(idx)];
+    return `<div style="background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px">
+      <div style="font-size:.74rem;font-weight:700;color:var(--purple);margin-bottom:6px">✍️ ${q._modTitle}</div>
+      <div style="font-size:.8rem;color:var(--muted);margin-bottom:8px;font-style:italic">${q.prompt.split('\n')[0]}</div>
+      <div style="font-size:.83rem;line-height:1.65;white-space:pre-wrap;background:var(--surface);border-radius:var(--r);padding:10px">${text}</div>
+      <div style="font-size:.72rem;color:var(--muted);margin-top:6px">Criterios: ${q.criteria}</div>
+    </div>`;
+  }).join('');
+
+  const resArea=$('resultsArea');
+  resArea.style.display='block';
+  resArea.innerHTML=`
+    <div class="res-hero">
+      <span class="res-emoji">${emoji}</span>
+      <span class="res-grade" style="color:${gradeColor}">${overall}%</span>
+      <div class="res-label">${grade}</div>
+      <div class="res-sub">Nivel ${selectedLevel} · ${passed?'Aprobado ✅':'Necesita más práctica 📚'}</div>
+    </div>
+
+    <p style="font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+      <i class="fas fa-chart-bar"></i> Puntuación por módulo <span style="flex:1;height:1px;background:var(--border)"></span>
+    </p>
+    <div class="score-grid">${scoreCardsHTML}</div>
+
+    ${writingReviewHTML?`
+    <p style="font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.08em;margin:16px 0 12px;display:flex;align-items:center;gap:8px">
+      <i class="fas fa-pen"></i> Tus textos escritos <span style="flex:1;height:1px;background:var(--border)"></span>
+    </p>
+    ${writingReviewHTML}`:''}
+
+    ${passed?`
+    <div class="cert-box">
+      <div class="cert-title">🎓 Certificado de Resultado</div>
+      <div class="cert-body">
+        Has completado el simulador de examen oficial <strong>DEULCHALEX</strong> nivel <strong>${selectedLevel}</strong><br>
+        con una puntuación del <strong>${overall}%</strong> — Calificación: <strong>${grade}</strong>.<br>
+        <span style="font-size:.78rem">Este certificado es un simulacro pedagógico con fines de práctica.</span>
+      </div>
+      <button class="btn-cert" onclick="printCert(${overall},'${grade}')">
+        <i class="fas fa-download"></i> Descargar certificado</button>
+    </div>`:'<div style="background:var(--rdim);border:1px solid rgba(231,76,60,.2);border-radius:var(--r20);padding:20px;text-align:center;margin-bottom:20px"><div style="font-size:1.1rem;font-weight:700;color:var(--red);margin-bottom:6px">📚 Sigue practicando</div><div style="font-size:.84rem;color:var(--muted)">Necesitas al menos un 55% para aprobar. ¡Revisa los módulos con menor puntuación y vuelve a intentarlo!</div></div>'}
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:20px">
+      <button class="btn btn-r" onclick="restartSelector()"><i class="fas fa-redo"></i> Hacer otro examen</button>
+      <a href="index.html" class="btn"><i class="fas fa-home"></i> Volver al inicio</a>
+    </div>`;
+
+  // animate bars
+  setTimeout(()=>{
+    document.querySelectorAll('.bar-mini-fill').forEach(b=>{
+      const w=b.style.width;b.style.width='0%';
+      setTimeout(()=>b.style.width=w,100);
+    });
+  },200);
+}
+
+function restartSelector(){
+  $('resultsArea').style.display='none';$('resultsArea').innerHTML='';
+  $('examArea').style.display='none';$('selectorArea').style.display='block';
+  selectedLevel=null;selectedMod=null;
+  document.querySelectorAll('.cefr-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.mod-card').forEach(c=>c.classList.remove('active'));
+  $('modSel').style.display='none';$('btnStart').disabled=true;$('examInfo').textContent='';
+}
+
+function printCert(score,grade){
+  const date=new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
+  const ca=$('certPrintArea');
+  ca.style.display='flex';
+  ca.innerHTML=`<div style="width:700px;padding:50px;border:6px double #f1c40f;background:#fff;font-family:Georgia,serif;text-align:center;color:#1a1d2e">
+    <div style="font-size:2rem;margin-bottom:8px">🎓</div>
+    <div style="font-family:Syne,sans-serif;font-size:2.2rem;font-weight:800;color:#1a1d2e;margin-bottom:4px">DEULCHALEX</div>
+    <div style="font-size:.9rem;color:#888;margin-bottom:28px;letter-spacing:.15em">CENTRO DE APRENDIZAJE DE ALEMÁN</div>
+    <div style="font-size:1rem;color:#888;margin-bottom:12px">Certifica que el estudiante ha completado con éxito</div>
+    <div style="font-size:1.5rem;font-weight:700;border-bottom:2px solid #f1c40f;padding-bottom:12px;margin-bottom:12px">Simulador de Examen Oficial · Nivel ${selectedLevel}</div>
+    <div style="font-size:1.8rem;font-weight:800;color:#1abc9c;margin-bottom:8px">${score}% — ${grade}</div>
+    <div style="font-size:.85rem;color:#888;margin-bottom:28px">${date}</div>
+    <div style="font-size:.72rem;color:#bbb;border-top:1px solid #eee;padding-top:14px">Este documento es un simulacro pedagógico de práctica emitido por DEULCHALEX · No equivale a un certificado oficial Goethe / TELC / ÖSD</div>
+  </div>`;
+  setTimeout(()=>{window.print();ca.style.display='none';},300);
+}
+</script>
+</body>
+</html>
